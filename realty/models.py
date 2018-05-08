@@ -19,7 +19,7 @@ class Service(models.Model):
 		return self.name
 
 class Property(models.Model):
-	title = models.CharField(max_length=16, verbose_name='título')
+	title = models.CharField(max_length=32, verbose_name='título')
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
 	description = models.TextField( blank=True, null= True, verbose_name='descripción')
 	#longitude = models.FloatField(blank=True, null=True, verbose_name='longitud')

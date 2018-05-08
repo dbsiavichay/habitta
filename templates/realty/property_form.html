@@ -44,6 +44,9 @@
                     </div>
                 </div>
                 <div class="col-md-9">
+                    {{ form.errors }}
+                    <form id="mainform" action="" method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
                     <!-- profile-edit-container--> 
                     <div class="profile-edit-container add-list-container">
                         <div class="profile-edit-header fl-wrap">
@@ -325,11 +328,12 @@
                             <input type="text" placeholder="vk.com" value=""/>
                             <label> Whatsapp <i class="fa fa-whatsapp"></i>  </label>
                             <input type="text" placeholder="https://www.whatsapp.com" value=""/>
-                            <button class="btn  big-btn  color-bg flat-btn">Save Changes<i class="fa fa-angle-right"></i></button>
+                            <button type="submit" form="mainform" class="btn big-btn color-bg flat-btn">Guardar<i class="fa fa-angle-right"></i></button>
                         </div>
                     </div>
                     <!-- profile-edit-container end-->   
                 </div>
+                </form>
             </div>
         </div>
         <!--profile-edit-wrap end -->

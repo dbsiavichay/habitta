@@ -4,7 +4,7 @@ from .models import Property
 class PropertyForm(ModelForm):
     class Meta:
         model = Property
-        fields = '__all__'
+        exclude = ('user',)
         widgets = {
         	'services':CheckboxSelectMultiple,
         }
