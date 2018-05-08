@@ -1,24 +1,15 @@
 {% load widget_tweaks %}
 {% load ui_components %}
 
-<div class="row clearfix">
-    <div class="col-xs-5 col-sm-4 col-md-2 form-control-label">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-    </div>
-    <div class="col-xs-7 col-sm-8 col-md-10">
-        <div class="form-group">
-            <div class="form-line">            
-            {% if field|ui_input_type == 'Select' %}
-                {{ field|add_class:"form-control show-tick" }}
-            {% elif field|ui_input_type == 'DateInput' %}
-                {{ field|add_class:"datepicker form-control" }} 
-            {% else %}
-                {{ field|add_class:"form-control" }}
-            {% endif %}
-            </div>
-            {% for error in field.errors %}
-            <label class="error" for="{{ field.id_for_label }}">{{ error }}</label>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+{% if field|ui_input_type == 'Select' %}
+	<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+	{{ field|add_class:"chosen-select"|attr:"data-placeholder:--- Seleccionar ---" }}
+{% elif field|ui_input_type == 'CheckboxSelectMultiple' %}
+	{% for checkbox in field %}
+	{{ checkbox.tag }}
+    <label for="{{checkbox.id_for_label}}">{{ checkbox.choice_label }}</label>				    
+	{% endfor %}
+{% else %}
+	<label for="{{ field.id_for_label }}">{{ field.label }} <i class="fa fa-{{ icon }}"></i></label>
+	{{ field }}
+{% endif %}

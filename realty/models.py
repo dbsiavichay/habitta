@@ -10,6 +10,9 @@ class Category(models.Model):
 		return self.name
 
 class Service(models.Model):
+	class Meta:
+		verbose_name = 'servicio'
+		
 	name = models.CharField(max_length=32)
 
 	def __str__(self):
@@ -17,8 +20,8 @@ class Service(models.Model):
 
 class Property(models.Model):
 	title = models.CharField(max_length=16, verbose_name='título')
-	description = models.CharField(max_length=140, blank=True, null= True, verbose_name='descripción')
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
+	description = models.TextField( blank=True, null= True, verbose_name='descripción')
 	#longitude = models.FloatField(blank=True, null=True, verbose_name='longitud')
 	#latitude = models.FloatField(blank=True, null=True, verbose_name='latitud')
 	#geolocation = models.PointField(blank=True, null=True)

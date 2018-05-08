@@ -167,9 +167,10 @@ def ui_form(form):
 
 #####INPUTS######
 @register.inclusion_tag('ui_components/inputs/input.html')
-def ui_input(field):    
+def ui_input(field, icon=None):    
     return {
-        'field':field,        
+        'field':field,
+        'icon':icon,        
     }
 
 @register.inclusion_tag('ui_components/inputs/select.html')

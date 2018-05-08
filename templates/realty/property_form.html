@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% load static %}
+{% load ui_components %}
+
 {% block 'content' %}
 <!--section -->
 <section id="sec1">
@@ -47,29 +50,31 @@
                             <h4>Información básica</h4>
                         </div>
                         <div class="custom-form">
-                            <label>Título <i class="fa fa-briefcase"></i></label>
-                            <input type="text" placeholder="Máximo 16 carecteres" value=""/>
+                            {% ui_input form.title 'briefcase' %}
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label>Category</label>
-                                    <select data-placeholder="All Categories" class="chosen-select" >
-                                        <option>All Categories</option>
-                                        <option>Shops</option>
-                                        <option>Hotels</option>
-                                        <option>Restaurants</option>
-                                        <option>Fitness</option>
-                                        <option>Events</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Keywords <i class="fa fa-key"></i></label>
-                                    <input type="text" placeholder="Maximum 15, should be separated by commas" value=""/>
-                                </div>
+                            {% ui_input form.category %}
+
+                            {% ui_input form.price 'usd' %}
+
+                            {% ui_input form.description %}                            
+                        </div>
+                    </div>
+                    <!-- profile-edit-container end-->
+
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container add-list-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Servicios</h4>
+                        </div>
+                        <div class="custom-form">                            
+                            <!-- Checkboxes -->
+                            <div class=" fl-wrap filter-tags">
+                                <h4>Servicios </h4>
+                                {% ui_input form.services %}
                             </div>
                         </div>
                     </div>
-                    <!-- profile-edit-container end--> 
+                    <!-- profile-edit-container end-->  
                     
                     <!-- profile-edit-container--> 
                     <div class="profile-edit-container add-list-container">
@@ -166,29 +171,7 @@
                         </div>
                     </div>
                     <!-- profile-edit-container end-->                                         
-                    <!-- profile-edit-container--> 
-                    <div class="profile-edit-container add-list-container">
-                        <div class="profile-edit-header fl-wrap">
-                            <h4>Detailed Information</h4>
-                        </div>
-                        <div class="custom-form">
-                            <label>Description</label>
-                            <textarea cols="40" rows="3" placeholder=""></textarea>
-                            <!-- Checkboxes -->
-                            <div class=" fl-wrap filter-tags">
-                                <h4>Amenities </h4>
-                                <input id="check-a" type="checkbox" name="check">
-                                <label for="check-a">Elevator in building</label>
-                                <input id="check-b" type="checkbox" name="check">
-                                <label for="check-b">Friendly workspace</label>
-                                <input id="check-c" type="checkbox" name="check">
-                                <label for="check-c">Instant Book</label>
-                                <input id="check-d" type="checkbox" name="check">
-                                <label for="check-d">Wireless Internet</label>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- profile-edit-container end-->                                          
+                                                             
                     <!-- profile-edit-container--> 
                     <div class="profile-edit-container add-list-container">
                         <div class="profile-edit-header fl-wrap">
@@ -358,7 +341,7 @@
 <!--section -->
 <section class="gradient-bg">
     <div class="cirle-bg">
-        <div class="bg" data-bg="images/bg/circle.png"></div>
+        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
     </div>
     <div class="container">
         <div class="join-wrap fl-wrap">
