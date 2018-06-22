@@ -1,37 +1,75 @@
-from django.db import models
-
-class Category(models.Model):
-	class Meta:
-		verbose_name = 'categoría'
-
-	name = models.CharField(max_length=32)
-
-	def __str__(self):
-		return self.name
+from django.contrib.postgres.fields import JSONField
+from django.contrib.gis.db import models
 
 class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
 		
 	name = models.CharField(max_length=32)
+	icon = models.CharField(max_length=16, blank=True, null=True, verbose_name='ícono')
+
+	def __str__(self):
+		return self.name
+
+class Specification(models.Model):
+	class Meta:
+		verbose_name = 'especificación'
+		verbose_name_plural = 'especificaciones'
+		ordering = ['order',]
+	
+	name = models.CharField(max_length=128, verbose_name='nombre')
+	widget = models.CharField(max_length=64)
+	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')
+	is_required = models.BooleanField(default=False, verbose_name='requerido?')
+	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')	
+
+	def __str__(self):
+		return self.name
+
+class Category(models.Model):
+	class Meta:
+		verbose_name = 'categoría'
+
+	name = models.CharField(max_length=32)
+	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
+	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
+
+	def __str__(self):
+		return self.name
+
+class Purpose(models.Model):
+	class Meta:
+		ordering = ['order',]
+
+	name = models.CharField(max_length=32, verbose_name='nombre')	
+	activity = models.CharField(max_length=32, verbose_name='actividad')
+	participle = models.CharField(max_length=32, verbose_name='participio')
+	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')
 
 	def __str__(self):
 		return self.name
 
 class Property(models.Model):
-	title = models.CharField(max_length=32, verbose_name='título')
+	DRAFT, PUBLISHED, COMPLETE = (1, 2, 3)
+
+	STATUS_CHOICES = (
+		(DRAFT, 'Borrador'), (PUBLISHED, 'Publicado'), (COMPLETE, 'Completado'),
+	)
+
+	title = models.CharField(max_length=20, verbose_name='título')
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
-	description = models.TextField( blank=True, null= True, verbose_name='descripción')
-	#longitude = models.FloatField(blank=True, null=True, verbose_name='longitud')
-	#latitude = models.FloatField(blank=True, null=True, verbose_name='latitud')
-	#geolocation = models.PointField(blank=True, null=True)
-	#video = models.FileField(upload_to='articles/videos/', blank=True, null=True)	
-	#features = JSONField(verbose_name='caracteristicas')
-	pub_date = models.DateTimeField(auto_now_add=True)	
+	description = models.TextField(blank=True, null=True, verbose_name='descripción')
+	geopoint = models.PointField()	
+	status = models.PositiveSmallIntegerField(default=DRAFT)
+	details = JSONField(blank=True, null=True, verbose_name='detalles')
+	pub_date = models.DateTimeField(auto_now_add=True)
+	purpose	 = models.ForeignKey(Purpose, verbose_name='propósito', on_delete=models.CASCADE)
 	category = models.ForeignKey(Category, verbose_name='categoría', on_delete=models.CASCADE)	
-	services = models.ManyToManyField(Service, blank=True,verbose_name='servicios')
 	user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)
 
+	def __str__(self):
+		return self.title
+
 class PropertyImage(models.Model):
-	image = models.ImageField(upload_to='properties/images/')
+	img = models.ImageField(upload_to='properties/images/')
 	property = models.ForeignKey(Property, on_delete=models.CASCADE)
