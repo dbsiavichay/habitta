@@ -5,7 +5,7 @@ class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
 		
-	name = models.CharField(max_length=32)
+	name = models.CharField(max_length=32, verbose_name='nombre')
 	icon = models.CharField(max_length=16, blank=True, null=True, verbose_name='ícono')
 
 	def __str__(self):
@@ -30,15 +30,17 @@ class Category(models.Model):
 	class Meta:
 		verbose_name = 'categoría'
 
-	name = models.CharField(max_length=32)
+	name = models.CharField(max_length=32, verbose_name='nombre')
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
 	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
 
 	def __str__(self):
 		return self.name
 
+#Lo que se pretende hacer con la propiedad ej: vender, rentar
 class Purpose(models.Model):
 	class Meta:
+		verbose_name = 'propósito'
 		ordering = ['order',]
 
 	name = models.CharField(max_length=32, verbose_name='nombre')	
@@ -59,11 +61,12 @@ class Property(models.Model):
 	title = models.CharField(max_length=20, verbose_name='título')
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
+	address = models.CharField(max_length=64, verbose_name='dirección')
 	geopoint = models.PointField()	
 	status = models.PositiveSmallIntegerField(default=DRAFT)
 	details = JSONField(blank=True, null=True, verbose_name='detalles')
 	pub_date = models.DateTimeField(auto_now_add=True)
-	purpose	 = models.ForeignKey(Purpose, verbose_name='propósito', on_delete=models.CASCADE)
+	purpose	 = models.ForeignKey(Purpose, verbose_name='¿Que desea hacer?', on_delete=models.CASCADE)
 	category = models.ForeignKey(Category, verbose_name='categoría', on_delete=models.CASCADE)	
 	user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)
 

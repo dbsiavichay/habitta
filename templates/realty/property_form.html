@@ -53,13 +53,11 @@
                             <h4>Información básica</h4>
                         </div>
                         <div class="custom-form">
-                            {% ui_input form.title 'briefcase' %}
+                            {% render_field form.title icon='briefcase' %}
 
-                            {% ui_input form.category %}
+                            {% render_field form.price icon='usd' %}
 
-                            {% ui_input form.price 'usd' %}
-
-                            {% ui_input form.description %}                            
+                            {% render_field form.description %}                            
                         </div>
                     </div>
                     <!-- profile-edit-container end-->
@@ -73,7 +71,7 @@
                             <!-- Checkboxes -->
                             <div class=" fl-wrap filter-tags">
                                 <h4>Servicios </h4>
-                                {% ui_input form.services %}
+                                {% render_field form.services %}
                             </div>
                         </div>
                     </div>
@@ -84,24 +82,8 @@
                         <div class="profile-edit-header fl-wrap">
                             <h4>Location /  Contacts</h4>
                         </div>
-                        <div class="custom-form">
-                            <label>Address<i class="fa fa-map-marker"></i></label>
-                            <input type="text" placeholder="Address of your business" value=""/>
-                            <label>Location</label>
-                            <select data-placeholder="Location" class="chosen-select" >
-                                <option>All Locations</option>
-                                <option>Bronx</option>
-                                <option>Brooklyn</option>
-                                <option>Manhattan</option>
-                                <option>Queens</option>
-                                <option>Staten Island</option>
-                            </select>
-                            <label>Phone<i class="fa fa-phone"></i></label>
-                            <input type="text" placeholder="Your Phone" value=""/>
-                            <label>Email<i class="fa fa-envelope-o"></i></label>
-                            <input type="text" placeholder="Your Email" value=""/>
-                            <label>Website<i class="fa fa-globe"></i></label>
-                            <input type="text" placeholder="Your Website" value=""/>
+                        <div class="custom-form">                            
+                            {% render_component template='ui_components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}
                         </div>
                     </div>
                     <!-- profile-edit-container end-->
@@ -151,4 +133,9 @@
     </div>
 </section>
 <!-- section end -->
+{% endblock %}
+{% block 'extrajs' %}
+    {% include 'base/js_maps.html' %}
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/property/property.js' %}"></script>
 {% endblock %}

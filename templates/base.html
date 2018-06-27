@@ -9,7 +9,7 @@
         <meta name="keywords" content=""/>
         <meta name="description" content=""/>
 
-        {% include 'base/css_imports.html' %}        
+        {% include 'base/css_base.html' %}        
         <!--=============== favicons ===============-->
         <link rel="shortcut icon" href="images/favicon.ico">
     </head>
@@ -33,6 +33,7 @@
             <a class="to-top"><i class="fa fa-angle-up"></i></a>
         </div>
         <!-- Main end -->
-        {% include 'base/js_imports.html' %}
+        {% include 'base/js_base.html' %}
+        {% block 'extrajs' %}{% endblock %}
     </body>
 </html>
