@@ -44,3 +44,12 @@
 .workingswitch .onoffswitch-switch {
     right: 91px;
 }
+
+.filter-tags input[type=radio] , .custom-form  .filter-tags input[type=radio] {
+    border-radius: 50%;
+}
+
+.filter-tags input[type=radio]:checked:after , .custom-form  .filter-tags input[type=radio]:checked:after  {    
+    content: "\f111";
+    left: 3px;
+}

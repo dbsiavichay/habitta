@@ -52,6 +52,9 @@ class Purpose(models.Model):
 		return self.name
 
 class Property(models.Model):
+	class Meta:
+		verbose_name = 'propiedad'
+		verbose_name_plural = 'propiedades'
 	DRAFT, PUBLISHED, COMPLETE = (1, 2, 3)
 
 	STATUS_CHOICES = (

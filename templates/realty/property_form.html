@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
-{% load ui_components %}
+{% load components %}
 
 {% block 'content' %}
 <!--section -->
@@ -45,6 +45,7 @@
                 </div>
                 <div class="col-md-9">
                     {{ form.errors }}
+                    {{ details_form.errors }}
                     <form id="mainform" action="" method="POST" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
                     <!-- profile-edit-container--> 
@@ -60,51 +61,41 @@
                             {% render_field form.description %}                            
                         </div>
                     </div>
-                    <!-- profile-edit-container end-->
-
-                    <!-- profile-edit-container--> 
-                    <div class="profile-edit-container add-list-container">
-                        <div class="profile-edit-header fl-wrap">
-                            <h4>Servicios</h4>
-                        </div>
-                        <div class="custom-form">                            
-                            <!-- Checkboxes -->
-                            <div class=" fl-wrap filter-tags">
-                                <h4>Servicios </h4>
-                                {% render_field form.services %}
-                            </div>
-                        </div>
-                    </div>
-                    <!-- profile-edit-container end-->  
+                    <!-- profile-edit-container end-->                    
                     
                     <!-- profile-edit-container--> 
                     <div class="profile-edit-container add-list-container">
                         <div class="profile-edit-header fl-wrap">
-                            <h4>Location /  Contacts</h4>
+                            <h4>Localización</h4>
                         </div>
                         <div class="custom-form">                            
-                            {% render_component template='ui_components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}
+                            {% render_component template='components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}                            
                         </div>
                     </div>
                     <!-- profile-edit-container end-->
+                    
                     <!-- profile-edit-container--> 
-                    <div class="profile-edit-container">
-                        <div class="profile-edit-header fl-wrap" style="margin-top:30px">
-                            <h4>Socials</h4>
+                    <div class="profile-edit-container add-list-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Detalles </h4>
                         </div>
-                        <div class="custom-form">
-                            <label>Facebook <i class="fa fa-facebook"></i></label>
-                            <input type="text" placeholder="https://www.facebook.com/" value=""/>
-                            <label>Twitter<i class="fa fa-twitter"></i>  </label>
-                            <input type="text" placeholder="https://twitter.com/" value=""/>
-                            <label>Vkontakte<i class="fa fa-vk"></i>  </label>
-                            <input type="text" placeholder="vk.com" value=""/>
-                            <label> Whatsapp <i class="fa fa-whatsapp"></i>  </label>
-                            <input type="text" placeholder="https://www.whatsapp.com" value=""/>
-                            <button type="submit" form="mainform" class="btn big-btn color-bg flat-btn">Guardar<i class="fa fa-angle-right"></i></button>
+                        <div class="custom-form">                            
+                            <!-- Checkboxes -->
+                            {% render_field form.services title='Servicios' %}
+
+                            {% render_field form.purpose %} 
+
+                            {% for field in details_form %}
+                                {% render_field field class='chosen-select' %}
+                            {% endfor %}
+
+                            <button type="submit" class="btn big-btn  color-bg flat-btn">Guardar
+                                <i class="fa fa-angle-right"></i>
+                            </button>
                         </div>
                     </div>
-                    <!-- profile-edit-container end-->   
+                    <!-- profile-edit-container end-->  
+
                 </div>
                 </form>
             </div>
