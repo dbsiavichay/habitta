@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Escoge una categoría</h2>
+                <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Add Listing</span></div>
+            </div>
+            <div class="box-cat-container">
+                {% for category in object_list %}
+                <!--box-cat-->
+                <a href="{% url 'add_property' category.pk %}" class="box-cat color-bg">
+                    <i class="fa fa-cutlery"></i>
+                    <h4>{{ category }}</h4>
+                </a>                
+                <!--box-cat end-->
+                {% endfor %}
+                                   
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->
+{% endblock %}
