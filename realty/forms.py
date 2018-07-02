@@ -12,7 +12,8 @@ class PropertyForm(ModelForm):
 	latitude = FloatField(label='Latitud')
 	services = ModelMultipleChoiceField(
 		widget = CheckboxSelectMultiple,
-		queryset = None
+		queryset = None,
+		required = False
 	)
 
 	class Meta:
@@ -24,8 +25,13 @@ class PropertyForm(ModelForm):
 
 	def __init__(self, *args, **kwargs):		
 		category = kwargs.pop('category', None)
-		super().__init__(*args, **kwargs)
-		self.fields['services'].queryset = category.services 		
+		super().__init__(*args, **kwargs)				
+		if self.instance.pk is not None:
+			services = self.instance.category.services
+		elif category is not None:
+			services = category.services
+
+		self.fields['services'].queryset = services 		
 		if self.instance.geopoint is not None:
 			self.fields['longitude'].initial = self.instance.geopoint.x
 			self.fields['latitude'].initial = self.instance.geopoint.y 

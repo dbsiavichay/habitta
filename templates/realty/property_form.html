@@ -59,7 +59,11 @@
                             {% render_field form.purpose %} 
 
                             {% for field in details_form %}
-                                {% render_field field class='chosen-select' %}
+                                {% if field|widget_type == 'select' %}
+                                    {% render_field field class='chosen-select' %}
+                                {% else %}
+                                    {% render_field field %}
+                                {% endif %}
                             {% endfor %}
 
                             <button type="submit" class="btn big-btn color-bg flat-btn">Guardar

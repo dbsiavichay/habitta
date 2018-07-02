@@ -2,7 +2,10 @@ from django.contrib import admin
 from .models import Specification, Service, Category, Purpose, Property
 
 class SpecificationAdmin(admin.ModelAdmin):
-	pass
+	class Media:
+		css = {
+			'all':('plugins/fontawesome/fontawesome.min.css',),
+		}
 
 class ServiceAdmin(admin.ModelAdmin):
 	pass

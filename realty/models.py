@@ -1,6 +1,8 @@
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 
+from .utils import get_fontawesome_icons
+
 class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
@@ -16,10 +18,13 @@ class Specification(models.Model):
 		verbose_name = 'especificación'
 		verbose_name_plural = 'especificaciones'
 		ordering = ['order',]
+
+	ICON_CHOICES = get_fontawesome_icons()
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
 	widget = models.CharField(max_length=64)
 	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')
+	icon = models.CharField(max_length=16, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	is_required = models.BooleanField(default=False, verbose_name='requerido?')
 	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')	
 
@@ -77,5 +82,10 @@ class Property(models.Model):
 		return self.title
 
 class PropertyImage(models.Model):
-	img = models.ImageField(upload_to='properties/images/')
-	property = models.ForeignKey(Property, on_delete=models.CASCADE)
+	class Meta:
+		verbose_name = 'imagen'
+		verbose_name_plural = 'imagenes'
+
+	img = models.ImageField(upload_to='properties/images/', verbose_name='imagen')
+	is_cover = models.BooleanField(default=False, verbose_name='de portada?')
+	property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='imagenes')
