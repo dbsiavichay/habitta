@@ -15,34 +15,7 @@
                 <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Publicaciones</span></div>
             </div>
             <div class="row">
-                <div class="col-md-3">
-                    <div class="fixed-bar fl-wrap">
-                        <div class="user-profile-menu-wrap fl-wrap">
-                            <!-- user-profile-menu-->
-                            <div class="user-profile-menu">
-                                <h3>Principal</h3>
-                                <ul>
-                                    <li><a href="dashboard-myprofile.html"><i class="fa fa-user-o"></i> Editar perfil</a></li>
-                                    <li><a href="dashboard-messages.html"><i class="fa fa-envelope-o"></i> Mensajes <span>3</span></a></li>
-                                    <li><a href="dashboard-password.html"><i class="fa fa-unlock-alt"></i>Cambiar contraseña</a></li>
-                                </ul>
-                            </div>
-                            <!-- user-profile-menu end-->
-                            <!-- user-profile-menu-->
-                            <div class="user-profile-menu">
-                                <h3>Publicaciones</h3>
-                                <ul>
-                                    <li><a href="dashboard-listing-table.html"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>
-                                    <li><a href="dashboard-bookings.html"> <i class="fa fa-calendar-check-o"></i> Reservaciones <span>2</span></a></li>
-                                    <li><a href="dashboard-review.html"><i class="fa fa-comments-o"></i> Comentarios </a></li>
-                                    <li><a href="dashboard-add-listing.html" class="user-profile-act"><i class="fa fa-plus-square-o"></i> Publicar</a></li>
-                                </ul>
-                            </div>
-                            <!-- user-profile-menu end-->                                        
-                            <a href="#" class="log-out-btn">Cerrar sesión</a>
-                        </div>
-                    </div>
-                </div>
+                {% include 'realty/dashboard/menu_aside.html' %}
                 <div class="col-md-9">
                     <div class="dashboard-list-box fl-wrap">
                         <div class="dashboard-header fl-wrap">
