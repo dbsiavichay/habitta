@@ -3,8 +3,11 @@ from django.forms import (
 	CheckboxSelectMultiple, ModelChoiceField, ModelMultipleChoiceField, 
 	CharField, FloatField, ChoiceField
 )
-from django.forms.widgets import RadioSelect, NumberInput
-from .models import Property
+from django.forms.widgets import (
+	TextInput, NumberInput,
+	Select, RadioSelect
+)
+from .models import Category, Property
 from django.contrib.gis.geos import Point
 
 class PropertyForm(ModelForm):
@@ -27,11 +30,12 @@ class PropertyForm(ModelForm):
 		category = kwargs.pop('category', None)
 		super().__init__(*args, **kwargs)				
 		if self.instance.pk is not None:
-			services = self.instance.category.services
+			services = self.instance.category.services			
 		elif category is not None:
 			services = category.services
 
 		self.fields['services'].queryset = services 		
+		self.fields['services'].initial = self.instance.details['services'] if self.instance.pk else []
 		if self.instance.geopoint is not None:
 			self.fields['longitude'].initial = self.instance.geopoint.x
 			self.fields['latitude'].initial = self.instance.geopoint.y 
@@ -48,42 +52,57 @@ class PropertyForm(ModelForm):
 
 class PropertyDetailsForm(Form):
 	def __init__(self, *args, **kwargs):
-		category = kwargs.pop('category', None)		
-		super().__init__(*args, **kwargs)		
+		category = kwargs.pop('category', None)
+		instance = kwargs.pop('instance', None)		
+		super().__init__(*args, **kwargs)
+
+		if category is None and instance is None: 
+			raise ValueError('Debe indicar una categoria o instancia')
+
+		if category and not isinstance(category, Category):
+			raise ValueError('Debe indicar una instancia de Category')
+
+		if instance and not isinstance(instance, Property):
+			raise ValueError('Debe indicar una instancia de Property')			
+
+		if category is None and instance is not None:
+			category = instance.category
+
+		INPUT_WIDGETS = ('TextInput', 'NumberInput')
+		CHOICE_WIDGETS = ('Select', 'RadioSelect')
+
+		print(instance.id)
+
+		p = Property.objects.get(pk=instance.id)
+		print(p.details)
+		print(instance.details)
+		initials = instance.details['specifications'] if instance else {}
+		print(initials)
 
 		for specification in category.specifications.all():
-			key = str(specification.id)			
-		
-			if specification.widget == 'number':
+			key = str(specification.id)
+			initial = initials[key] if key in initials else None
+
+			if specification.widget in INPUT_WIDGETS:
 				self.fields[key] = CharField(
 					label = specification.name,
-					widget = NumberInput,								
-					required = specification.is_required
-				)
-			elif specification.widget == 'text':
-				self.fields[key] = CharField(
-					label = specification.name,										
-					required = specification.is_required
-				)
-			elif specification.widget == 'select':
-				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]
-				CHOICES = [('', '---------')] + CHOICES
+					widget = eval(specification.widget),								
+					required = specification.is_required,
+					initial = initial
+				)			
+			elif specification.widget in CHOICE_WIDGETS:
+				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]				
 				self.fields[key] = ChoiceField(
 					label = specification.name,
-					choices = CHOICES,					
-					required = specification.is_required					
-				)				
-			elif specification.widget == 'radio':
-				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]
-				self.fields[key] = ChoiceField(
-					label = specification.name,
-					widget = RadioSelect,
-					choices = CHOICES,					
-					required = specification.is_required
-				)
+					choices = CHOICES,
+					widget = eval(specification.widget),					
+					required = specification.is_required,
+					initial = initial
+				)							
 			elif specification.widget == 'checkbox':
 				self.fields[key] = BooleanField(
-					label = specification.name,	
+					label = specification.name,
+					initial = initial	
 				)
 			else:
 				pass

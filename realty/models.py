@@ -20,9 +20,13 @@ class Specification(models.Model):
 		ordering = ['order',]
 
 	ICON_CHOICES = get_fontawesome_icons()
+	WIDGET_CHOICES = (
+		('TextInput', 'Texto'), ('NumberInput', 'Número'),
+		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple')
+	)	
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
-	widget = models.CharField(max_length=64)
+	widget = models.CharField(max_length=64, choices=WIDGET_CHOICES)
 	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')
 	icon = models.CharField(max_length=16, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	is_required = models.BooleanField(default=False, verbose_name='requerido?')
