@@ -58,11 +58,12 @@
 
                             {% render_field form.purpose %} 
 
+                            {% load realtytags %}
                             {% for field in details_form %}
                                 {% if field|widget_type == 'select' %}
                                     {% render_field field class='chosen-select' %}
                                 {% else %}
-                                    {% render_field field %}
+                                    {% render_field field icon=field.name|icon %}
                                 {% endif %}
                             {% endfor %}
 

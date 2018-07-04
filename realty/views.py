@@ -43,7 +43,7 @@ class PropertyCreateView(CreateView):
 
 	def get_details_form(self):
 		post_data = self.request.POST if self.request.method == 'POST' else None		
-		form = PropertyDetailsForm(post_data, category=self.category)
+		form = PropertyDetailsForm(post_data, **{'category':self.category})
 		return form
 	
 	def get_form_kwargs(self):
@@ -80,10 +80,15 @@ class PropertyUpdateView(UpdateView):
 		return context
 
 	def get_details_form(self):
+		self.object = self.get_object()
 		post_data = self.request.POST if self.request.method == 'POST' else None
-		param = 'category' if self.request.method == 'POST' else 'instance'
-		value =  self.object.category if self.request.method == 'POST' else self.instance
-		form = PropertyDetailsForm(post_data, param=value)
+		kwargs = {'category':self.object.category}
+
+		if self.request.method == 'GET':
+			initials = self.object.details['specifications']
+			kwargs.update({'initial': initials})
+
+		form = PropertyDetailsForm(post_data, **kwargs)
 		return form
 
 class PropertyDetailView(DetailView):

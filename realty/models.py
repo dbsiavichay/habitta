@@ -39,7 +39,7 @@ class Category(models.Model):
 	class Meta:
 		verbose_name = 'categoría'
 
-	name = models.CharField(max_length=32, verbose_name='nombre')
+	name = models.CharField(max_length=32, verbose_name='nombre')	
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
 	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
 
@@ -69,8 +69,7 @@ class Property(models.Model):
 	STATUS_CHOICES = (
 		(DRAFT, 'Borrador'), (PUBLISHED, 'Publicado'), (COMPLETE, 'Completado'),
 	)
-
-	title = models.CharField(max_length=20, verbose_name='título')
+	
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
 	address = models.CharField(max_length=64, verbose_name='dirección')
@@ -84,6 +83,19 @@ class Property(models.Model):
 
 	def __str__(self):
 		return self.title
+
+	def get_specifications(self):
+		specifications = []
+
+		for spc in self.category.specifications.all():
+			key = str(spc.id)
+			if key in self.details['specifications']:
+				specifications.append({
+					'key': spc.name,
+					'value': self.details['specifications'][key],
+					'icon': spc.icon
+				})
+		return specifications
 
 class PropertyImage(models.Model):
 	class Meta:

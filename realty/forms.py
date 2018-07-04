@@ -52,43 +52,23 @@ class PropertyForm(ModelForm):
 
 class PropertyDetailsForm(Form):
 	def __init__(self, *args, **kwargs):
-		category = kwargs.pop('category', None)
-		instance = kwargs.pop('instance', None)		
+		category = kwargs.pop('category', None)		
 		super().__init__(*args, **kwargs)
 
-		if category is None and instance is None: 
-			raise ValueError('Debe indicar una categoria o instancia')
-
-		if category and not isinstance(category, Category):
-			raise ValueError('Debe indicar una instancia de Category')
-
-		if instance and not isinstance(instance, Property):
-			raise ValueError('Debe indicar una instancia de Property')			
-
-		if category is None and instance is not None:
-			category = instance.category
+		if category is None or not isinstance(category, Category): 
+			raise ValueError('Debe indicar una categoria')
 
 		INPUT_WIDGETS = ('TextInput', 'NumberInput')
-		CHOICE_WIDGETS = ('Select', 'RadioSelect')
-
-		print(instance.id)
-
-		p = Property.objects.get(pk=instance.id)
-		print(p.details)
-		print(instance.details)
-		initials = instance.details['specifications'] if instance else {}
-		print(initials)
+		CHOICE_WIDGETS = ('Select', 'RadioSelect')		
 
 		for specification in category.specifications.all():
-			key = str(specification.id)
-			initial = initials[key] if key in initials else None
+			key = str(specification.id)			
 
 			if specification.widget in INPUT_WIDGETS:
 				self.fields[key] = CharField(
 					label = specification.name,
 					widget = eval(specification.widget),								
 					required = specification.is_required,
-					initial = initial
 				)			
 			elif specification.widget in CHOICE_WIDGETS:
 				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]				
@@ -96,13 +76,11 @@ class PropertyDetailsForm(Form):
 					label = specification.name,
 					choices = CHOICES,
 					widget = eval(specification.widget),					
-					required = specification.is_required,
-					initial = initial
+					required = specification.is_required,					
 				)							
 			elif specification.widget == 'checkbox':
 				self.fields[key] = BooleanField(
-					label = specification.name,
-					initial = initial	
+					label = specification.name,					
 				)
 			else:
 				pass

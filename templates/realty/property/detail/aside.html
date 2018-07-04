@@ -1,0 +1,116 @@
+{% load static %}
+<div class="box-widget-wrap">
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-leaf"></i> Detalles : </h3>
+        </div>
+        <div class="box-widget opening-hours">
+            <div class="box-widget-content">                                
+                <ul>
+                    {% for spc in object.get_specifications %}
+                    <li>
+                        <span class="opening-hours-day">
+                            <i class="fa fa-{{ spc.icon }}"></i> {{ spc.key }}
+                        </span>
+                        <span class="opening-hours-time">
+                            {{ spc.value }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->  
+                                         
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3>Localización / Contactos : </h3>
+        </div>
+        <div class="box-widget">
+            <div class="map-container">
+                <div id="singleMap" data-longitude="{{ object.geopoint.x }}" data-latitude="{{ object.geopoint.y }}" data-mapTitle="Out Location"></div>
+            </div>
+            <div class="box-widget-content">
+                <div class="list-author-widget-contacts list-item-widget-contacts">
+                    <ul>
+                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>
+                        <li><span><i class="fa fa-phone"></i> Telefono :</span> <a href="#">{{ object.phone }}</a></li>
+                        <li><span><i class="fa fa-envelope-o"></i> Correo :</span> <a href="#">{{ object.mail }}</a></li>
+                        <li><span><i class="fa fa-globe"></i> Página web :</span> <a href="#">{{ object.webpage }}</a></li>
+                    </ul>
+                </div>
+                <div class="list-widget-social">
+                    <ul>
+                        {% for social in object.localsocial_set.all %}
+                        <li><a href="{{ social.url }}" target="_blank" ><i class="fa fa-{{ social.social.icon }}"></i></a></li>
+                        {% endfor %}                                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->                            
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3>Publicado por : </h3>
+        </div>
+        <div class="box-widget list-author-widget">
+            <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
+                <span class="list-author-widget-link"><a href="author-single.html">{{ object.user.get_full_name }}</a></span>
+                <img src="{% static 'images/avatar/1.jpg' %}" alt=""> 
+            </div>
+            <div class="box-widget-content">
+                <div class="list-author-widget-text">
+                    <div class="list-author-widget-contacts">
+                        <ul>
+                            <li><span><i class="fa fa-phone"></i> Teléfono :</span> <a href="#">+7(123)987654</a></li>
+                            <li><span><i class="fa fa-envelope-o"></i> Correo :</span> <a href="#">AlisaNoory@domain.com</a></li>
+                            <li><span><i class="fa fa-globe"></i> Página web :</span> <a href="#">themeforest.net</a></li>
+                        </ul>
+                    </div>
+                    <a href="author-single.html" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3>Más de este usuario : </h3>
+        </div>
+        <div class="box-widget widget-posts">
+            <div class="box-widget-content">
+                <ul>
+                    <li class="clearfix">
+                        <a href="#"  class="widget-posts-img"><img src="{% static 'images/all/1.jpg' %}"  alt=""></a>
+                        <div class="widget-posts-descr">
+                            <a href="#" title="">Cafe "Lollipop"</a>
+                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i> 21 Mar 2017 </span> 
+                        </div>
+                    </li>
+                    <li class="clearfix">
+                        <a href="#"  class="widget-posts-img"><img src="{% static 'images/all/1.jpg' %}"  alt=""></a>
+                        <div class="widget-posts-descr">
+                            <a href="#" title=""> Apartment in the Center</a>
+                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i> 7 Mar 2017 </span> 
+                        </div>
+                    </li>
+                    <li class="clearfix">
+                        <a href="#"  class="widget-posts-img"><img src="{% static 'images/all/1.jpg' %}"  alt=""></a>
+                        <div class="widget-posts-descr">
+                            <a href="#" title="">Event in City Mol</a>
+                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i> 7 Mar 2017 </span>
+                        </div>
+                    </li>
+                </ul>
+                <a class="widget-posts-link" href="#">Todas las publicaciones<span><i class="fa fa-angle-right"></i></span></a>   
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->     
+</div>
