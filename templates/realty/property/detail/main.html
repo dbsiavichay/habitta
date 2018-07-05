@@ -1,38 +1,26 @@
 {% load static %}
 <div class="list-single-main-wrapper fl-wrap" id="sec2">
-    <div class="breadcrumbs gradient-bg  fl-wrap"><a href="#">Inicio</a><a href="#">Lugares</a><span> {{ object.name }}</span></div>
+    <div class="breadcrumbs gradient-bg  fl-wrap"><a href="#">Inicio</a><a href="#">Propiedades</a><span> {{ object.category }}</span></div>
     <!-- <div class="list-single-main-media fl-wrap">
         <img src="{% static 'images/all/1.jpg' %}" class="respimg" alt="">
         <a href="https://vimeo.com/70851162" class="promo-link gradient-bg image-popup"><i class="fa fa-play"></i><span>Promo Video</span></a>
     </div> -->
     <div class="list-single-main-item fl-wrap">
         <div class="list-single-main-item-title fl-wrap">
-            <h3>Acerca de {{ object.name }} </h3>
+            <h3>Acerca de </h3>
         </div>
         <p>{{ object.description }}</p>                        
         <span class="fw-separator"></span>
         <div class="list-single-main-item-title fl-wrap">
-            <h3>Comodidades</h3>
+            <h3>Servicios</h3>
         </div>
         <div class="listing-features fl-wrap">
             <ul>
-                {% for amenity in object.amenities.all %}
-                <li><i class="fa fa-{{ amenity.icon }}"></i> {{ amenity.name }}</li>
+                {% for service in object.get_services %}
+                <li><i class="fa fa-{{ service.icon }}"></i> {{ service.name }}</li>
                 {% endfor %}                                
             </ul>
-        </div>
-        <span class="fw-separator"></span>
-        <div class="list-single-main-item-title fl-wrap">
-            <h3>Tags</h3>
-        </div>
-        <div class="list-single-tags tags-stylwrap">
-            <a href="#">Lunch</a>
-            <a href="#">Friendly service</a>
-            <a href="#">Wine</a>
-            <a href="#">Sandwich</a>
-            <a href="#">Food</a>
-            <a href="#">Cocktails</a>                                                                               
-        </div>
+        </div>        
     </div>
     
     <div class="list-single-facts fl-wrap gradient-bg">

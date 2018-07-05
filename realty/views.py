@@ -2,8 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
-from .models import Property, Category
-from .forms import PropertyForm, PropertyDetailsForm
+from .models import Category, Property, PropertyImage
+from .forms import (
+	PropertyForm, PropertyDetailsForm,
+	PropertyImageForm, PropertyBase64ImageForm
+)
 
 class ChooseCategoryListView(ListView):
 	model = Category
@@ -93,3 +96,49 @@ class PropertyUpdateView(UpdateView):
 
 class PropertyDetailView(DetailView):
 	model = Property
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		self.object = self.get_object()		
+		#image_form = PlaceImageForm(initial={'property':self.object})
+		cover_form = PropertyBase64ImageForm(initial={'property':self.object})
+		
+		context.update({
+			#'image_form': image_form,
+			'cover_form': cover_form
+		})
+
+		return context
+
+class PropertyImageUploadView(CreateView):
+	model = PropertyImage
+	form_class = PropertyImageForm
+
+	def form_valid(self, form, property):		
+		self.object = form.save();			
+		return redirect(reverse_lazy('detail_property', args=[property.id]))
+
+	def post(self, request, *args, **kwargs):
+		form = self.get_form()
+		if form.is_valid():
+			property = form.cleaned_data['property']
+			#Solo el propietario puede cambiar la foto de portada
+			if property.user != request.user:
+				return redirect(reverse_lazy('detail_local', args=[property.id]))
+			####
+			return self.form_valid(form, property)
+		else:			
+			return self.form_invalid(form)
+
+	def get(self, request, *args, **kwargs):
+		return redirect('properties')
+
+class PropertyBase64ImageUploadView(PropertyImageUploadView):	
+	form_class = PropertyBase64ImageForm
+
+	def form_valid(self, form, property):
+		instance = property.get_cover_instance()
+		if instance: form.instance = instance				
+
+		self.object = form.save();			
+		return redirect(reverse_lazy('detail_property', args=[property.id]))

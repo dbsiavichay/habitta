@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block extracss %}
+{% block 'extracss' %}
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/cropper/cropper.css' %}">
 {% endblock %}
 
@@ -63,7 +63,7 @@
     {% csrf_token %}
     {{ cover_form }}
 </form>
-{% include 'places/crop_cover_modal.html' %}
+{% include 'realty/property/detail/crop_cover_modal.html' %}
 {% endblock %}
 {% block 'extrajs' %}
     {% include 'base/js_maps.html' %}
@@ -117,8 +117,7 @@
         }
 
 
-        $('#crop').on('click', function () {
-           
+        $('#crop').on('click', function () {           
             var canvas;
             $modal.fadeOut();            
 
@@ -137,13 +136,7 @@
             }
             
         });
-
-
-        // $('#id_image').on('change', function () {
-        //     $('#gallery-form').submit();
-        // });  
-
-
+ 
 
     });
     

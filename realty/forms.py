@@ -4,11 +4,13 @@ from django.forms import (
 	CharField, FloatField, ChoiceField
 )
 from django.forms.widgets import (
-	TextInput, NumberInput,
+	TextInput, NumberInput, HiddenInput,
 	Select, RadioSelect
 )
-from .models import Category, Property
+from .models import Category, Property, PropertyImage
 from django.contrib.gis.geos import Point
+
+import datetime as dt
 
 class PropertyForm(ModelForm):
 	longitude = FloatField(label='Longitud')
@@ -43,11 +45,11 @@ class PropertyForm(ModelForm):
 		self.fields['purpose'].choices = ((obj.id, obj) for obj in self.fields['purpose'].choices.queryset)		
 
 	def save(self, commit=True):
-		place = super().save(commit=False)
-		place.geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])
+		property = super().save(commit=False)
+		property.geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])
 		if commit:
-			place.save()            
-		return place
+			property.save()            
+		return property
 
 
 class PropertyDetailsForm(Form):
@@ -84,3 +86,38 @@ class PropertyDetailsForm(Form):
 				)
 			else:
 				pass
+
+class PropertyImageForm(ModelForm):
+	class Meta:
+		model = PropertyImage		
+		fields = '__all__'
+		widgets = {				
+			'is_cover': HiddenInput,
+			'property': HiddenInput,
+		}	
+
+class PropertyBase64ImageForm(PropertyImageForm):		
+	base64image = CharField(widget = HiddenInput,)
+
+	class Meta(PropertyImageForm.Meta):		
+		fields = ('is_cover', 'property',)
+
+	def save(self, commit=True):
+		from .utils import base64_to_image
+
+		base64image = self.cleaned_data['base64image']
+		property = self.cleaned_data['property']
+		today = dt.datetime.today().strftime("%Y%m%d%H%M%S")
+
+		if self.instance.id is not None and self.instance.img:
+			self.instance.img.delete()
+
+		obj = super().save(commit=False)
+	
+		data, ext = base64_to_image(base64image)				
+		file_name = 'cover-%s-%s.%s' % (property.id, today, ext)
+		obj.img.save(file_name, data)
+
+		if commit:
+			obj.save()            
+		return obj

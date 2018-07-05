@@ -97,6 +97,28 @@ class Property(models.Model):
 				})
 		return specifications
 
+	def get_services(self):
+		services =	Service.objects.filter(pk__in=self.details['services'])		
+		return services
+
+	def get_cover_instance(self):
+		instances = self.images.filter(is_cover=True)
+
+		if len(instances) > 0:
+			return instances[0]		
+
+	def get_cover_image(self):
+		instance = self.get_cover_instance()
+
+		if instance and instance.img:
+			return instance.img		
+
+	def get_gallery(self):
+		instances = self.images.filter(is_cover=False)
+		images = [i.img for i in instances if i.img]
+		return images
+
+
 class PropertyImage(models.Model):
 	class Meta:
 		verbose_name = 'imagen'
@@ -104,4 +126,4 @@ class PropertyImage(models.Model):
 
 	img = models.ImageField(upload_to='properties/images/', verbose_name='imagen')
 	is_cover = models.BooleanField(default=False, verbose_name='de portada?')
-	property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='imagenes')
+	property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
