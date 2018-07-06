@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section>
+    <!-- container -->
+    <div class="container">        
+        <!--register form -->
+        <div class="main-register register">
+            <h3>Bienvenido a <span>City<strong>Book</strong></span></h3>                
+            <div class="soc-log fl-wrap half">
+                <p>Ingresa con tus redes sociales.</p>
+                <a href="#" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>
+                <a href="#" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>
+            </div>
+            <div class="half" id="tabs-container" style="border-left: 3px solid #2F3B59">
+                <ul class="tabs-menu">
+                    <li class="current"><a href="#tab-1">Entra con tus datos</a></li>            
+                </ul>
+                <div class="tab">
+                    <div id="tab-1" class="tab-content">
+                        <div class="custom-form">
+                            {{form.errors}}
+                            <form method="POST" class="main-register-form" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                {% render_field form.username %}
+
+                                {% render_field form.password %}
+
+                                <input type="hidden" name="next" value="{{ next }}">
+
+                                <button type="submit" class="log-submit-btn"><span>Iniciar sesión</span></button>
+                            </form>
+                        </div>
+                    </div>            
+                </div>
+            </div>
+
+            <p>¿Aún no tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
+        </div>
+        <!--register form end --> 
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+<!--section -->
+<section class="gradient-bg">
+    <div class="cirle-bg">
+        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+    </div>
+    <div class="container">
+        <div class="join-wrap fl-wrap">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Do You Have Questions ?</h3>
+                    <p>Lorem ipsum dolor sit amet, harum dolor nec in, usu molestiae at no.</p>
+                </div>
+                <div class="col-md-4"><a href="contacts.html" class="join-wrap-btn">Get In Touch <i class="fa fa-envelope-o"></i></a></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+{% endblock %}
+{% block 'extrajs' %}
+    {% include 'base/js_maps.html' %}
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/property/property.js' %}"></script>
+{% endblock %}

@@ -56,3 +56,15 @@
     content: "\f111";
     left: 3px;
 }
+
+.register {
+    box-shadow: none;
+}
+
+.register h3 {    
+    text-align: center;
+}
+
+.half {
+    width: 50%!important;
+}

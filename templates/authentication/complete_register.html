@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section>
+    <!-- container -->
+    <div class="container">        
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Cuentanos un poco más</h2>
+                <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Add Listing</span></div>
+            </div>
+            {{ form.errors }}
+            {{ details_form.errors }}
+            <form id="mainform" action="" method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <!-- profile-edit-container--> 
+                <div class="profile-edit-container add-list-container">
+                    <div class="profile-edit-header fl-wrap">
+                        <h4>Información básica</h4>
+                    </div>
+                    <div class="custom-form">
+                        {% render_field form.first_name icon='address-card-o' %}
+
+                        {% render_field form.last_name icon='address-card-o' %}
+
+                        {% render_field form.phone icon='phone' %}
+
+                        {% render_field form.website icon='globe' %}
+                    </div>
+                </div>
+                <!-- profile-edit-container end-->
+                <button type="submit" class="btn big-btn color-bg flat-btn">Guardar
+                    <i class="fa fa-angle-right"></i>
+                </button>                    
+            </form>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+<!--section -->
+<section class="gradient-bg">
+    <div class="cirle-bg">
+        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+    </div>
+    <div class="container">
+        <div class="join-wrap fl-wrap">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Do You Have Questions ?</h3>
+                    <p>Lorem ipsum dolor sit amet, harum dolor nec in, usu molestiae at no.</p>
+                </div>
+                <div class="col-md-4"><a href="contacts.html" class="join-wrap-btn">Get In Touch <i class="fa fa-envelope-o"></i></a></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+{% endblock %}
+{% block 'extrajs' %}
+    {% include 'base/js_maps.html' %}
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/property/property.js' %}"></script>
+{% endblock %}

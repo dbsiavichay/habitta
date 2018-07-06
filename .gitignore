@@ -2,4 +2,5 @@
 *~
 *.pyc
 media/
+authentication/migrations/
 realty/migrations/
