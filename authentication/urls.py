@@ -1,10 +1,16 @@
 from django.urls import path
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import logout_then_login
 from .views import (
-	UserCreationView, CompleteRegisterView, LoginView
+	UserCreationView, CompleteRegisterView, LoginView,
+	ProfileUpdateView, ProfileUploadImageView
 )
 
 urlpatterns = [
 	path('register/', UserCreationView.as_view(), name='register'),
-	path('user/<int:pk>/complete/', CompleteRegisterView.as_view(), name='complete_register'),
+	path('user/<int:pk>/complete/', login_required(CompleteRegisterView.as_view()), name='complete_register'),
 	path('login/', LoginView.as_view(), name='login'),
+	path('logout/', login_required(logout_then_login), name='logout'),
+	path('profile/update/', login_required(ProfileUpdateView.as_view()), name='update_profile'),
+	path('profile/avatar/upload/', login_required(ProfileUploadImageView.as_view()), name='upload_avatar_profile'),
 ]

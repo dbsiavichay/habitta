@@ -14,7 +14,7 @@ class UserCreationForm(forms.ModelForm):
         }
 
     def clean_email(self):
-        email = self.cleaned_data.get("email")
+        email = self.cleaned_data.get('email')
         users = User.objects.filter(email=email)
 
         if email and len(users)>0:
@@ -23,23 +23,39 @@ class UserCreationForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password"])
+        user.set_password(self.cleaned_data['password'])
         if commit:
             user.save()
 
         return user
 
-class ProfileForm(forms.ModelForm):
-    first_name = forms.CharField(label='Nombres')
-    last_name = forms.CharField(label='Apellidos')
-
+class UserForm(forms.ModelForm):
     class Meta:
-        model = Profile
-        exclude = ('user',)
+        model = User
+        fields = ('first_name', 'last_name', 'username', 'email')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['phone'].required = True
+        self.fields['first_name'].require = True
+        self.fields['last_name'].require = True        
+        self.fields['email'].require = True        
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        users = User.objects.filter(email=email).exclude(pk=self.instance.pk)
+
+        if email and len(users)>0:
+            raise forms.ValidationError('El email %s ya esta asociado a una cuenta.' % email)
+        return email
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        exclude = ('user',)    
+
+class CompleteRegisterForm(ProfileForm):
+    first_name = forms.CharField(label='Nombres')
+    last_name = forms.CharField(label='Apellidos')    
 
     def save(self, commit=True):
         profile = super().save(commit=False)

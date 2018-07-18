@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Editar perfil</h2>
+                <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Editar perfil</span></div>
+            </div>
+            <div class="row">                
+                {% include 'dashboard/menu_aside.html' %}
+                <div class="col-md-7">
+                    {{ user_form.errors }}
+                    {{ form.errors }}
+                    <form action="" method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Mi perfil</h4>
+                        </div>
+                        <div class="custom-form">
+                            {% render_field user_form.first_name icon='address-card-o' %}
+
+                            {% render_field user_form.last_name icon='address-card-o' %}
+
+                            {% render_field user_form.username icon='user' %}                            
+
+                            {% render_field user_form.email icon='envelope' %}                            
+
+                            {% render_field form.phone icon='phone' %}
+
+                            {% render_field form.website icon='globe' %}
+                        </div>
+                    </div>
+                    <!-- profile-edit-container end--> 
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container">
+                        <div class="profile-edit-header fl-wrap" style="margin-top:30px">
+                            <h4>Redes sociales</h4>
+                        </div>
+                        <div class="custom-form">
+                            <label>Facebook <i class="fa fa-facebook"></i></label>
+                            <input type="text" placeholder="https://www.facebook.com/" value=""/>
+                            <label>Twitter<i class="fa fa-twitter"></i>  </label>
+                            <input type="text" placeholder="https://twitter.com/" value=""/>
+                            <label> Whatsapp <i class="fa fa-whatsapp"></i>  </label>
+                            <input type="text" placeholder="https://www.whatsapp.com" value=""/>
+
+                            <button class="btn  big-btn  color-bg flat-btn">Guardar<i class="fa fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                    </form>
+                    <!-- profile-edit-container end-->                                        
+                </div>
+                <div class="col-md-2">
+                    <div class="edit-profile-photo fl-wrap">
+                        {% if object.image %}
+                        <img src="{{ object.image.url }}" class="respimg" alt="">
+                        {% else %}
+                        <img src="{% static 'images/avatar/avatar-bg.png' %}" class="respimg" alt="">
+                        {% endif %}
+                        <div class="change-photo-btn">
+                            <div class="photoUpload">
+                                <span><i class="fa fa-upload"></i> Subir foto</span>
+                                <form id="upload_avatar" action="{% url 'upload_avatar_profile' %}" method="POST" enctype="multipart/form-data" novalidate>
+                                    {% csrf_token %}
+                                    <input name="image" type="file" class="upload">                                    
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+<!--section -->
+<section class="gradient-bg">
+    <div class="cirle-bg">
+        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+    </div>
+    <div class="container">
+        <div class="join-wrap fl-wrap">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Do You Have Questions ?</h3>
+                    <p>Lorem ipsum dolor sit amet, harum dolor nec in, usu molestiae at no.</p>
+                </div>
+                <div class="col-md-4"><a href="contacts.html" class="join-wrap-btn">Get In Touch <i class="fa fa-envelope-o"></i></a></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+{% endblock %}
+{% block 'extrajs' %}
+    {% include 'base/js_maps.html' %}
+    <script type="text/javascript">
+        var input = document.querySelector('input[name=image]');
+        input.addEventListener('change', function(event){
+            document.getElementById('upload_avatar').submit();
+        });
+    </script>
+{% endblock %}

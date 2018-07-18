@@ -21,9 +21,32 @@
             </div>
             <button class="header-search-button" onclick="window.location.href='listing.html'">Buscar</button>
         </div>
-        <div class="show-search-button"><i class="fa fa-search"></i> <span>Search</span></div>
+        <div class="show-search-button"><i class="fa fa-search"></i> <span>Búsqueda</span></div>
         <a href="{% url 'choose_category' %}" class="add-list">Publica <span><i class="fa fa-plus"></i></span></a>
+
+        {% if not user.is_authenticated %}
         <a href="{% url 'login' %}" class="show-reg-form"><i class="fa fa-sign-in"></i>Entrar</a>
+        {% else %}
+        <div class="header-user-menu">
+            <div class="header-user-name">
+                {% if user.profile.image %}
+                <span><img src="{{ user.profile.image.url }}" alt=""></span>
+                {% else %}
+                <span><img src="{% static 'images/avatar/avatar-bg.png' %}" alt=""></span>
+                {% endif %}
+                {{ user.first_name }}
+            </div>
+            <ul>
+                <li><a href="{% url 'update_profile' %}"> Mi perfil</a></li>
+                <li><a href="dashboard-add-listing.html"> Add Listing</a></li>
+                <li><a href="dashboard-bookings.html">  Bookings  </a></li>
+                <li><a href="dashboard-review.html"> Reviews </a></li>
+                <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+            </ul>
+        </div>
+        {% endif %}
+
+
         <!-- nav-button-wrap-->
         <div class="nav-button-wrap color-bg">
             <div class="nav-button">
