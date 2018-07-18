@@ -3,7 +3,7 @@
 <header class="main-header dark-header fs-header sticky">
     <div class="header-inner">
         <div class="logo-holder">
-            <a href="index.html"><img src="{% static 'images/logo.png' %}" alt=""></a>
+            <a href="{% url 'home' %}"><img src="{% static 'images/logo.png' %}" alt=""></a>
         </div>
         <div class="header-search vis-header-search">
             <div class="header-search-input-item">
@@ -38,9 +38,8 @@
             </div>
             <ul>
                 <li><a href="{% url 'update_profile' %}"> Mi perfil</a></li>
-                <li><a href="dashboard-add-listing.html"> Add Listing</a></li>
-                <li><a href="dashboard-bookings.html">  Bookings  </a></li>
-                <li><a href="dashboard-review.html"> Reviews </a></li>
+                <li><a href="{% url 'choose_category' %}"> Publica</a></li>
+                <li><a href="{% url 'properties' %}"> Mis publicaciones</a></li>                
                 <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
             </ul>
         </div>
@@ -59,10 +58,10 @@
             <nav>
                 <ul>
                     <li>
-                        <a href="#">Inicio</a>
+                        <a href="{% url 'home' %}">Inicio</a>
                     </li>
                     <li>
-                        <a href="#">Explora</a>
+                        <a href="{% url 'finder' %}">Explora</a>
                     </li>
                     <li>
                         <a href="#" class="act-link">Categorias <i class="fa fa-caret-down"></i></a>

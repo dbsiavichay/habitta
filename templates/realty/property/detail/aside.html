@@ -61,18 +61,28 @@
         <div class="box-widget list-author-widget">
             <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
                 <span class="list-author-widget-link"><a href="author-single.html">{{ object.user.get_full_name }}</a></span>
-                <img src="{% static 'images/avatar/1.jpg' %}" alt=""> 
+                {% with object.user.profile.image as avatar %}
+                {% if avatar %}
+                <img src="{{ avatar.url }}" alt=""> 
+                {% else %}
+                <img src="{% static 'images/avatar/avatar-bg.png' %}" alt=""> 
+                {% endif %}
+                {% endwith %}
             </div>
             <div class="box-widget-content">
                 <div class="list-author-widget-text">
                     <div class="list-author-widget-contacts">
                         <ul>
-                            <li><span><i class="fa fa-phone"></i> Teléfono :</span> <a href="#">+7(123)987654</a></li>
-                            <li><span><i class="fa fa-envelope-o"></i> Correo :</span> <a href="#">AlisaNoory@domain.com</a></li>
-                            <li><span><i class="fa fa-globe"></i> Página web :</span> <a href="#">themeforest.net</a></li>
+                            <li>
+                                <span><i class="fa fa-phone"></i> Teléfono :</span> <a href="#">{{ object.user.profile.phone }}</a>
+                            </li>
+                            <li>
+                                <span><i class="fa fa-envelope-o"></i> Correo :</span> <a href="#">{{ object.user.email }}</a>
+                            </li>
+                            <li><span><i class="fa fa-globe"></i> Sitio web :</span> <a href="#">{{ object.user.profile.website }}</a></li>
                         </ul>
                     </div>
-                    <a href="author-single.html" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
+                    <a href="#" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
                 </div>
             </div>
         </div>
