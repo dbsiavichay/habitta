@@ -1,10 +1,10 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from django.views.generic import TemplateView
 from .views import (
 	ChooseCategoryListView, 
 	PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView,
-	PropertyBase64ImageUploadView
+	PropertyBase64ImageUploadView,
+	FinderListView,
 )
 
 urlpatterns = [
@@ -15,5 +15,5 @@ urlpatterns = [
 	path('property/<int:pk>/detail/', login_required(PropertyDetailView.as_view()), name='detail_property'),    	
 	path('property/base64image/add/', login_required(PropertyBase64ImageUploadView.as_view()), name='add_base64image'),
 
-	path('finder/', TemplateView.as_view(template_name='realty/finder.html'), name='finder'),
+	path('finder/', FinderListView.as_view(), name='finder'),
 ]

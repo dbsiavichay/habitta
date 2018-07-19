@@ -1,32 +1,41 @@
 !function(e){
 	"use strict";
-	var n={
-		anchor:new google.maps.Point(22,16),
-		url:"/static/images/marker.png"
+
+	var mapCenter = new google.maps.LatLng(-2.2874005, -78.11685009999997)
+
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+        	mapCenter = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)            
+        });
+    }        
+    
+	var n={		
+		url:"/static/images/marker.png",		
+		anchor:new google.maps.Point(24,50),
 	};
+
+
 	var o=document.getElementById("map-main");
+
 	void 0!==o&&null!=o&&google.maps.event
-		.addDomListener(window,"load",function(){
-			function o(e,n,o,a,t,i,l,s){
+		.addDomListener(window, 'load', function() {
+			function getMapPopup(e,n,o,a,t,i,l,s){
 				return '<div class="map-popup-wrap"><div class="map-popup"><div class="infoBox-close"><i class="fa fa-times"></i></div><div class="map-popup-category">'+n+'</div><a href="'+e+'" class="listing-img-content fl-wrap"><img src="'+o+'" alt=""></a> <div class="listing-content fl-wrap"><div class="card-popup-raining map-card-rainting" data-staRrating="'+l+'"><span class="map-popup-reviews-count">( '+s+' reviews )</span></div><div class="listing-title fl-wrap"><h4><a href='+e+">"+a+'</a></h4><span class="map-popup-location-info"><i class="fa fa-map-marker"></i>'+t+'</span><span class="map-popup-location-phone"><i class="fa fa-phone"></i>'+i+"</span></div></div></div></div>"
 			}
-			var a=[
-				[o("listing-single2.html","Hotels","/static/images/all/1.jpg","Luxary Hotel-Spa","1327 Intervale Ave, Bronx, NY ","+38099231212","5","27"),40.72956781,-73.99726866,1,n],
-				[o("listing-single.html","Food and Drink","/static/images/all/1.jpg","Luxary Restaurant","W 85th St, New York, NY ","+38099231212","4","5"),40.76221766,-73.96511769,2,n],
-				[o("listing-single.html","Gym - Fitness","/static/images/all/1.jpg","Gym In CityCenter","40 Journal Square Plaza, Jersey City, NJ","+38099231212","4","5"),40.88496706,-73.88191222,3,n],
-				[o("listing-single.html","Shop - Store","/static/images/all/1.jpg","Shop In City Mol","75 Prince St, New York, NY ","+38099231212","4","127"),40.72228267,-73.99246214,4,n],
-				[o("listing-single.html","Food and Drink","/static/images/all/1.jpg","Luxary Restaurant","34-42 Montgomery St, New York, NY","+38099231212","5","43"),40.94982541,-73.84357452,5,n],
-				[o("listing-single.html","Gym - Fitness","/static/images/all/1.jpg","Gym In CityCenter","70 Bright St, Jersey City, NJ","+38099231212","4","7"),40.90261483,-74.15737152,6,n],
-				[o("listing-single.html","Shop - Store","/static/images/all/1.jpg","Shop In City Mol","123 School St. Lynchburg, NY ","+38099231212","3","4"),40.79145927,-74.08252716,7,n],
-				[o("listing-single2.html","Hotels","/static/images/all/1.jpg","Fancy Hotel","Mt Carmel Pl, New York, NY","+38099231212","5","3"),40.58423508,-73.96099091,8,n],
-				[o("listing-single2.html","Hotels","/static/images/all/1.jpg","Luxary Hotel-Spa","1-30 Hunters Point Ave, Long Island City, NY","+38099231212","5","12"),40.58110616,-73.97678375,9,n],
-				[o("listing-single3.html","Conference and Events","/static/images/all/1.jpg","Web Design Event ","726-1728 2nd Ave, New York, NY","+38099231212","5","17"),40.73112881,-74.07897948,10,n],
-				[o("listing-single3.html","Conference and Events","/static/images/all/1.jpg","Apartment Design Event ","9443 Fairview Ave, North Bergen, NJ","+38099231212","4","11"),40.67386831,-74.10438536,11,n]
-			],
-			t=e("#map-main").attr("data-map-zoom"),
+
+
+			var a = [];
+			var url = '/realty/finder/';
+			e.get(url, function (data) {
+				console.log(data);
+				a.push([getMapPopup("#","Departamento","/static/images/all/1.jpg","En renta","9443 Fairview Ave, North Bergen, NJ","+38099231212","4","11"),40.67386831,-74.10438536,11,n])
+				a.push([getMapPopup("#","Departamento","/static/images/all/1.jpg","En renta","9443 Fairview Ave, North Bergen, NJ","+38099231212","4","11"),40.67386831,-74.10438536,11,n])
+			});			
+
+			var t=e("#map-main").attr("data-map-zoom"),
 			i=e("#map-main").attr("data-map-scroll");
 			if(void 0!==t&&!1!==t) var l=parseInt(t);
-			else l=10;
+			else l=14;
 			if(void 0!==i&&!1!==i) var s=parseInt(i);
 			else s=!1;
 			e(".nextmap-nav").on("click",function(e){
@@ -48,7 +57,7 @@
 				{
 					zoom:l,
 					scrollwheel:s,
-					center:new google.maps.LatLng(40.7,-73.87),
+					center:mapCenter,
 					mapTypeId:google.maps.MapTypeId.ROADMAP,
 					zoomControl:!1,
 					mapTypeControl:!1,
@@ -62,6 +71,7 @@
 				}
 			),
 			m=document.createElement("div");
+
 			m.className="map-box";
 			var p,c,d={
 				content:m,
@@ -96,8 +106,7 @@
 				google.maps.event.addDomListener(t,"click",function(){
 					n.setZoom(n.getZoom()-1)
 				})
-			}(u,g),c=0;c<a.length;c++) {
-				
+			}(u,g),c=0;c<a.length;c++) {				
 				p=new google.maps.Marker({
 					animation:google.maps.Animation.DROP,
 					position:new google.maps.LatLng(a[c][1],a[c][2]),
@@ -131,15 +140,17 @@
 	});
 
 
-	var a=document.getElementById("singleMap");
-	void 0!==a&&null!=a&&google.maps.event.addDomListener(window,"load",function() {
-		var o={
+	//Show a single position 
+
+	var map=document.getElementById("singleMap");
+	void 0!==map&&null!=map&&google.maps.event.addDomListener(window,"load",function() {
+		var cords={
 			lng:e("#singleMap").data("longitude"),
 			lat:e("#singleMap").data("latitude")
 		},
-		a=new google.maps.Map(document.getElementById("singleMap"),{
+		map=new google.maps.Map(document.getElementById("singleMap"),{
 			zoom:14,
-			center:o,
+			center:cords,
 			scrollwheel:!1,
 			zoomControl:!1,
 			mapTypeControl:!1,
@@ -150,19 +161,20 @@
 			styles:[{featureType:"landscape",elementType:"all",stylers:[{color:"#f2f2f2"}]}]
 		}),
 
-		t=(new google.maps.Marker({position:o,map:a,icon:n,title:"Our Location"}),document.createElement("div"));
-		new function(e,n){
+		t=(new google.maps.Marker({position:cords,map:map,icon:n,title:"Nuestra ubicación"}),document.createElement("div"));
+
+		new function(e,map){
 			t.index=1,
-			n.controls[google.maps.ControlPosition.RIGHT_CENTER].push(t),
+			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(t),
 			e.style.padding="5px";
-			var o=document.createElement("div");
-			e.appendChild(o);
-			var a=document.createElement("div");
-			a.className="mapzoom-in",o.appendChild(a);
-			var i=document.createElement("div");
-			i.className="mapzoom-out",o.appendChild(i),
-			google.maps.event.addDomListener(a,"click",function(){n.setZoom(n.getZoom()+1)}),
-			google.maps.event.addDomListener(i,"click",function(){n.setZoom(n.getZoom()-1)})
-		}(t,a)
+			var controls=document.createElement("div");
+			e.appendChild(controls);
+			var zoomIn=document.createElement("div");
+			zoomIn.className="mapzoom-in",controls.appendChild(zoomIn);
+			var zoomOut=document.createElement("div");
+			zoomOut.className="mapzoom-out",controls.appendChild(zoomOut),
+			google.maps.event.addDomListener(zoomIn,"click",function(){map.setZoom(map.getZoom()+1)}),
+			google.maps.event.addDomListener(zoomOut,"click",function(){map.setZoom(map.getZoom()-1)})
+		}(t,map)
 	})
 }(this.jQuery);

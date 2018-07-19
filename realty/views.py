@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
@@ -14,6 +15,10 @@ class ChooseCategoryListView(ListView):
 
 class PropertyListView(ListView):
 	model = Property
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		return queryset.filter(user=self.request.user)
 
 class PropertyCreateView(CreateView):
 	model = Property
@@ -142,3 +147,30 @@ class PropertyBase64ImageUploadView(PropertyImageUploadView):
 
 		self.object = form.save();			
 		return redirect(reverse_lazy('detail_property', args=[property.id]))
+
+class FinderListView(ListView):
+	model = Property
+	template_name = 'realty/finder.html'
+
+	def get(self, request, *args, **kwargs):
+		if request.is_ajax():
+			_list = []
+			for obj in self.get_queryset():
+				data = {
+					'url': '#',
+					'category': obj.category.name,
+					'cover': obj.get_cover_image().url if obj.get_cover_image() else '#',
+					'activity': obj.purpose.activity,
+					'address': obj.address,
+					'phone': obj.user.profile.phone,
+					'stars': 4,
+					'reviews': 11,
+					'longitude': obj.geopoint.x,
+					'latitude': obj.geopoint.y
+				}
+
+				_list.append(data)
+
+			return JsonResponse(_list, safe=False)
+
+		return super().get(request, *args, **kwargs)

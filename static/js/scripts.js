@@ -656,6 +656,7 @@ function initAutocomplete() {
             window.alert("No details available for input: '" + place.name + "'");
             return;
           }
+          //console.log(place);
         });             
     }
 }
