@@ -23,14 +23,23 @@
 				return '<div class="map-popup-wrap"><div class="map-popup"><div class="infoBox-close"><i class="fa fa-times"></i></div><div class="map-popup-category">'+n+'</div><a href="'+e+'" class="listing-img-content fl-wrap"><img src="'+o+'" alt=""></a> <div class="listing-content fl-wrap"><div class="card-popup-raining map-card-rainting" data-staRrating="'+l+'"><span class="map-popup-reviews-count">( '+s+' reviews )</span></div><div class="listing-title fl-wrap"><h4><a href='+e+">"+a+'</a></h4><span class="map-popup-location-info"><i class="fa fa-map-marker"></i>'+t+'</span><span class="map-popup-location-phone"><i class="fa fa-phone"></i>'+i+"</span></div></div></div></div>"
 			}
 
+			function setData(data) {				
+				for(var i in data) {
+					var obj = data[i];
+					a.push([getMapPopup(obj.url,obj.category,obj.cover,obj.activity,obj.address,obj.phone,obj.stars,obj.reviews),obj.latitude,obj.longitude,11,n])					
+				}
+			}
+
 
 			var a = [];
 			var url = '/realty/finder/';
-			e.get(url, function (data) {
-				console.log(data);
-				a.push([getMapPopup("#","Departamento","/static/images/all/1.jpg","En renta","9443 Fairview Ave, North Bergen, NJ","+38099231212","4","11"),40.67386831,-74.10438536,11,n])
-				a.push([getMapPopup("#","Departamento","/static/images/all/1.jpg","En renta","9443 Fairview Ave, North Bergen, NJ","+38099231212","4","11"),40.67386831,-74.10438536,11,n])
-			});			
+			e.ajax({
+				url: url,
+				type: 'GET',
+				async: false,
+				success: setData
+			})
+
 
 			var t=e("#map-main").attr("data-map-zoom"),
 			i=e("#map-main").attr("data-map-scroll");

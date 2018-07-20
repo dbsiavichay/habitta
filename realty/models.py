@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 
@@ -107,11 +108,13 @@ class Property(models.Model):
 		if len(instances) > 0:
 			return instances[0]		
 
-	def get_cover_image(self):
+	def get_cover(self):
 		instance = self.get_cover_instance()
 
 		if instance and instance.img:
-			return instance.img		
+			return instance.img.url
+
+		return settings.STATIC_URL + 'images/bg/1.jpg'
 
 	def get_gallery(self):
 		instances = self.images.filter(is_cover=False)

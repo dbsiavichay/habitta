@@ -7,9 +7,9 @@
         <div>Cambiar foto de portada</div>
         <input type="file" class="sr-only" id="base64input" accept="image/*">
     </label>
-    {% with cover_image=object.get_cover_image %}
-    <div class="bg par-elem" data-bg="{% if cover_image is not None %} {{ cover_image.url }} {% else %}  {% static 'images/bg/1.jpg' %} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
-    {% endwith %}
+    
+    <div class="bg par-elem" data-bg="{{ object.get_cover }}" data-scrollax="properties: { translateY: '30%' }"></div>
+    
     <div class="overlay"></div>
     <div class="bubble-bg"></div>
     <div class="list-single-header absolute-header fl-wrap">

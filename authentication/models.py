@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 class Profile(models.Model):
@@ -9,3 +10,10 @@ class Profile(models.Model):
 	website = models.URLField(blank=True, null=True, verbose_name='sitio web')
 	image = models.ImageField(upload_to='users/profiles/', blank=True, null=True, verbose_name='foto de perfil')
 	user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+
+	def get_avatar(self):
+		
+		if self.image:
+			return self.image.url
+
+		return settings.STATIC_URL + 'images/avatar/avatar-bg.png'

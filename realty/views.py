@@ -157,9 +157,9 @@ class FinderListView(ListView):
 			_list = []
 			for obj in self.get_queryset():
 				data = {
-					'url': '#',
+					'url': reverse_lazy('detail_property', args=[obj.id]),
 					'category': obj.category.name,
-					'cover': obj.get_cover_image().url if obj.get_cover_image() else '#',
+					'cover': obj.get_cover(),
 					'activity': obj.purpose.activity,
 					'address': obj.address,
 					'phone': obj.user.profile.phone,

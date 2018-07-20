@@ -28,12 +28,8 @@
         <a href="{% url 'login' %}" class="show-reg-form"><i class="fa fa-sign-in"></i>Entrar</a>
         {% else %}
         <div class="header-user-menu">
-            <div class="header-user-name">
-                {% if user.profile.image %}
-                <span><img src="{{ user.profile.image.url }}" alt=""></span>
-                {% else %}
-                <span><img src="{% static 'images/avatar/avatar-bg.png' %}" alt=""></span>
-                {% endif %}
+            <div class="header-user-name">                
+                <span><img src="{{ user.profile.get_avatar }}" alt=""></span>                
                 {{ user.first_name }}
             </div>
             <ul>
