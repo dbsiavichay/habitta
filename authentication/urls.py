@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login
 from .views import (
 	UserCreationView, CompleteRegisterView, LoginView,
-	ProfileUpdateView, ProfileUploadImageView
+	ProfileUpdateView, ProfileUploadImageView,
+	SocialLoginView
 )
 
 urlpatterns = [
@@ -13,4 +14,7 @@ urlpatterns = [
 	path('logout/', login_required(logout_then_login), name='logout'),
 	path('profile/update/', login_required(ProfileUpdateView.as_view()), name='update_profile'),
 	path('profile/avatar/upload/', login_required(ProfileUploadImageView.as_view()), name='upload_avatar_profile'),
+
+	
+	path('login/<slug:provider>/<slug:token>/', SocialLoginView.as_view(), name='social_login'),
 ]

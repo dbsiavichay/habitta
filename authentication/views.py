@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from .models import Profile
 from .forms import UserCreationForm, UserForm, ProfileForm, CompleteRegisterForm, AuthenticationForm
 
+from django.contrib.auth import login
+
 class UserCreationView(CreateView):
 	model = User
 	form_class = UserCreationForm
@@ -64,6 +66,43 @@ class CompleteRegisterView(UpdateView):
 class LoginView(AuthLoginView):
 	template_name = 'authentication/login.html'
 	form_class = AuthenticationForm
+
+class SocialLoginView(LoginView):
+	def get(self, request, *args, **kwargs):
+		import requests
+		import json
+		from django.core.files import File
+		from django.core.files.temp import NamedTemporaryFile		
+		base_url = 'https://graph.facebook.com/me?fields=id,name,first_name,last_name,email,picture&access_token=%s'			
+		r = requests.get(base_url % kwargs.get('token'))
+		if r.status_code == 200:
+			data = json.loads(r.text)
+			print(data)
+			try:
+				user = User.objects.get(email=data['email'])
+			except User.DoesNotExist:
+				user_kwargs = {
+					'username': data['id'],
+					'first_name': data['first_name'],
+					'last_name': data['last_name'],
+					'email': data['email']
+				}
+				user = User.objects.create_user(**user_kwargs)
+				r = requests.get(data['picture']['data']['url'])
+				img_temp = NamedTemporaryFile(delete=True)
+				img_temp.write(r.content)
+				img_temp.flush()
+
+				user.profile.image.save('%s.jpg' % user.username, File(img_temp), save=True)
+
+			login(request, user)
+			next = request.GET.get('next')
+			next = next if next else 'home'
+
+			return redirect(next)
+
+
+
 
 
 	
