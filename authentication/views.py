@@ -6,8 +6,10 @@ from django.contrib.auth.models import User
 from .models import Profile
 from .forms import UserCreationForm, UserForm, ProfileForm, CompleteRegisterForm, AuthenticationForm
 # imports for social login
-import requests
 import json
+from urllib import parse
+import requests
+from requests_oauthlib import OAuth1
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 
@@ -71,19 +73,39 @@ class LoginView(AuthLoginView):
 	form_class = AuthenticationForm
 
 class SocialLoginView(LoginView):
-	def get(self, request, *args, **kwargs):
+	twitter_api_key = '4Op0tujPygh087slg0kuTU3Wy'
+	twitter_api_secret = '8G8FKQxADd6LzFGAQU0gHouuhAYIn8KLDB4XTcUWsnhUJjUhJv'
+
+	def get(self, request, *args, **kwargs):		
+		#Only used for twitter
+		oauth_token = request.GET.get('oauth_token')
+		access_token_url = 'https://api.twitter.com/oauth/access_token'
+		
+		if oauth_token:
+			access_token = self.get_twitter_access_token(oauth_token, request.GET.get('oauth_verifier'))
+			user = self.get_twitter_user(access_token)
+			return self.do_login(user)
+
 		return '404'
 
-	def post(self, request, *args, **kwargs):
-		form = self.get_form()
-		user = self.get_social_user('facebook', request.POST.get('token'))
+	def do_login(self, user):
+		form = self.get_form()		
 		if user:
 			form.user_cache = user		
 			return self.form_valid(form)
 		else:
 			return self.form_invalid(form)
 
-	def get_social_user(self, provider, token):				
+	def post(self, request, *args, **kwargs):		
+		provider = request.POST.get('provider')
+		if provider == 'twitter':
+			return redirect(self.get_twitter_authenticate_url())
+
+		if provider == 'facebook':
+			user = self.get_facebook_user(request.POST.get('token'))
+			return self.do_login(user)
+
+	def get_facebook_user(self, token):
 		base_url = 'https://graph.facebook.com/me?fields=%s&access_token=%s'
 		fields = 'id,name,first_name,last_name,email,picture'			
 		r = requests.get(base_url % (fields, token))
@@ -107,3 +129,52 @@ class SocialLoginView(LoginView):
 				user.profile.image.save('%s.jpg' % user.username, File(img_temp), save=True)
 
 			return user
+
+	def get_twitter_authenticate_url(self):
+		request_token_url = 'https://api.twitter.com/oauth/request_token'
+		authenticate_url = 'https://api.twitter.com/oauth/authenticate?oauth_token=%s'
+		api_key = '4Op0tujPygh087slg0kuTU3Wy'
+		api_secret = '8G8FKQxADd6LzFGAQU0gHouuhAYIn8KLDB4XTcUWsnhUJjUhJv'
+		auth = OAuth1(api_key, api_secret)
+		r = requests.post(request_token_url, auth=auth)
+		if r.status_code == 200:
+			data = dict(parse.parse_qsl(r.text))	
+			return authenticate_url % data['oauth_token']
+
+	def get_twitter_access_token(self, oauth_token, oauth_verifier):
+		access_token_url = 'https://api.twitter.com/oauth/access_token'
+		auth = OAuth1(self.twitter_api_key, self.twitter_api_secret, oauth_token)
+		post_data = {'oauth_verifier': oauth_verifier}
+		response = requests.post(access_token_url, auth=auth, data=post_data)
+		data = dict(parse.parse_qsl(response.text))
+		return data
+
+	def get_twitter_user(self, access_token):
+		user_url = 'https://api.twitter.com/1.1/account/verify_credentials.json'
+		auth = OAuth1(self.twitter_api_key, self.twitter_api_secret, access_token['oauth_token'], access_token['oauth_token_secret'])
+		params = {'include_email': 'true', 'skip_status':'true'}
+		r = requests.get(user_url, auth=auth, params=params)
+		if r.status_code == 200:
+			data = json.loads(r.text)	
+			for key in data.keys():
+				print(key+'='+ str(data[key]))
+
+			try:
+				email = data['email'] if 'email' in data else 'NoneAVEdeFts334343'
+				user = User.objects.get(email=email)
+			except User.DoesNotExist:
+				user_kwargs = {
+					'username': data['id'],
+					'first_name': data['name'],					
+					'email': data['email'] if 'email' in data else ''
+				}
+				user = User.objects.create_user(**user_kwargs)
+				r = requests.get(data['profile_image_url'])
+				img_temp = NamedTemporaryFile(delete=True)
+				img_temp.write(r.content)
+				img_temp.flush()
+
+				user.profile.image.save('%s.jpg' % user.username, File(img_temp), save=True)
+
+			return user
+

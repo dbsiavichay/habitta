@@ -14,7 +14,7 @@
             <div class="soc-log fl-wrap half">
                 <p>Ingresa con tus redes sociales.</p>
                 <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>
-                <a href="#" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>
+                <a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>
                 <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" id="socialProvider" name="provider">
@@ -159,5 +159,12 @@
                 } 
             });
         }
+
+        var tw = document.getElementById('twitter');
+        tw.addEventListener('click', function (event) {
+            event.preventDefault();
+            document.getElementById('socialProvider').value = 'twitter';            
+            document.getElementById('socialForm').submit();
+        });
     </script>
 {% endblock %}
