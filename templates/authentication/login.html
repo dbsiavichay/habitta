@@ -15,6 +15,12 @@
                 <p>Ingresa con tus redes sociales.</p>
                 <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>
                 <a href="#" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>
+                <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="socialProvider" name="provider">
+                    <input type="hidden" id="socialToken" name="token">
+                    <input type="hidden" name="next" value="{{ next }}">
+                </form>
             </div>
             <div class="half" id="tabs-container" style="border-left: 3px solid #2F3B59">
                 <ul class="tabs-menu">
@@ -131,17 +137,6 @@
             js.src = "https://connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
-
-        // Here we run a very simple test of the Graph API after login is
-        // successful.  See statusChangeCallback() for when this call is made.
-        function testAPI() {
-            console.log('Welcome!  Fetching your information.... ');
-            FB.api('/me', function(response) {
-              console.log('Successful login for: ' + response.name);
-              document.getElementById('status').innerHTML =
-                'Thanks for logging in, ' + response.name + '!';
-            });
-        }
     </script>
     <script type="text/javascript">
         var fb = document.getElementById('facebook');
@@ -154,11 +149,9 @@
         function checkLogin() {
             FB.getLoginStatus(function (response){                
                 if (response.status === 'connected') {
-                    // Logged into your app and Facebook.
-                    //FB.api('/me?fields=id,name,email,picture,first_name,last_name', function(response) {
-                    //    console.log(response)
-                    //});
-                    window.location.href = '/authentication/login/facebook/'+response.authResponse.accessToken+'/'
+                    document.getElementById('socialProvider').value = 'facebook';
+                    document.getElementById('socialToken').value = response.authResponse.accessToken;
+                    document.getElementById('socialForm').submit();
                 } else {
                     FB.login(function (response) {
                         checkLogin();

@@ -16,5 +16,5 @@ urlpatterns = [
 	path('profile/avatar/upload/', login_required(ProfileUploadImageView.as_view()), name='upload_avatar_profile'),
 
 	
-	path('login/<slug:provider>/<slug:token>/', SocialLoginView.as_view(), name='social_login'),
+	path('social-login/', SocialLoginView.as_view(), name='social_login'),
 ]

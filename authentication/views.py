@@ -5,8 +5,11 @@ from django.contrib.auth.views import LoginView as AuthLoginView
 from django.contrib.auth.models import User
 from .models import Profile
 from .forms import UserCreationForm, UserForm, ProfileForm, CompleteRegisterForm, AuthenticationForm
-
-from django.contrib.auth import login
+# imports for social login
+import requests
+import json
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
 
 class UserCreationView(CreateView):
 	model = User
@@ -69,15 +72,23 @@ class LoginView(AuthLoginView):
 
 class SocialLoginView(LoginView):
 	def get(self, request, *args, **kwargs):
-		import requests
-		import json
-		from django.core.files import File
-		from django.core.files.temp import NamedTemporaryFile		
-		base_url = 'https://graph.facebook.com/me?fields=id,name,first_name,last_name,email,picture&access_token=%s'			
-		r = requests.get(base_url % kwargs.get('token'))
+		return '404'
+
+	def post(self, request, *args, **kwargs):
+		form = self.get_form()
+		user = self.get_social_user('facebook', request.POST.get('token'))
+		if user:
+			form.user_cache = user		
+			return self.form_valid(form)
+		else:
+			return self.form_invalid(form)
+
+	def get_social_user(self, provider, token):				
+		base_url = 'https://graph.facebook.com/me?fields=%s&access_token=%s'
+		fields = 'id,name,first_name,last_name,email,picture'			
+		r = requests.get(base_url % (fields, token))
 		if r.status_code == 200:
-			data = json.loads(r.text)
-			print(data)
+			data = json.loads(r.text)			
 			try:
 				user = User.objects.get(email=data['email'])
 			except User.DoesNotExist:
@@ -95,14 +106,4 @@ class SocialLoginView(LoginView):
 
 				user.profile.image.save('%s.jpg' % user.username, File(img_temp), save=True)
 
-			login(request, user)
-			next = request.GET.get('next')
-			next = next if next else 'home'
-
-			return redirect(next)
-
-
-
-
-
-	
+			return user
