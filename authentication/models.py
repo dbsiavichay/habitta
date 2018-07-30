@@ -11,9 +11,16 @@ class Profile(models.Model):
 	image = models.ImageField(upload_to='users/profiles/', blank=True, null=True, verbose_name='foto de perfil')
 	user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
 
-	def get_avatar(self):
-		
+	def get_avatar(self):		
 		if self.image:
 			return self.image.url
-
 		return settings.STATIC_URL + 'images/avatar/avatar-bg.png'
+
+class SocialProfile(models.Model):
+	class Meta:
+		verbose_name = 'perfil social'
+		verbose_name_plural = 'perfiles sociales'
+
+	provider = models.CharField(max_length=16)
+	identifier = models.CharField(max_length=64)
+	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)

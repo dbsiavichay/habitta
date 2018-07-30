@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from django.contrib.auth.views import LoginView as AuthLoginView
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, SocialProfile
 from .forms import UserCreationForm, UserForm, ProfileForm, CompleteRegisterForm, AuthenticationForm
 # imports for social login
 import json
@@ -98,12 +98,12 @@ class SocialLoginView(LoginView):
 
 	def post(self, request, *args, **kwargs):		
 		provider = request.POST.get('provider')
-		if provider == 'twitter':
-			return redirect(self.get_twitter_authenticate_url())
-
 		if provider == 'facebook':
 			user = self.get_facebook_user(request.POST.get('token'))
 			return self.do_login(user)
+
+		if provider == 'twitter':
+			return redirect(self.get_twitter_authenticate_url())
 
 	def get_facebook_user(self, token):
 		base_url = 'https://graph.facebook.com/me?fields=%s&access_token=%s'
@@ -111,31 +111,28 @@ class SocialLoginView(LoginView):
 		r = requests.get(base_url % (fields, token))
 		if r.status_code == 200:
 			data = json.loads(r.text)			
-			try:
-				user = User.objects.get(email=data['email'])
-			except User.DoesNotExist:
-				user_kwargs = {
+			user = self.get_user_from_social_profile(provider='facebook', identifier=data['id'])
+
+			if not user:
+				kwargs = {					
 					'username': data['id'],
 					'first_name': data['first_name'],
 					'last_name': data['last_name'],
-					'email': data['email']
+					'email': data.get('email', ''),					
+					'social': {
+						'provider': 'facebook',
+						'identifier': data['id'],					
+						'avatar': data['picture']['data']['url'],
+					}
 				}
-				user = User.objects.create_user(**user_kwargs)
-				r = requests.get(data['picture']['data']['url'])
-				img_temp = NamedTemporaryFile(delete=True)
-				img_temp.write(r.content)
-				img_temp.flush()
-
-				user.profile.image.save('%s.jpg' % user.username, File(img_temp), save=True)
+				user = self.get_or_create_auth_user(**kwargs)
 
 			return user
 
 	def get_twitter_authenticate_url(self):
 		request_token_url = 'https://api.twitter.com/oauth/request_token'
-		authenticate_url = 'https://api.twitter.com/oauth/authenticate?oauth_token=%s'
-		api_key = '4Op0tujPygh087slg0kuTU3Wy'
-		api_secret = '8G8FKQxADd6LzFGAQU0gHouuhAYIn8KLDB4XTcUWsnhUJjUhJv'
-		auth = OAuth1(api_key, api_secret)
+		authenticate_url = 'https://api.twitter.com/oauth/authenticate?oauth_token=%s'		
+		auth = OAuth1(self.twitter_api_key, self.twitter_api_secret)
 		r = requests.post(request_token_url, auth=auth)
 		if r.status_code == 200:
 			data = dict(parse.parse_qsl(r.text))	
@@ -155,26 +152,44 @@ class SocialLoginView(LoginView):
 		params = {'include_email': 'true', 'skip_status':'true'}
 		r = requests.get(user_url, auth=auth, params=params)
 		if r.status_code == 200:
-			data = json.loads(r.text)	
-			for key in data.keys():
-				print(key+'='+ str(data[key]))
-
-			try:
-				email = data['email'] if 'email' in data else 'NoneAVEdeFts334343'
-				user = User.objects.get(email=email)
-			except User.DoesNotExist:
-				user_kwargs = {
+			data = json.loads(r.text)
+			user = self.get_user_from_social_profile(provider='twitter', identifier=data['id'])
+			if not user:
+				kwargs = {
 					'username': data['id'],
 					'first_name': data['name'],					
-					'email': data['email'] if 'email' in data else ''
+					'email': data.get('email',''),	
+					'social': {
+						'provider': 'twitter',
+						'identifier': data['id'],
+						'avatar': data['profile_image_url'],
+					}
 				}
-				user = User.objects.create_user(**user_kwargs)
-				r = requests.get(data['profile_image_url'])
-				img_temp = NamedTemporaryFile(delete=True)
-				img_temp.write(r.content)
-				img_temp.flush()
 
-				user.profile.image.save('%s.jpg' % user.username, File(img_temp), save=True)
+				user = self.get_or_create_auth_user(**kwargs)
 
 			return user
 
+	def get_user_from_social_profile(self, **kwargs):
+		try:
+			social_profile = SocialProfile.objects.get(provider=kwargs.get('provider'), identifier=kwargs.get('identifier'))
+			return social_profile.user
+		except SocialProfile.DoesNotExist:
+			return
+
+	def get_or_create_auth_user(self, **kwargs):
+		try:
+			user = User.objects.get(email=kwargs.get('email'))
+			return user
+		except User.DoesNotExist:
+			social_kwargs = kwargs.pop('social')			
+			user = User.objects.create_user(**kwargs)
+			social_kwargs.update({'user':user})
+			resource = requests.get(social_kwargs.pop('avatar'))
+			img_temp = NamedTemporaryFile(delete=True)
+			img_temp.write(resource.content)
+			img_temp.flush()
+			user.profile.image.save('%s.jpg' % user.username, File(img_temp), save=True)
+
+			social_profile = SocialProfile.objects.create(**social_kwargs)
+			return user
