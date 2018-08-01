@@ -16,7 +16,7 @@ def get_facebook_user(token):
 	fields = 'id,name,first_name,last_name,email,picture'			
 	r = requests.get(base_url % (fields, token))
 	if r.status_code == 200:
-		data = json.loads(r.text)			
+		data = json.loads(r.text)
 		user = get_user_from_social_profile(provider='facebook', identifier=data.get('id'))
 
 		if not user:
@@ -77,16 +77,19 @@ def get_twitter_user(access_token):
 
 		return user
 
-def get_user_from_social_profile(*args):
+def get_user_from_social_profile(**kwargs):	
 	try:
-		social_profile = SocialProfile.objects.get(provider=args.get('provider'), identifier=args.get('identifier'))
+		social_profile = SocialProfile.objects.get(provider=kwargs.get('provider'), identifier=kwargs.get('identifier'))		
 		return social_profile.user
-	except SocialProfile.DoesNotExist:
+	except SocialProfile.DoesNotExist:		
 		return
 
-def get_or_create_auth_user(**kwargs):
+def get_or_create_auth_user(**kwargs):	
 	try:
-		user = User.objects.get(email=kwargs.get('email'))
+		email = kwargs.get('email')
+		if not email:
+			raise User.DoesNotExist		
+		user = User.objects.get(email=email)
 		return user
 	except User.DoesNotExist:
 		social_kwargs = kwargs.pop('social')			
