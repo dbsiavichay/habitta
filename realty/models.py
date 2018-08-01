@@ -83,7 +83,7 @@ class Property(models.Model):
 	user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)
 
 	def __str__(self):
-		return self.title
+		return self.description
 
 	def get_specifications(self):
 		specifications = []
