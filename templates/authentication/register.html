@@ -14,8 +14,13 @@
             <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
             <div class="soc-log fl-wrap half">
                 <p>Facilmente puedes registrarte usando tus redes sociales.</p>
-                <a href="#" class="facebook-log"><i class="fa fa-facebook-official"></i>Regístrate con Facebook</a>
-                <a href="#" class="twitter-log"><i class="fa fa-twitter"></i>Regístrate con Twitter</a>
+                <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Regístrate con Facebook</a>
+                <a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Regístrate con Twitter</a>
+                <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="socialProvider" name="provider">
+                    <input type="hidden" id="socialToken" name="token">                    
+                </form>
             </div>
             <div class="half" id="tabs-container" style="border-left: 3px solid #2F3B59">
                 <ul class="tabs-menu">
@@ -66,7 +71,6 @@
 <!-- section end -->
 {% endblock %}
 {% block 'extrajs' %}
-    {% include 'base/js_maps.html' %}
-    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/property/property.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/facebook-sdk.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/authentication/social.js' %}"></script>
 {% endblock %}

@@ -81,7 +81,7 @@ def get_twitter_user(access_token):
 
 def get_user_from_social_profile(**kwargs):	
 	try:
-		social_profile = SocialProfile.objects.get(provider=kwargs.get('provider'), identifier=kwargs.get('identifier'))		
+		social_profile = SocialProfile.objects.get(**kwargs)		
 		return social_profile.user
 	except SocialProfile.DoesNotExist:		
 		return
