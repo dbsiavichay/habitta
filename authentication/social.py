@@ -17,7 +17,7 @@ def get_facebook_user(token):
 	r = requests.get(base_url % (fields, token))
 	if r.status_code == 200:
 		data = json.loads(r.text)			
-		user = get_user_from_social_profile(provider='facebook', identifier=data['id'])
+		user = get_user_from_social_profile(provider='facebook', identifier=data.get('id'))
 
 		if not user:
 			kwargs = {					
@@ -36,7 +36,7 @@ def get_facebook_user(token):
 		return user
 
 #TWITTER ENGINE
-def get_twitter_authenticate_url():	
+def get_twitter_authenticate_url():
 	request_token_url = 'https://api.twitter.com/oauth/request_token'
 	authenticate_url = 'https://api.twitter.com/oauth/authenticate?oauth_token=%s'		
 	auth = OAuth1(TWITTER_API_KEY, TWITTER_API_SECRET)
@@ -77,9 +77,9 @@ def get_twitter_user(access_token):
 
 		return user
 
-def get_user_from_social_profile(**kwargs):
+def get_user_from_social_profile(*args):
 	try:
-		social_profile = SocialProfile.objects.get(provider=kwargs.get('provider'), identifier=kwargs.get('identifier'))
+		social_profile = SocialProfile.objects.get(provider=args.get('provider'), identifier=args.get('identifier'))
 		return social_profile.user
 	except SocialProfile.DoesNotExist:
 		return
