@@ -70,6 +70,12 @@ class LoginView(AuthLoginView):
 	template_name = 'authentication/login.html'
 	form_class = AuthenticationForm
 
+	def get(self, request, *args, **kwargs):
+		if not request.user.is_authenticated:			
+			return super().get(request, *args, **kwargs)
+		else:
+			return redirect(self.get_success_url())
+
 class SocialLoginView(LoginView):
 	def get(self, request, *args, **kwargs):		
 		#Only used for twitter
