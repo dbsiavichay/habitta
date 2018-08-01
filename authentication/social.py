@@ -4,11 +4,13 @@ import requests
 from requests_oauthlib import OAuth1
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
+from django.conf import settings
 from django.contrib.auth.models import User
 from .models import SocialProfile
 
-TWITTER_API_KEY = '4Op0tujPygh087slg0kuTU3Wy'
-TWITTER_API_SECRET = '8G8FKQxADd6LzFGAQU0gHouuhAYIn8KLDB4XTcUWsnhUJjUhJv'
+
+TWITTER_API_KEY = settings.TWITTER_API_KEY
+TWITTER_API_SECRET = settings.TWITTER_API_SECRET
 
 #FACEBOOK ENGINE
 def get_facebook_user(token):

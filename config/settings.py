@@ -140,3 +140,7 @@ MEDIA_URL = '/media/'
 # Login config
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('home')
+
+#Twitter app config
+TWITTER_API_KEY = os.environ['TWITTER_API_KEY']
+TWITTER_API_SECRET = os.environ['TWITTER_API_SECRET']
