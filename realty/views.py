@@ -105,11 +105,11 @@ class PropertyDetailView(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		self.object = self.get_object()		
-		#image_form = PlaceImageForm(initial={'property':self.object})
+		image_form = PropertyImageForm(initial={'property':self.object})
 		cover_form = PropertyBase64ImageForm(initial={'property':self.object})
 		
 		context.update({
-			#'image_form': image_form,
+			'image_form': image_form,
 			'cover_form': cover_form
 		})
 

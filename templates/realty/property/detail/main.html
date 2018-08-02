@@ -82,16 +82,19 @@
             {% endfor %}        
         </div>
 
+        {% if object.user == request.user %}
         <div class="add-list-media-wrap">
-            <form class="fuzone" action="#" method="POST" enctype="multipart/form-data" novalidate>
+            <img id="img" style="display: none;"  alt="">
+            <form id="image_form" class="fuzone" action="{% url 'add_property_image' %}" method="POST" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
-                {{ image_form.place }}
+                {{ image_form.property }}
                 <div class="fu-text">
                     <span><i class="fa fa-picture-o"></i> Click aquí o arrastre sus imagenes para subir</span>
                 </div>
-                <input type="file" id="id_image" name='image' onchange="form.submit()" class="upload">
+                <input type="file" id="id_img" class="upload">
             </form>
         </div>
+        {% endif %}
         <!-- end gallery items -->                                 
     </div>
     <!-- list-single-main-item end -->   

@@ -61,11 +61,11 @@
     </div>
 </section>
 <!--  section  end-->
-<form id="cover_form" action="{% url 'add_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
+{% if object.user == user %}
+<form id="cover_form" action="{% url 'add_property_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {{ cover_form }}
 </form>
-{% if object.user == user %}
 {% include 'realty/property/detail/crop_cover_modal.html' %}
 {% endif %}
 {% endblock %}
@@ -76,5 +76,6 @@
     {% if object.user == user %}
     <script type="text/javascript" src="{% static 'plugins/cropper/cropper.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/realty/property/property-detail.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/realty/property/property-image.js' %}"></script>    
     {% endif %}
 {% endblock %}
