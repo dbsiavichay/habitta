@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
@@ -136,7 +136,7 @@ class PropertyImageUploadView(CreateView):
 			return self.form_invalid(form)
 
 	def get(self, request, *args, **kwargs):
-		return redirect('properties')
+		raise Http404
 
 class PropertyBase64ImageUploadView(PropertyImageUploadView):	
 	form_class = PropertyBase64ImageForm
