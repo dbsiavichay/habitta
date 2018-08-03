@@ -1,5 +1,5 @@
 var inputImg = document.getElementById('id_img');
-        
+
 var getFormData = function(form) {
     var formData = new FormData();
     var elements = form.querySelectorAll('input, select, textarea');
@@ -16,10 +16,10 @@ var getFormData = function(form) {
     return formData;
 }
 
-var uploadImage = function(blob) {    
+var uploadImage = function(base64image) {        
     var form = document.getElementById('image_form');
     formData = getFormData(form);
-    formData.append('img', blob);
+    formData.append('base64image', base64image);
 
     $.ajax(form.action, {
         method: form.method,
@@ -45,9 +45,21 @@ var uploadImage = function(blob) {
             return xhr;
         },*/
 
-        success: function (data) {
-            console.log(data);
-            //$alert.show().addClass('alert-success').text('Upload success');
+        success: function (data) {            
+            var galleryItem = document.querySelector('.gallery-item');
+            var el = galleryItem.cloneNode(true);
+            if (el.classList.contains('hidden')){
+                el.classList.remove('hidden')
+            }
+
+            if (el.hasAttribute('style')){
+                el.removeAttribute('style')
+            }
+
+            el.querySelector('img').src = data['image_url'];
+            el.querySelector('a').href = data['image_url'];
+
+            document.getElementById('gallery').appendChild(el);
         },
 
         error: function (err) {
@@ -56,8 +68,7 @@ var uploadImage = function(blob) {
         },
 
         complete: function () {
-            console.log('sa');
-            //$progress.hide();
+           citybook.lightgallery();
         },
     });
 }
@@ -75,7 +86,7 @@ var createCropper = function (image) {
                 height: 450,
             });
 
-            canvas.toBlob(uploadImage); 
+            uploadImage(canvas.toDataURL()); 
             this.cropper.destroy();           
         },
     });
@@ -84,7 +95,7 @@ var createCropper = function (image) {
 inputImg.addEventListener('change', function (e) { 
     var img = document.getElementById('img');           
     var files = e.target.files;
-    var done = function (url) {
+    var done = function (url) {        
         inputImg.value = '';
         img.src = url;
     };

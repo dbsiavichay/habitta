@@ -69,7 +69,7 @@
             <h3>Galería - Imagenes</h3>
         </div>
         <!-- gallery-items   -->
-        <div class="gallery-items grid-small-pad  list-single-gallery three-coulms lightgallery">
+        <div id="gallery" class="gallery-items grid-small-pad  list-single-gallery three-coulms lightgallery">
             {% for image in object.get_gallery %}
             <div class="gallery-item">
                 <div class="grid-item-holder">
@@ -79,15 +79,25 @@
                     </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="gallery-item hidden">
+                <div class="grid-item-holder">
+                    <div class="box-item">
+                        <img  src="#"   alt="">
+                        <a href="#" class="gal-link popup-image"><i class="fa fa-search"  ></i></a>
+                    </div>
+                </div>
+            </div>
             {% endfor %}        
         </div>
 
         {% if object.user == request.user %}
         <div class="add-list-media-wrap">
             <img id="img" style="display: none;"  alt="">
-            <form id="image_form" class="fuzone" action="{% url 'add_property_image' %}" method="POST" enctype="multipart/form-data" novalidate>
+            <form id="image_form" class="fuzone" action="{% url 'add_property_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
                 {{ image_form.property }}
+                {{ image_form.is_cover }}
                 <div class="fu-text">
                     <span><i class="fa fa-picture-o"></i> Click aquí o arrastre sus imagenes para subir</span>
                 </div>

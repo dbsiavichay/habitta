@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from .models import Category, Property, PropertyImage
 from .forms import (
 	PropertyForm, PropertyDetailsForm,
-	PropertyImageForm, PropertyBase64ImageForm
+	PropertyBase64ImageForm
 )
 
 class ChooseCategoryListView(ListView):
@@ -105,23 +105,24 @@ class PropertyDetailView(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		self.object = self.get_object()		
-		image_form = PropertyImageForm(initial={'property':self.object})
-		cover_form = PropertyBase64ImageForm(initial={'property':self.object})
+		image_form = PropertyBase64ImageForm(initial={'property':self.object})
 		
 		context.update({
 			'image_form': image_form,
-			'cover_form': cover_form
 		})
 
 		return context
 
-class PropertyImageUploadView(CreateView):
-	model = PropertyImage
-	form_class = PropertyImageForm
+class PropertyBase64ImageUploadView(CreateView):
+	model = PropertyImage	
+	form_class = PropertyBase64ImageForm
 
-	def form_valid(self, form, property):		
-		self.object = form.save();			
-		return redirect(reverse_lazy('detail_property', args=[property.id]))
+	def form_valid(self, form, property):
+		if form.cleaned_data['is_cover']:
+			instance = property.get_cover_instance()
+			if instance: form.instance = instance				
+
+		self.object = form.save();					
 
 	def post(self, request, *args, **kwargs):
 		form = self.get_form()
@@ -131,22 +132,18 @@ class PropertyImageUploadView(CreateView):
 			if property.user != request.user:
 				return redirect(reverse_lazy('detail_local', args=[property.id]))
 			####
-			return self.form_valid(form, property)
+			self.form_valid(form, property)
+
+			if request.is_ajax():
+				return JsonResponse({'image_url': self.object.img.url}, status=200)
+
+			return redirect(reverse_lazy('detail_property', args=[property.id]))
+
 		else:			
 			return self.form_invalid(form)
 
 	def get(self, request, *args, **kwargs):
 		raise Http404
-
-class PropertyBase64ImageUploadView(PropertyImageUploadView):	
-	form_class = PropertyBase64ImageForm
-
-	def form_valid(self, form, property):
-		instance = property.get_cover_instance()
-		if instance: form.instance = instance				
-
-		self.object = form.save();			
-		return redirect(reverse_lazy('detail_property', args=[property.id]))
 
 class FinderListView(ListView):
 	model = Property

@@ -87,20 +87,17 @@ class PropertyDetailsForm(Form):
 			else:
 				pass
 
-class PropertyImageForm(ModelForm):
+class PropertyBase64ImageForm(ModelForm):
 	class Meta:
 		model = PropertyImage		
-		fields = '__all__'
+		fields = ('is_cover', 'property',)
 		widgets = {				
 			'is_cover': HiddenInput,
 			'property': HiddenInput,
-		}	
+		}
 
-class PropertyBase64ImageForm(PropertyImageForm):		
 	base64image = CharField(widget = HiddenInput,)
-
-	class Meta(PropertyImageForm.Meta):		
-		fields = ('is_cover', 'property',)
+	#filename = CharField(widget = HiddenInput,)
 
 	def save(self, commit=True):
 		from .utils import base64_to_image

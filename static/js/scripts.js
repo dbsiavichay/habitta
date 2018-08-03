@@ -1,7 +1,24 @@
+var citybook = {
+    lightgallery: function () {
+        var gallery = $(".lightgallery"),
+            p = gallery.data("looped");
+
+        console.log($('.lightgallery a.popup-image').length);
+        gallery.lightGallery({
+            selector: ".lightgallery a.popup-image",
+            cssEasing: "cubic-bezier(0.25, 0, 0.25, 1)",
+            download: true,
+            loop: true,
+            counter: true
+        });
+    },
+}
+
+
 //   all ------------------
 function initCitybook() {
     "use strict";
-    //   loader ------------------
+    //   loader ------------------    
     $(".loader-wrap").fadeOut(300, function () {
         $("#main").animate({
             opacity: "1"
@@ -43,34 +60,34 @@ function initCitybook() {
         }
     });
     //   Isotope------------------
-    function initIsotope() {
-        if ($(".gallery-items").length) {
-            var a = $(".gallery-items").isotope({
-                singleMode: true,
-                columnWidth: ".grid-sizer, .grid-sizer-second, .grid-sizer-three",
-                itemSelector: ".gallery-item, .gallery-item-second, .gallery-item-three",
-                transformsEnabled: true,
-                transitionDuration: "700ms",
-                resizable: true
-            });
-            a.imagesLoaded(function () {
-                a.isotope("layout");
-            });
-            $(".gallery-filters").on("click", "a.gallery-filter", function (b) {
-                var c = $(this).attr("data-filter"),
-                    d = $(this).text();
-                b.preventDefault();
-                var c = $(this).attr("data-filter");
-                a.isotope({
-                    filter: c
-                });
-                $(".gallery-filters a.gallery-filter").removeClass("gallery-filter-active");
-                $(this).addClass("gallery-filter-active");
+ //    function initIsotope() {
+ //        if ($(".gallery-items").length) {
+ //            var a = $(".gallery-items").isotope({
+ //                singleMode: true,
+ //                columnWidth: ".grid-sizer, .grid-sizer-second, .grid-sizer-three",
+ //                itemSelector: ".gallery-item, .gallery-item-second, .gallery-item-three",
+ //                transformsEnabled: true,
+ //                transitionDuration: "700ms",
+ //                resizable: true
+ //            });
+ //            a.imagesLoaded(function () {
+ //                a.isotope("layout");
+ //            });
+ //            $(".gallery-filters").on("click", "a.gallery-filter", function (b) {
+ //                var c = $(this).attr("data-filter"),
+ //                    d = $(this).text();
+ //                b.preventDefault();
+ //                var c = $(this).attr("data-filter");
+ //                a.isotope({
+ //                    filter: c
+ //                });
+ //                $(".gallery-filters a.gallery-filter").removeClass("gallery-filter-active");
+ //                $(this).addClass("gallery-filter-active");
 
-            });
-        }
-    }
-	initIsotope();
+ //            });
+ //        }
+ //    }
+	// initIsotope();
     //   Slick------------------
 	var sbp = $('.swiper-button-prev'),
 		sbn = $('.swiper-button-next');
@@ -255,15 +272,7 @@ function initCitybook() {
         download: false,
         counter: false
     });
-    var o = $(".lightgallery"),
-        p = o.data("looped");
-    o.lightGallery({
-        selector: ".lightgallery a.popup-image",
-        cssEasing: "cubic-bezier(0.25, 0, 0.25, 1)",
-        download: false,
-        loop: false,
-		counter: false
-    });
+    citybook.lightgallery();
     //   appear------------------
     $(".stats").appear(function () {
         $(".num").countTo();
