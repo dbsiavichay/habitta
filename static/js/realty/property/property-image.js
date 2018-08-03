@@ -16,6 +16,71 @@ var getFormData = function(form) {
     return formData;
 }
 
+var uploadImage = function(blob) {    
+    var form = document.getElementById('image_form');
+    formData = getFormData(form);
+    formData.append('img', blob);
+
+    $.ajax(form.action, {
+        method: form.method,
+        data: formData,
+        processData: false,
+        contentType: false,
+
+        /*xhr: function () {
+            var xhr = new XMLHttpRequest();
+
+            xhr.upload.onprogress = function (e) {
+                console.log(e);
+                var percent = '0';
+                var percentage = '0%';
+
+                if (e.lengthComputable) {
+                    percent = Math.round((e.loaded / e.total) * 100);
+                    percentage = percent + '%';
+                    //$progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+                }
+            };
+
+            return xhr;
+        },*/
+
+        success: function (data) {
+            console.log(data);
+            //$alert.show().addClass('alert-success').text('Upload success');
+        },
+
+        error: function (err) {
+            console.log(err);
+            //$alert.show().addClass('alert-warning').text('Upload error');
+        },
+
+        complete: function () {
+            console.log('sa');
+            //$progress.hide();
+        },
+    });
+}
+
+
+var createCropper = function (image) {
+    var cropper = new Cropper(image, {
+        aspectRatio: 16 / 9,
+        autoCropArea:1,
+        viewMode: 3,
+        cropBoxResizable: false,
+        ready: function () {            
+            var canvas = this.cropper.getCroppedCanvas({
+                width: 800,
+                height: 450,
+            });
+
+            canvas.toBlob(uploadImage); 
+            this.cropper.destroy();           
+        },
+    });
+}
+
 inputImg.addEventListener('change', function (e) { 
     var img = document.getElementById('img');           
     var files = e.target.files;
@@ -40,87 +105,5 @@ inputImg.addEventListener('change', function (e) {
         }
     }
 
-    var cropper = new Cropper(img, {
-        aspectRatio: 16 / 9,
-        autoCropArea:1,
-        viewMode: 3,
-        cropBoxResizable: false,
-        ready: function () {
-            debugger;
-            var canvas = this.cropper.getCroppedCanvas({
-                width: 800,
-                height: 450,
-            });
-            /*var clone = this.cloneNode();
-
-            clone.className = ''
-            clone.style.cssText = (
-              'display: block;' +
-              'width: 100%;' +
-              'min-width: 0;' +
-              'min-height: 0;' +
-              'max-width: none;' +
-              'max-height: none;'
-            );
-
-            each(previews, function (elem) {
-              elem.appendChild(clone.cloneNode());
-            });*/
-          },
-    });
-            
-    debugger;
-    /*var canvas = cropper.getCroppedCanvas({
-        width: 800,
-        height: 450,
-    });
-
-    //initialAvatarURL = avatar.src;
-    //avatar.src = canvas.toDataURL();              
-  
-    canvas.toBlob(function (blob) {
-        var form = document.getElementById('image_form');
-        formData = getFormData(form);
-        formData.append('img', blob);
-
-        $.ajax(form.action, {
-            method: form.method,
-            data: formData,
-            processData: false,
-            contentType: false,
-
-            xhr: function () {
-                var xhr = new XMLHttpRequest();
-
-                xhr.upload.onprogress = function (e) {
-                    console.log(e);
-                    var percent = '0';
-                    var percentage = '0%';
-
-                    if (e.lengthComputable) {
-                        percent = Math.round((e.loaded / e.total) * 100);
-                        percentage = percent + '%';
-                        //$progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
-                    }
-                };
-
-                return xhr;
-            },
-
-            success: function (data) {
-                console.log(data);
-                //$alert.show().addClass('alert-success').text('Upload success');
-            },
-
-            error: function (err) {
-                console.log(err);
-                //$alert.show().addClass('alert-warning').text('Upload error');
-            },
-
-            complete: function () {
-                console.log('sa');
-                //$progress.hide();
-            },
-        });
-    });*/
+    createCropper(img);    
 }); 
