@@ -296,8 +296,8 @@
         // Create controlls
         if (this.s.controls && this.$items.length > 1) {
             controls = '<div class="lg-actions">' +
-                '<button class="lg-prev lg-icon">' + this.s.prevHtml + '</button>' +
-                '<button class="lg-next lg-icon">' + this.s.nextHtml + '</button>' +
+                '<div class="lg-prev lg-icon">' + this.s.prevHtml + '</div>' +
+                '<div class="lg-next lg-icon">' + this.s.nextHtml + '</div>' +
                 '</div>';
         }
 

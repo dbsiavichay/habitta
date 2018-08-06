@@ -1,4 +1,4 @@
-var inputImg = document.getElementById('id_img');
+var inputImg = document.getElementById('image_input');
 
 var getFormData = function(form) {
     var formData = new FormData();
@@ -18,8 +18,8 @@ var getFormData = function(form) {
 
 var uploadImage = function(base64image) {        
     var form = document.getElementById('image_form');
-    formData = getFormData(form);
-    formData.append('base64image', base64image);
+    document.getElementById('id_base64image').value = base64image;
+    formData = getFormData(form);    
 
     $.ajax(form.action, {
         method: form.method,
@@ -60,6 +60,7 @@ var uploadImage = function(base64image) {
             el.querySelector('a').href = data['image_url'];
 
             document.getElementById('gallery').appendChild(el);
+            citybook.destroyLightGallery();
         },
 
         error: function (err) {
@@ -68,7 +69,7 @@ var uploadImage = function(base64image) {
         },
 
         complete: function () {
-           citybook.lightgallery();
+            citybook.initLightGallery();
         },
     });
 }
@@ -80,35 +81,34 @@ var createCropper = function (image) {
         autoCropArea:1,
         viewMode: 3,
         cropBoxResizable: false,
-        ready: function () {            
-            var canvas = this.cropper.getCroppedCanvas({
-                width: 800,
-                height: 450,
-            });
+    });
 
-            uploadImage(canvas.toDataURL()); 
-            this.cropper.destroy();           
-        },
+    image.addEventListener('ready', function () {            
+        var canvas = this.cropper.getCroppedCanvas({
+            width: 800,
+            height: 450,
+        });
+
+        uploadImage(canvas.toDataURL()); 
+        this.cropper.destroy();           
     });
 }
 
-inputImg.addEventListener('change', function (e) { 
-    var img = document.getElementById('img');           
+inputImg.addEventListener('change', function (e) {             
+    var img = document.getElementById('cropper_image');           
     var files = e.target.files;
     var done = function (url) {        
         inputImg.value = '';
         img.src = url;
-    };
-    var reader;
-    var file;            
+    };        
 
     if (files && files.length > 0) {
-        file = files[0];
+        var file = files[0];
 
         if (URL) {
             done(URL.createObjectURL(file));
         } else if (FileReader) {
-            reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function (e) {
               done(reader.result);
             };

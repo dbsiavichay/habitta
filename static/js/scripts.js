@@ -1,9 +1,8 @@
 var citybook = {
-    lightgallery: function () {
+    initLightGallery: function () {
         var gallery = $(".lightgallery"),
             p = gallery.data("looped");
-
-        console.log($('.lightgallery a.popup-image').length);
+        
         gallery.lightGallery({
             selector: ".lightgallery a.popup-image",
             cssEasing: "cubic-bezier(0.25, 0, 0.25, 1)",
@@ -11,6 +10,10 @@ var citybook = {
             loop: true,
             counter: true
         });
+    },
+    destroyLightGallery: function () {
+        var gallery = $(".lightgallery");
+        gallery.data('lightGallery').destroy(true);
     },
 }
 
@@ -272,7 +275,7 @@ function initCitybook() {
         download: false,
         counter: false
     });
-    citybook.lightgallery();
+    citybook.initLightGallery();
     //   appear------------------
     $(".stats").appear(function () {
         $(".num").countTo();

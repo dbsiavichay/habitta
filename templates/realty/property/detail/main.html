@@ -80,7 +80,7 @@
                 </div>
             </div>
             {% empty %}
-            <div class="gallery-item hidden">
+            <div id="item-gallery-template" class="gallery-item hidden">
                 <div class="grid-item-holder">
                     <div class="box-item">
                         <img  src="#"   alt="">
@@ -92,17 +92,13 @@
         </div>
 
         {% if object.user == request.user %}
-        <div class="add-list-media-wrap">
-            <img id="img" style="display: none;"  alt="">
-            <form id="image_form" class="fuzone" action="{% url 'add_property_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-                {{ image_form.property }}
-                {{ image_form.is_cover }}
+        <div class="add-list-media-wrap">                        
+            <div class="fuzone">                
                 <div class="fu-text">
                     <span><i class="fa fa-picture-o"></i> Click aquí o arrastre sus imagenes para subir</span>
                 </div>
-                <input type="file" id="id_img" class="upload">
-            </form>
+                <input type="file" id="image_input" class="upload" accept="image/*">
+            </div>
         </div>
         {% endif %}
         <!-- end gallery items -->                                 
