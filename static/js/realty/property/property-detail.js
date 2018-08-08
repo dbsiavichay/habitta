@@ -6,25 +6,79 @@ $(function () {
     var $modal = $('#cover-modal');
     var cropper;
 
-    var getFormData = function(form) {
-        var formData = new FormData();
-        var elements = form.querySelectorAll('input, select, textarea');
-        for( var i = 0; i < elements.length; ++i ) {
-            var element = elements[i];
-            var name = element.name;
-            var value = element.value;
+    var getDataFile = function(files) {                
+        prom = new Promise(function (resolve, reject) {
+            var done = function (url) {        
+                coverInput.value = '';
+                imageInput.value = '';
+                image.src = url;
+                resolve();
+            };        
 
-            if(name) {
-                formData.append(name, value);
-            }
-        }
+            if (files && files.length > 0) {
+                var file = files[0];
 
-        return formData;
+                if (URL) {
+                    done(URL.createObjectURL(file));
+                } else if (FileReader) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                      done(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }                    
+        });
+
+        return prom;
     }
 
-    var uploadImage = function(base64image) {        
+    var getBase64Image = function(width, height){
+        if (!cropper) return null;
+        var canvas = cropper.getCroppedCanvas({
+            width: width,
+            height: height,
+        });
+
+        return canvas.toDataURL(); 
+    }
+
+
+    var createCropper = function (image, ready=false) {
+        if (cropper) {
+            cropper.element = image
+        } else {
+            cropper = new Cropper(image, {
+                aspectRatio: 16 / 9,
+                autoCropArea:1,
+                viewMode: 3,
+                cropBoxResizable: false,
+            });
+        }
+        
+        if (!ready) return;
+        image.addEventListener('ready', uploadImage);
+    } 
+
+    var destroyCropper = function () {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+
+        if (image) {
+            image.removeEventListener('ready', uploadImage);            
+        }
+    }
+
+    // Gallery engine
+    var uploadImage = function() {
+        data = getBase64Image(800,450);
+        if (!data) return;
+
         var form = document.getElementById('image_form');
-        document.getElementById('id_base64image').value = base64image;
+        document.getElementById('id_is_cover').value = false;
+        document.getElementById('id_base64image').value = data;
         formData = getFormData(form);    
 
         $.ajax(form.action, {
@@ -49,6 +103,7 @@ $(function () {
 
                 document.getElementById('gallery').appendChild(el);
                 citybook.destroyLightGallery();
+                destroyCropper();
             },
 
             error: function (err) {
@@ -62,89 +117,42 @@ $(function () {
         });
     }
 
+    //Cover engine
     var modalShow =  function () {
         $modal.fadeIn();
     }
 
-    var createCropper = function (image, ready=False) {
-        cropper = new Cropper(image, {
-            aspectRatio: 16 / 9,
-            autoCropArea:1,
-            viewMode: 3,
-            cropBoxResizable: false,
-        });
-
-        if (!ready) return;
-
-        image.addEventListener('ready', function () {            
-            var canvas = this.cropper.getCroppedCanvas({
-                width: 800,
-                height: 450,
-            });
-
-            uploadImage(canvas.toDataURL()); 
-            this.cropper.destroy();
-            cropper = null;           
-        });
-    }
-
-    var getDataFile = function(files) {                
-        var done = function (url) {        
-            coverInput.value = '';
-            imageInput.value = '';
-            image.src = url;            
-        };        
-
-        if (files && files.length > 0) {
-            var file = files[0];
-
-            if (URL) {
-                done(URL.createObjectURL(file));
-            } else if (FileReader) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                  done(reader.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        }        
-    } 
-
-    coverInput.addEventListener('change', function (e) {        
-        getDataFile(e.target.files);
-        createCropper(image);
-        modalShow();
-    });
-    imageInput.addEventListener('change', function (e) {        
-        getDataFile(e.target.files);
-        createCropper(image, true);        
-    });
-
-
-    
-
-    var destroyCropper = function () {
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-    }
-
-
     document.getElementById('crop').addEventListener('click', function () {           
-        var canvas;
+        data = getBase64Image(1600, 900);
 
-        if (cropper) {
-            canvas = cropper.getCroppedCanvas({
-                width: 1600,
-                height: 900,
-            });                
-
-            $('#id_is_cover').val(true);
-            $('#id_base64image').val(canvas.toDataURL());                            
-            $('#image_form').submit();
+        if (data) {
+            document.getElementById('id_is_cover').value = true;        
+            document.getElementById('id_base64image').value = data;        
+            document.getElementById('image_form').submit();            
         } 
 
         $modal.fadeOut(destroyCropper);            
     });
+
+    document.querySelectorAll('.close-reg,#cancel-crop').forEach(function (item) {
+        item.addEventListener('click', function () { $modal.fadeOut(); destroyCropper(); });        
+    })
+
+    //Events
+    coverInput.addEventListener('change', function (e) {        
+        getDataFile(e.target.files)
+        .then(function () {
+            createCropper(image);
+            modalShow();            
+        });
+    });
+    imageInput.addEventListener('change', function (e) {        
+        getDataFile(e.target.files)
+        .then(function () {
+            createCropper(image, true);                    
+        });
+    });
+
+
+    
 });
