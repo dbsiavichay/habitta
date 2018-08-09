@@ -1,7 +1,7 @@
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, TemplateView
 
 from .models import Category, Property, PropertyImage
 from .forms import (
@@ -171,3 +171,13 @@ class FinderListView(ListView):
 			return JsonResponse(_list, safe=False)
 
 		return super().get(request, *args, **kwargs)
+
+
+class HomeView(TemplateView):
+	template_name = 'index.html'
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		properties = Property.objects.all()
+		context.update({'properties':properties})
+		return context
