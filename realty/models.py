@@ -2,14 +2,14 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 
-from .utils import get_fontawesome_icons
+from fontawesome.fields import IconField
 
 class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
 		
 	name = models.CharField(max_length=32, verbose_name='nombre')
-	icon = models.CharField(max_length=16, blank=True, null=True, verbose_name='ícono')
+	icon = IconField(verbose_name='ícono')
 
 	def __str__(self):
 		return self.name
@@ -20,7 +20,6 @@ class Specification(models.Model):
 		verbose_name_plural = 'especificaciones'
 		ordering = ['order',]
 
-	ICON_CHOICES = get_fontawesome_icons()
 	WIDGET_CHOICES = (
 		('TextInput', 'Texto'), ('NumberInput', 'Número'),
 		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple')
@@ -28,8 +27,8 @@ class Specification(models.Model):
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
 	widget = models.CharField(max_length=64, choices=WIDGET_CHOICES)
-	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')
-	icon = models.CharField(max_length=16, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
+	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')	
+	icon = IconField(verbose_name='ícono')
 	is_required = models.BooleanField(default=False, verbose_name='requerido?')
 	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')	
 
