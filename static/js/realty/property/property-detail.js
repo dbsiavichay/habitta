@@ -87,21 +87,24 @@ $(function () {
             processData: false,
             contentType: false,
 
-            success: function (data) {            
-                var galleryItem = document.querySelector('.gallery-item');
-                var el = galleryItem.cloneNode(true);
-                if (el.classList.contains('hidden')){
-                    el.classList.remove('hidden')
+            success: function (data) {                
+                var el = document.querySelector('.gallery-item');
+                var galleryItem;
+                if (el.classList.contains('hidden')) {
+                    galleryItem = el;
+                    galleryItem.classList.remove('hidden');
+                } else {
+                    galleryItem = el.cloneNode(true);
                 }
 
-                if (el.hasAttribute('style')){
-                    el.removeAttribute('style')
+                if (galleryItem.hasAttribute('style')){
+                    galleryItem.removeAttribute('style')
                 }
 
-                el.querySelector('img').src = data['image_url'];
-                el.querySelector('a').href = data['image_url'];
+                galleryItem.querySelector('img').src = data['image_url'];
+                galleryItem.querySelector('a').href = data['image_url'];
 
-                document.getElementById('gallery').appendChild(el);
+                document.getElementById('gallery').appendChild(galleryItem);
                 citybook.destroyLightGallery();
                 destroyCropper();
             },

@@ -96,24 +96,22 @@ class PropertyBase64ImageForm(ModelForm):
 			'property': HiddenInput,
 		}
 
-	base64image = CharField(widget = HiddenInput,)
-	#filename = CharField(widget = HiddenInput,)
+	base64image = CharField(widget = HiddenInput,)	
 
 	def save(self, commit=True):
+		import uuid
 		from .utils import base64_to_image
 
-		base64image = self.cleaned_data['base64image']
-		property = self.cleaned_data['property']
-		today = dt.datetime.today().strftime("%Y%m%d%H%M%S")
+		base64image = self.cleaned_data['base64image']			
 
 		if self.instance.id is not None and self.instance.img:
 			self.instance.img.delete()
 
 		obj = super().save(commit=False)
 	
-		data, ext = base64_to_image(base64image)				
-		file_name = 'cover-%s-%s.%s' % (property.id, today, ext)
-		obj.img.save(file_name, data)
+		data, extension = base64_to_image(base64image)				
+		filename = '%s.%s' % (str(uuid.uuid4()), extension)
+		obj.img.save(filename, data)
 
 		if commit:
 			obj.save()            
