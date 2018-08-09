@@ -27,7 +27,7 @@
                             <div class="dashboard-message">
                                 <span class="new-dashboard-item">{{ property.category }}</span>
                                 <div class="dashboard-listing-table-image">
-                                    <a href="listing-single.html"><img src="{% static 'images/all/1.jpg' %}" alt=""></a>
+                                    <a href="{% url 'detail_property' property.id %}"><img src="{{ property.get_cover }}" alt=""></a>
                                 </div>
                                 <div class="dashboard-listing-table-text">
                                     <h4><a href="listing-single.html">{{ property.title }}</a></h4>

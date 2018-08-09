@@ -100,8 +100,8 @@
                     </div>
                     <div class="geodir-category-content fl-wrap">
                         <a class="listing-geodir-category" href="listing.html">{{ object.purpose.activity }}</a>
-                        <div class="listing-avatar"><a href="author-single.html"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>
-                            <span class="avatar-tooltip">Publicado por <strong>{{ object.user.first_name }}</strong></span>
+                        <div class="listing-avatar"><a href="{% url 'detail_profile' object.user.username %}"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>
+                            <span class="avatar-tooltip">Publicado por <strong>{{ object.user.get_full_name }}</strong></span>
                         </div>
                         <h3><a href="{% url 'detail_property' object.id %}">{{ object.category }}</a></h3>
                         <p>{{ object.description }}</p>

@@ -81,7 +81,7 @@
                             <li><span><i class="fa fa-globe"></i> Sitio web :</span> <a href="#">{{ object.user.profile.website }}</a></li>
                         </ul>
                     </div>
-                    <a href="#" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
+                    <a href="{% url 'detail_profile' object.user.username %}" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
                 </div>
             </div>
         </div>

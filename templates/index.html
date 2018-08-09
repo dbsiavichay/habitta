@@ -158,14 +158,14 @@
                         </div>
                         <div class="geodir-category-content fl-wrap">
                             <a class="listing-geodir-category" href="listing.html">{{ object.purpose.activity }}</a>
-                            <div class="listing-avatar"><a href="author-single.html"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>
-                                <span class="avatar-tooltip">Added By  <strong>Lisa Smith</strong></span>
+                            <div class="listing-avatar"><a href="{% url 'detail_profile' object.user.username %}"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>
+                                <span class="avatar-tooltip">Publicado por <strong>{{ object.user.get_full_name }}</strong></span>
                             </div>
-                            <h3><a href="listing-single.html">{{ object.category }}</a></h3>
+                            <h3><a href="{% url 'detail_property' object.id %}">{{ object.category }}</a></h3>
                             <p>{{ object.description }}</p>
                             <div class="geodir-category-options fl-wrap">
                                 <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
-                                    <span>(7 reviews)</span>
+                                    <span>(7 comentarios)</span>
                                 </div>
                                 <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address }}</a></div>
                             </div>
