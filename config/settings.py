@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'fontawesome',    
     'components',
     'authentication',
+    'comments',
     'realty',
 ]
 

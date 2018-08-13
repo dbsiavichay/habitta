@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
+from django.urls import reverse
 
 from fontawesome.fields import IconField
 
@@ -119,6 +120,9 @@ class Property(models.Model):
 		instances = self.images.filter(is_cover=False)
 		images = [i.img for i in instances if i.img]
 		return images
+
+	def get_absolute_url(self):		
+		return reverse('detail_property', args=[str(self.id)])
 
 
 class PropertyImage(models.Model):

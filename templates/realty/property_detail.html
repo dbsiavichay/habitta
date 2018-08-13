@@ -78,4 +78,8 @@
     <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/realty/property/property-detail.js' %}"></script>    
     {% endif %}
+    {% if not user.is_autheticated %}
+    <script type="text/javascript" src="{% static 'js/plugins/facebook-sdk.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/authentication/social.js' %}"></script>
+    {% endif %}
 {% endblock %}

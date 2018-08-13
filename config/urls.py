@@ -24,5 +24,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
     path('authentication/', include('authentication.urls')),
+    path('comments/', include('comments.urls')),
     path('realty/', include('realty.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

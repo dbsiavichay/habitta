@@ -1,4 +1,5 @@
 {% load static %}
+{% load comments %}
 <!--  section  --> 
 <section class="parallax-section single-par list-single-section" data-scrollax-parent="true" id="sec1">
 
@@ -26,7 +27,7 @@
                 <h2>{{ object.category }} <span> - Publicado por </span><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></h2>
                 <span class="section-separator"></span>
                 <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
-                    <span>(11 comentarios)</span>
+                    <span>({% comments_count object %} comentarios)</span>
                 </div>
                 <div class="list-post-counter single-list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
                 <div class="clearfix"></div>

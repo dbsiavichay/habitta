@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load comments %}
 
 
 {% block 'content' %}
@@ -107,7 +108,7 @@
                         <p>{{ object.description }}</p>
                         <div class="geodir-category-options fl-wrap">
                             <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
-                                <span>(7 reviews)</span>
+                                <span>({% comments_count object %} comentarios)</span>
                             </div>
                             <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address }}</a></div>
                         </div>
