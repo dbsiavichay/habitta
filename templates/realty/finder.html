@@ -99,7 +99,7 @@
                         <div class="list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
                     </div>
                     <div class="geodir-category-content fl-wrap">
-                        <a class="listing-geodir-category" href="listing.html">{{ object.purpose.activity }}</a>
+                        <a class="listing-geodir-category" href="{% url 'detail_property' object.id %}">{{ object.purpose.activity }}</a>
                         <div class="listing-avatar"><a href="{% url 'detail_profile' object.user.username %}"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>
                             <span class="avatar-tooltip">Publicado por <strong>{{ object.user.get_full_name }}</strong></span>
                         </div>

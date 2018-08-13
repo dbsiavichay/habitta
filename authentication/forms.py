@@ -3,7 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm as AuthAuthenticationFo
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.forms.widgets import PasswordInput
-from .models import Profile
+from .models import Profile, SocialNetworkProfile
 
 class UserCreationForm(forms.ModelForm):
     class Meta:
@@ -51,7 +51,7 @@ class UserForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        exclude = ('user',)    
+        exclude = ('user', 'social_networks',)    
 
 class CompleteRegisterForm(ProfileForm):
     first_name = forms.CharField(label='Nombres')
@@ -95,3 +95,39 @@ class AuthenticationForm(AuthAuthenticationForm):
                 self.confirm_login_allowed(self.user_cache)
 
         return self.cleaned_data
+
+
+class SocialNetworkProfileFormset(forms.BaseInlineFormSet):
+    def clean(self):        
+        for form in self.forms:
+            cleaned_data = form.clean()                     
+            id = cleaned_data.get('id', None)
+            url = cleaned_data.get('url', None)
+            if id and not url:
+                cleaned_data['DELETE'] = True
+            
+        super().clean()         
+        
+class SocialNetworkProfileForm(forms.ModelForm):
+    class Meta:
+        model = SocialNetworkProfile
+        exclude = ('profile',)
+        widgets = {
+            'social_network': forms.HiddenInput
+        }
+
+    def __init__(self, *args, **kwargs):
+        social_networks = kwargs.pop('social_networks', None)       
+        super().__init__(*args, **kwargs)
+        if social_networks is None:
+            return
+
+        if self.instance.pk is not None:
+            for i in range(len(social_networks)):
+                if social_networks[i].pk == self.instance.social_network.pk:
+                    social_networks.pop(i)
+                    break;
+        else:
+            social_network = social_networks.pop(0)
+            self.fields['social_network'].initial = social_network
+            self.fields['url'].widget.attrs.update({'placeholder': social_network.url})

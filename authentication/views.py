@@ -3,8 +3,12 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.contrib.auth.views import LoginView as AuthLoginView
 from django.contrib.auth.models import User
-from .models import Profile
-from .forms import UserCreationForm, UserForm, ProfileForm, CompleteRegisterForm, AuthenticationForm
+from django.forms import inlineformset_factory
+from .models import Profile, SocialNetwork, SocialNetworkProfile
+from .forms import (
+	UserCreationForm, UserForm, ProfileForm, CompleteRegisterForm, AuthenticationForm,
+	SocialNetworkProfileForm, SocialNetworkProfileFormset
+)
 
 from .social import (
 	get_facebook_user, 
@@ -33,23 +37,45 @@ class ProfileUpdateView(UpdateView):
 
 	def form_valid(self, form):
 		user_form = self.get_user_form()
-		if not user_form.is_valid():
+		socialnetworkprofile_formset = self.get_socialnetworkprofile_formset()
+		if not user_form.is_valid() or not socialnetworkprofile_formset.is_valid():
 			return self.form_invalid(form)
 
 		self.object = form.save()
 		user_form.save()
+
+		socialnetworkprofile_formset.instance = self.object
+		socialnetworkprofile_formset.save()
 		
 		return redirect(self.success_url)
 
 	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)		
-		context.update({'user_form': self.get_user_form()})
+		context = super().get_context_data(**kwargs)
+		social_networks = SocialNetwork.objects.all()		
+		context.update({
+			'user_form': self.get_user_form(),
+			'socialnetworkprofile_formset': self.get_socialnetworkprofile_formset(),
+		})
 		return context
 
 	def get_user_form(self):
 		post_data = self.request.POST if self.request.method == 'POST' else None		
 		form = UserForm(post_data, instance=self.request.user)
 		return form
+
+	def get_socialnetworkprofile_formset(self):
+		post_data = self.request.POST if self.request.method == 'POST' else None
+		social_networks = [s for s in SocialNetwork.objects.all()]
+
+		Formset = inlineformset_factory(
+			Profile, SocialNetworkProfile, 		
+			form = SocialNetworkProfileForm,
+			formset = SocialNetworkProfileFormset,
+			extra= len(social_networks) - self.object.social_networks.count(),
+		)
+		
+		formset = Formset(post_data, instance=self.object, form_kwargs={'social_networks':social_networks})
+		return formset
 
 	def get_object(self, queryset=None):		
 		return self.request.user.profile

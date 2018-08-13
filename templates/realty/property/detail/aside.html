@@ -43,8 +43,8 @@
                 </div>
                 <div class="list-widget-social">
                     <ul>
-                        {% for social in object.localsocial_set.all %}
-                        <li><a href="{{ social.url }}" target="_blank" ><i class="fa fa-{{ social.social.icon }}"></i></a></li>
+                        {% for social in object.user.profile.socialnetworkprofile_set.all %}
+                        <li><a href="{{ social.url }}" target="_blank" ><i class="fa fa-{{ social.social_network.icon }}"></i></a></li>
                         {% endfor %}                                        
                     </ul>
                 </div>
@@ -59,14 +59,8 @@
         </div>
         <div class="box-widget list-author-widget">
             <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
-                <span class="list-author-widget-link"><a href="author-single.html">{{ object.user.get_full_name }}</a></span>
-                {% with object.user.profile.image as avatar %}
-                {% if avatar %}
-                <img src="{{ avatar.url }}" alt=""> 
-                {% else %}
-                <img src="{% static 'images/avatar/avatar-bg.png' %}" alt=""> 
-                {% endif %}
-                {% endwith %}
+                <span class="list-author-widget-link"><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></span>
+                <img src="{{ object.user.profile.get_avatar }}" alt="">                 
             </div>
             <div class="box-widget-content">
                 <div class="list-author-widget-text">

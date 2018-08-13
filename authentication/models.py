@@ -1,5 +1,18 @@
 from django.conf import settings
 from django.db import models
+from fontawesome.fields import IconField
+
+class SocialNetwork(models.Model):
+	class Meta:
+		verbose_name = 'red social'
+		verbose_name_plural = 'redes sociales'
+
+	name = models.CharField(max_length=32, verbose_name='nombre')
+	icon = IconField(verbose_name='ícono')
+	url = models.URLField()
+
+	def __str__(self):
+		return self.name
 
 class Profile(models.Model):
 	class Meta:
@@ -9,18 +22,28 @@ class Profile(models.Model):
 	phone = models.CharField(max_length=16, blank=True, null=True, verbose_name='número de celular')
 	website = models.URLField(blank=True, null=True, verbose_name='sitio web')
 	image = models.ImageField(upload_to='users/profiles/', blank=True, null=True, verbose_name='foto de perfil')
-	user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+	user = models.OneToOneField('auth.User', on_delete=models.CASCADE, verbose_name='usuario')
+	social_networks = models.ManyToManyField(SocialNetwork,  through='SocialNetworkProfile', blank=True, verbose_name='redes sociales')
 
 	def get_avatar(self):		
 		if self.image:
 			return self.image.url
 		return settings.STATIC_URL + 'images/avatar/avatar-bg.png'
 
+	def __str__(self):
+		return self.user.get_full_name()
+
 class SocialProfile(models.Model):
 	class Meta:
 		verbose_name = 'perfil social'
 		verbose_name_plural = 'perfiles sociales'
 
-	provider = models.CharField(max_length=16)
-	identifier = models.CharField(max_length=64)
-	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+	provider = models.CharField(max_length=16, verbose_name='proveedor')
+	identifier = models.CharField(max_length=64, verbose_name='id usuario')
+	user = models.ForeignKey('auth.User', on_delete=models.CASCADE, verbose_name='usuario')
+
+
+class SocialNetworkProfile(models.Model):
+	social_network = models.ForeignKey(SocialNetwork, on_delete=models.CASCADE)
+	profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+	url = models.CharField(max_length=128)

@@ -47,12 +47,22 @@
                             <h4>Redes sociales</h4>
                         </div>
                         <div class="custom-form">
-                            <label>Facebook <i class="fa fa-facebook"></i></label>
-                            <input type="text" placeholder="https://www.facebook.com/" value=""/>
-                            <label>Twitter<i class="fa fa-twitter"></i>  </label>
-                            <input type="text" placeholder="https://twitter.com/" value=""/>
-                            <label> Whatsapp <i class="fa fa-whatsapp"></i>  </label>
-                            <input type="text" placeholder="https://www.whatsapp.com" value=""/>
+                            {{ socialnetworkprofile_formset.management_form }}
+
+                            {% for form in socialnetworkprofile_formset %}
+                                {{ form.id }}
+                                {% if form.instance.pk is None %}                                    
+                                <label>{{ form.social_network.initial }} 
+                                    <i class="fa fa-{{ form.social_network.initial.icon }}"></i>
+                                </label>
+                                {% else %}
+                                <label>{{ form.instance.social_network }} 
+                                    <i class="fa fa-{{ form.instance.social_network.icon }}"></i>
+                                </label>
+                                {% endif %}
+                                {{ form.social_network }}
+                                {{ form.url }}
+                            {% endfor %} 
 
                             <button class="btn  big-btn  color-bg flat-btn">Guardar<i class="fa fa-angle-right"></i></button>
                         </div>
@@ -61,12 +71,8 @@
                     <!-- profile-edit-container end-->                                        
                 </div>
                 <div class="col-md-2">
-                    <div class="edit-profile-photo fl-wrap">
-                        {% if object.image %}
-                        <img src="{{ object.image.url }}" class="respimg" alt="">
-                        {% else %}
-                        <img src="{% static 'images/avatar/avatar-bg.png' %}" class="respimg" alt="">
-                        {% endif %}
+                    <div class="edit-profile-photo fl-wrap">                        
+                        <img src="{{ object.get_avatar }}" class="respimg" alt="">
                         <div class="change-photo-btn">
                             <div class="photoUpload">
                                 <span><i class="fa fa-upload"></i> Subir foto</span>
