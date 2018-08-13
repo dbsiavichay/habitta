@@ -26,7 +26,7 @@ SECRET_KEY = '$8rg#s7vk&e-9e3*t1*sfczs+#0st9hy+ly9s*b+r0qs$0n1a4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 
@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'realty.context_processors.search_bar'
             ],
         },
     },

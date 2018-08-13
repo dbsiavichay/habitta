@@ -36,21 +36,17 @@
                 <div class="listsearch-input-item">
                     <select data-placeholder="Location" class="chosen-select" >
                         <option>Todas la categorías</option>
-                        <option>Bronx</option>
-                        <option>Brooklyn</option>
-                        <option>Manhattan</option>
-                        <option>Queens</option>
-                        <option>Staten Island</option>
+                        {% for category in categories %}
+                        <option>{{ category }}</option>
+                        {% endfor %}                        
                     </select>
                 </div>
                 <div class="listsearch-input-item">
                     <select data-placeholder="All Categories" class="chosen-select" >
                         <option>Todos los propósitos</option>
-                        <option>Shops</option>
-                        <option>Hotels</option>
-                        <option>Restaurants</option>
-                        <option>Fitness</option>
-                        <option>Events</option>
+                        {% for purpose in purposes %}
+                        <option>{{ purpose }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="listsearch-input-text" id="autocomplete-container">

@@ -12,11 +12,9 @@
             <div class="header-search-select-item">
                 <select data-placeholder="All Categories" class="chosen-select" >
                     <option>Todas las categorias</option>
-                    <option>Shops</option>
-                    <option>Hotels</option>
-                    <option>Restaurants</option>
-                    <option>Fitness</option>
-                    <option>Events</option>
+                    {% for category in categories %}
+                    <option>{{ category }}</option>
+                    {% endfor %}                    
                 </select>
             </div>
             <button class="header-search-button" onclick="window.location.href='listing.html'">Buscar</button>

@@ -26,11 +26,9 @@
                     <div class="main-search-input-item">
                         <select data-placeholder="Todas las categorias" class="chosen-select" >
                             <option>Todas las categorias</option>
-                            <option>Shops</option>
-                            <option>Hotels</option>
-                            <option>Restaurants</option>
-                            <option>Fitness</option>
-                            <option>Events</option>
+                            {% for category in categories %}
+                            <option>{{ category }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <button class="main-search-button" onclick="window.location.href='listings-half-screen-map-list.html'">Búsqueda</button>
