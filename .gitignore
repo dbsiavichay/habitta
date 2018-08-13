@@ -4,3 +4,5 @@
 media/
 authentication/migrations/
 realty/migrations/
+comments/migrations/
+*/migrations/
