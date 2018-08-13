@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import Http404
 from django.views.generic import CreateView, DeleteView
 from .models import Comment
 from .forms import CommentForm
@@ -13,6 +14,9 @@ class CommentCreateView(CreateView):
 		self.object.save()
 		
 		return redirect(self.object.get_object_url())
+
+	def get(self, request, *args, **kwargs):
+		raise Http404
 
 class CommentDeleteView(DeleteView):	
 	model = Comment	
