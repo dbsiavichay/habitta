@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 var buildMap = function (longitude, latitude) {
 	var mapCenter = new google.maps.LatLng(latitude,longitude)
-	var n={		
+	var mapMarker={		
 		url:"/static/images/marker.png",		
 		anchor:new google.maps.Point(24,50),
 	};
@@ -26,12 +26,12 @@ var buildMap = function (longitude, latitude) {
 	function setData(data) {				
 		for(var i in data) {
 			var obj = data[i];
-			a.push([getMapPopup(obj.url,obj.category,obj.cover,obj.activity,obj.address,obj.phone,obj.stars,obj.reviews),obj.latitude,obj.longitude,11,n])					
+			results.push([getMapPopup(obj.url,obj.category,obj.cover,obj.activity,obj.address,obj.phone,obj.stars,obj.reviews),obj.latitude,obj.longitude,11,mapMarker])					
 		}
 	}
 
 
-	var a = [];
+	var results = [];
 	var url = '/realty/finder/';
 	$.ajax({
 		url: url,
@@ -70,12 +70,12 @@ var buildMap = function (longitude, latitude) {
 			scrollwheel:scroll,
 			center:mapCenter,
 			mapTypeId:google.maps.MapTypeId.ROADMAP,
-			zoomControl:!1,
-			mapTypeControl:!1,
-			scaleControl:!1,
-			panControl:!1,
-			navigationControl:!1,
-			streetViewControl:!1,
+			zoomControl:false,
+			mapTypeControl:false,
+			scaleControl:false,
+			panControl:false,
+			navigationControl:false,
+			streetViewControl:false,
 			animation:google.maps.Animation.BOUNCE,
 			gestureHandling:"cooperative",
 			styles:[{featureType:"administrative",elementType:"labels.text.fill",stylers:[{color:"#444444"}]}]
@@ -102,7 +102,7 @@ var buildMap = function (longitude, latitude) {
 
 	var v=[],u=document.createElement("div");
 
-	for (new function(e,n){
+	for (new function(e,n){		
 		u.index=1,
 		n.controls[google.maps.ControlPosition.RIGHT_CENTER].push(u),
 		e.style.padding="5px";
@@ -119,19 +119,19 @@ var buildMap = function (longitude, latitude) {
 		google.maps.event.addDomListener(t,"click",function(){
 			n.setZoom(n.getZoom()-1)
 		})
-	}(u,googleMap),c=0;c<a.length;c++) {				
+	}(u,googleMap),c=0;c<results.length;c++) {				
 		p=new google.maps.Marker({
 			animation:google.maps.Animation.DROP,
-			position:new google.maps.LatLng(a[c][1],a[c][2]),
-			icon:a[c][4],id:c
+			position:new google.maps.LatLng(results[c][1],results[c][2]),
+			icon:results[c][4],id:c
 		}),
 		v.push(p);
 		var f=new InfoBox;
 		google.maps.event.addListener(f,"domready",function(){cardRaining()}),
 		google.maps.event.addListener(p,"click",function(n,o){
 			return function(){
-				f.setOptions(d),m.innerHTML=a[o][0],f.open(googleMap,n),r=n.id;
-				var t=new google.maps.LatLng(a[o][1],a[o][2]);
+				f.setOptions(d),m.innerHTML=results[o][0],f.open(googleMap,n),r=n.id;
+				var t=new google.maps.LatLng(results[o][1],results[o][2]);
 				googleMap.panTo(t),googleMap.panBy(0,-180),
 				google.maps.event.addListener(f,"domready",function(){
 					$(".infoBox-close").click(function(e){
@@ -154,52 +154,3 @@ var buildMap = function (longitude, latitude) {
 		google.maps.event.trigger(googleMap,"resize"),googleMap.setCenter(e)
 	});
 }
-
-
-
-
-
-
-
-
-!function($){
-	"use strict";
-
-	//Show a single position 
-
-	var map=document.getElementById("singleMap");
-	void 0!==map&&null!=map&&google.maps.event.addDomListener(window,"load",function() {
-		var cords={
-			lng:$("#singleMap").data("longitude"),
-			lat:$("#singleMap").data("latitude")
-		},
-		map=new google.maps.Map(document.getElementById("singleMap"),{
-			zoom:14,
-			center:cords,
-			scrollwheel:!1,
-			zoomControl:!1,
-			mapTypeControl:!1,
-			scaleControl:!1,
-			panControl:!1,
-			navigationControl:!1,
-			streetViewControl:!1,
-			styles:[{featureType:"landscape",elementType:"all",stylers:[{color:"#f2f2f2"}]}]
-		}),
-
-		t=(new google.maps.Marker({position:cords,map:map,icon:n,title:"Nuestra ubicación"}),document.createElement("div"));
-
-		new function(e,map){
-			t.index=1,
-			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(t),
-			e.style.padding="5px";
-			var controls=document.createElement("div");
-			e.appendChild(controls);
-			var zoomIn=document.createElement("div");
-			zoomIn.className="mapzoom-in",controls.appendChild(zoomIn);
-			var zoomOut=document.createElement("div");
-			zoomOut.className="mapzoom-out",controls.appendChild(zoomOut),
-			google.maps.event.addDomListener(zoomIn,"click",function(){map.setZoom(map.getZoom()+1)}),
-			google.maps.event.addDomListener(zoomOut,"click",function(){map.setZoom(map.getZoom()-1)})
-		}(t,map)
-	})
-}(this.jQuery);

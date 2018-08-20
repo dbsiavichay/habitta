@@ -39,10 +39,9 @@ class PropertyCreateView(CreateView):
 		self.object.user = self.request.user
 		self.object.details = details
 		self.object.category = self.category
-		self.object.save()
-		#form.save_m2m()
+		self.object.save()		
 
-		return redirect(self.success_url)
+		return redirect(self.object.get_absolute_url())
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)		

@@ -71,9 +71,10 @@
 {% endblock %}
 
 {% block 'extrajs' %}
-    {% include 'base/js_maps.html' %}
-    <script type="text/javascript" src="{% static 'js/csfrtoken.js' %}"></script>   
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwJSRi0zFjDemECmFl9JtRj1FY7TiTRRo&libraries=places&callback=initAutocomplete"></script>
+    <script type="text/javascript" src="{% static 'js/realty/property/map.js' %}"></script>   
     {% if object.user == user %}
+    <script type="text/javascript" src="{% static 'js/csfrtoken.js' %}"></script>   
     <script type="text/javascript" src="{% static 'plugins/cropper/cropper.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/realty/property/property-detail.js' %}"></script>    

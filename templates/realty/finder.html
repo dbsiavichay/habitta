@@ -29,23 +29,23 @@
             </div>
             <!-- listsearch-input-wrap  -->  
             <div class="listsearch-input-wrap fl-wrap">
-                <div class="listsearch-input-item">
+                <!-- <div class="listsearch-input-item">
                     <i class="mbri-key single-i"></i>
                     <input type="text" placeholder="Palabras clave?" value=""/>
-                </div>
+                </div> -->
                 <div class="listsearch-input-item">
                     <select data-placeholder="Location" class="chosen-select" >
-                        <option>Todas la categorías</option>
+                        <option value="all">Todas la categorías</option>
                         {% for category in categories %}
-                        <option>{{ category }}</option>
+                        <option value="{{ category.id }}">{{ category }}</option>
                         {% endfor %}                        
                     </select>
                 </div>
                 <div class="listsearch-input-item">
                     <select data-placeholder="All Categories" class="chosen-select" >
-                        <option>Todos los propósitos</option>
+                        <option value="all">Todos los propósitos</option>
                         {% for purpose in purposes %}
-                        <option>{{ purpose }}</option>
+                        <option value="{{ purpose.id }}">{{ purpose }}</option>
                         {% endfor %}
                     </select>
                 </div>
