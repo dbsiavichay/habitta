@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import Http404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.contrib.auth.views import LoginView as AuthLoginView
@@ -116,7 +117,7 @@ class SocialLoginView(LoginView):
 			user = get_twitter_user(access_token)
 			return self.do_login(user)
 
-		return '404'
+		raise Http404
 
 	def do_login(self, user):
 		form = self.get_form()		

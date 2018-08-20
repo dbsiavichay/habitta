@@ -23,6 +23,7 @@ from realty.views import HomeView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
+    path('api/', include('api.urls')),
     path('authentication/', include('authentication.urls')),
     path('comments/', include('comments.urls')),
     path('realty/', include('realty.urls')),

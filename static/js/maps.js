@@ -26,13 +26,13 @@ var buildMap = function (longitude, latitude) {
 	function setData(data) {				
 		for(var i in data) {
 			var obj = data[i];
-			results.push([getMapPopup(obj.url,obj.category,obj.cover,obj.activity,obj.address,obj.phone,obj.stars,obj.reviews),obj.latitude,obj.longitude,11,mapMarker])					
+			results.push([getMapPopup(obj.url,obj.category,obj.cover,obj.purpose,obj.address,obj.phone,obj.stars,obj.reviews),obj.latitude,obj.longitude,11,mapMarker])					
 		}
 	}
 
 
 	var results = [];
-	var url = '/realty/finder/';
+	var url = '/api/properties/';
 	$.ajax({
 		url: url,
 		type: 'GET',

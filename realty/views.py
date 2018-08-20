@@ -148,30 +148,6 @@ class FinderListView(ListView):
 	model = Property
 	template_name = 'realty/finder.html'
 
-	def get(self, request, *args, **kwargs):
-		if request.is_ajax():
-			_list = []
-			for obj in self.get_queryset():
-				data = {
-					'url': reverse_lazy('detail_property', args=[obj.id]),
-					'category': obj.category.name,
-					'cover': obj.get_cover(),
-					'activity': obj.purpose.activity,
-					'address': obj.address,
-					'phone': obj.user.profile.phone,
-					'stars': 4,
-					'reviews': 11,
-					'longitude': obj.geopoint.x,
-					'latitude': obj.geopoint.y
-				}
-
-				_list.append(data)
-
-			return JsonResponse(_list, safe=False)
-
-		return super().get(request, *args, **kwargs)
-
-
 class HomeView(TemplateView):
 	template_name = 'index.html'
 

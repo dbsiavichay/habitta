@@ -3,6 +3,7 @@ chardet==3.0.4
 Django==2.0.5
 django-components==0.1
 django-fontawesome==1.0
+djangorestframework==3.8.2
 idna==2.7
 oauthlib==2.1.0
 Pillow==5.1.0
