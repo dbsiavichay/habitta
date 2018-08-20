@@ -34,7 +34,7 @@
                     <input type="text" placeholder="Palabras clave?" value=""/>
                 </div> -->
                 <div class="listsearch-input-item">
-                    <select data-placeholder="Location" class="chosen-select" >
+                    <select name="category" class="chosen-select" >
                         <option value="all">Todas la categorías</option>
                         {% for category in categories %}
                         <option value="{{ category.id }}">{{ category }}</option>
@@ -42,7 +42,7 @@
                     </select>
                 </div>
                 <div class="listsearch-input-item">
-                    <select data-placeholder="All Categories" class="chosen-select" >
+                    <select name="purpose" class="chosen-select" >
                         <option value="all">Todos los propósitos</option>
                         {% for purpose in purposes %}
                         <option value="{{ purpose.id }}">{{ purpose }}</option>
@@ -51,7 +51,7 @@
                 </div>
                 <div class="listsearch-input-text" id="autocomplete-container">
                     <label><i class="mbri-map-pin"></i>Ingrese un dirección </label>
-                    <input type="text" placeholder="Destino, área, calle" id="autocomplete-input" class="qodef-archive-places-search" value=""/>
+                    <input type="text" name="address" placeholder="Destino, área, calle" id="autocomplete-input" class="qodef-archive-places-search" value=""/>
                     <a  href="#"  class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
                 </div>
                 <!-- hidden-listing-filter -->
@@ -143,4 +143,6 @@
 
 {% block 'extrajs' %}
     {% include 'base/js_maps.html' %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="{% static 'js/realty/property/explorer.js' %}"></script>
 {% endblock %}

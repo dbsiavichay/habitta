@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from fontawesome.fields import IconField
 
 class SocialNetwork(models.Model):
@@ -29,6 +30,9 @@ class Profile(models.Model):
 		if self.image:
 			return self.image.url
 		return settings.STATIC_URL + 'images/avatar/avatar-bg.png'
+
+	def get_absolute_url(self):
+		return reverse('detail_profile', args=[self.user.username])
 
 	def __str__(self):
 		return self.user.get_full_name()
