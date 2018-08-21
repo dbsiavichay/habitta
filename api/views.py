@@ -12,7 +12,7 @@ class PropertyListAPIView(generics.ListAPIView):
 	def get_queryset(self):        
 		queryset = Property.objects.all()
 
-		if not len(self.request.path.split('?')) > 1:
+		if len(self.request.query_params) == 0:		
 			return queryset
 
 		params = {
@@ -20,6 +20,7 @@ class PropertyListAPIView(generics.ListAPIView):
 			'purpose': self.request.query_params.get('purpose', None),
 			'address__contains': self.request.query_params.get('address', None)
 		}
+		
 
 		args = [Q(**{key: params[key]}) for key in params.keys() if params[key] is not None]
 		queryset = queryset.filter(reduce(operator.__or__, args))

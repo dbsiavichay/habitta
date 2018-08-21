@@ -35,7 +35,7 @@
                 </div> -->
                 <div class="listsearch-input-item">
                     <select name="category" class="chosen-select" >
-                        <option value="all">Todas la categorías</option>
+                        <option value="">Todas la categorías</option>
                         {% for category in categories %}
                         <option value="{{ category.id }}">{{ category }}</option>
                         {% endfor %}                        
@@ -43,7 +43,7 @@
                 </div>
                 <div class="listsearch-input-item">
                     <select name="purpose" class="chosen-select" >
-                        <option value="all">Todos los propósitos</option>
+                        <option value="">Todos los propósitos</option>
                         {% for purpose in purposes %}
                         <option value="{{ purpose.id }}">{{ purpose }}</option>
                         {% endfor %}
@@ -76,7 +76,7 @@
                     </div>
                 </div>
                 <!-- hidden-listing-filter end -->
-                <button class="button fs-map-btn">Actualizar</button>
+                <button id="search" class="button fs-map-btn">Actualizar</button>
                 <div class="more-filter-option">Más filtros <span></span></div>
             </div>
             <!-- listsearch-input-wrap end -->
