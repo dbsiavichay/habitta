@@ -101,7 +101,7 @@
 <!-- section end -->
 {% endblock %}
 {% block 'extrajs' %}
-    {% include 'base/js_maps.html' %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places&callback=initAutocomplete"></script>
     <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/property/property.js' %}"></script>
 {% endblock %}

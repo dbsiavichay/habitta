@@ -1,5 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
 	var base_url = '/api/properties/';
+	var center = {'lng': -78.11685009999997, 'lat': -2.2874005};
+
+	if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {        	
+        	center['lng'] = position.coords.longitude;
+        	center['lat'] = position.coords.latitude
+        	buildMap(center);            
+        });
+    }else{
+    	buildMap(center);
+    }
 
 	document.getElementById('search').addEventListener('click', function () {
 		var category = document.querySelector('[name=category]').value;
@@ -24,3 +35,187 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 });
+
+var markers = [];
+
+var getLocations = function(map) {		
+	var base_url = '/api/properties/';
+	$.get(base_url, function (data) {		
+		buildMarkers(data, map);
+	});
+}
+
+var getInfoBoxTemplate = function(location){	
+	var template = '<div class="map-popup-wrap">'+
+				'<div class="map-popup">'+
+					'<div class="infoBox-close"><i class="fa fa-times"></i></div>'+
+					'<div class="map-popup-category">'+location.category+'</div>'+
+					'<a href="'+location.url+'" class="listing-img-content fl-wrap"><img src="'+location.cover+'" alt=""></a>'+
+					'<div class="listing-content fl-wrap">'+
+						'<div class="card-popup-raining map-card-rainting" data-staRrating="'+location.stars+'">'+
+							'<span class="map-popup-reviews-count">( '+location.reviews+' comentarios )</span>'+
+						'</div>'+
+						'<div class="listing-title fl-wrap">'+
+							'<h4><a href='+location.url+">"+location.purpose+'</a></h4>'+
+							'<span class="map-popup-location-info"><i class="fa fa-map-marker"></i>'+location.address+'</span>'+
+							'<span class="map-popup-location-phone"><i class="fa fa-phone"></i>'+location.phone+'</span>'+
+						'</div>'+
+					'</div>'+
+				'</div>'+
+			'</div>';
+	
+	return template;
+}
+
+var buildInfoBox = function (locations, map) {		
+	var currentLocation;	
+	var container=document.createElement("div");
+	container.className="map-box";	
+	var options = {
+		content:container,
+		disableAutoPan:true,
+		alignBottom:true,
+		maxWidth:300,
+		pixelOffset:new google.maps.Size(-140,-45),
+		zIndex:null,
+		boxStyle:{width:'260px'},
+		closeBoxMargin:'0',
+		closeBoxURL:"",
+		infoBoxClearance:new google.maps.Size(1,1),
+		isHidden:false,
+		pane:'floatPane',
+		enableEventPropagation:false
+	};
+
+	for (var index in locations){				
+		var infobox = new InfoBox;
+		google.maps.event.addListener(infobox, 'domready',function(){cardRaining()});
+		google.maps.event.addListener(locations[index].marker, 'click', function(marker,index){
+			return function(){			
+				infobox.setOptions(options);
+				container.innerHTML = '';
+				container.innerHTML=getInfoBoxTemplate(locations[index]);
+				infobox.open(map,marker);				
+				currentLocation = marker.id;
+				
+				map.panTo(marker.getPosition());
+				map.panBy(0,-180);
+				google.maps.event.addListener(infobox,'domready',function(){
+					document.querySelector('.infoBox-close').addEventListener('click', function(e) {
+						e.preventDefault();
+						infobox.close();
+					});
+				})
+			}
+		}(locations[index].marker,index))		
+	}
+
+
+	document.querySelector('.nextmap-nav').addEventListener('click', function(e){		
+		e.preventDefault();
+		map.setZoom(16);
+		var next = currentLocation + 1;
+		if(next < locations.length) google.maps.event.trigger(locations[next].marker,'click');
+		else google.maps.event.trigger(locations[0].marker,'click');
+	});
+
+	document.querySelector('.prevmap-nav').addEventListener('click', function(e){
+		e.preventDefault();
+		map.setZoom(16);
+		var prev = currentLocation - 1;
+		if(prev > -1) google.maps.event.trigger(locations[prev].marker,'click');
+		else google.maps.event.trigger(locations[locations.length-1].marker,'click');
+	});
+}
+
+var buildMarkers = function(locations, map) {
+	if (!locations.length) return;
+
+	var icon = {		
+		url:"/static/images/marker.png",		
+		anchor:new google.maps.Point(24,50),
+	};	
+
+	for (var index=0;index<locations.length;index++) {
+		var location = locations[index];				
+		var marker = new google.maps.Marker({
+			animation:google.maps.Animation.DROP,
+			position:new google.maps.LatLng(location['latitude'],location['longitude']),
+			icon:icon,
+			id:index
+		});
+		markers.push(marker);
+		location['marker'] = marker;
+	}
+	
+	buildInfoBox(locations, map);			
+
+	var cluster = new MarkerClusterer(map, markers, {
+		imagePath:"images/",
+		styles:[{url:"",height:40,width:40}],
+		minClusterSize:2
+	});
+}
+
+var buildControls = function(map){
+	var container = document.createElement('div');		
+	container.index = 1;
+	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(container);
+	container.style.padding='5px';
+	var controls = document.createElement('div');
+	container.appendChild(controls);
+
+	var zoomIn = document.createElement('div');
+	zoomIn.className = 'mapzoom-in';
+	controls.appendChild(zoomIn);
+
+	var zoomOut = document.createElement('div');
+	zoomOut.className = 'mapzoom-out';
+	controls.appendChild(zoomOut);
+
+	google.maps.event.addDomListener(zoomIn, 'click', function() {
+		map.setZoom(map.getZoom()+1);
+	});
+	google.maps.event.addDomListener(zoomOut, 'click', function(){
+		map.setZoom(map.getZoom()-1);
+	});
+}
+
+var buildMap = function (center) {
+	var zoom=document.getElementById('map-main').getAttribute('data-map-zoom');
+	var scroll=document.getElementById('map-main').getAttribute('data-map-scroll');	
+
+
+	if(zoom) zoom=parseInt(zoom);
+	else zoom=14;
+
+	if(scroll) scroll=parseInt(scroll);
+	else scroll=false;
+			
+	var map = new google.maps.Map(
+		document.getElementById("map-main"),
+		{
+			zoom:zoom,
+			scrollwheel:scroll,
+			center:center,
+			mapTypeId:google.maps.MapTypeId.ROADMAP,
+			zoomControl:false,
+			mapTypeControl:false,
+			scaleControl:false,
+			panControl:false,
+			navigationControl:false,
+			streetViewControl:false,
+			animation:google.maps.Animation.BOUNCE,
+			gestureHandling:"cooperative",
+			styles:[{featureType:"administrative",elementType:"labels.text.fill",stylers:[{color:"#444444"}]}]
+		}
+	);
+
+	buildControls(map);
+	getLocations(map);
+
+	google.maps.event.addDomListener(window, 'resize', function() {		
+		google.maps.event.trigger(map,'resize');
+		map.setCenter(map.getCenter());
+	});	
+}
