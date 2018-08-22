@@ -13,11 +13,13 @@ class PropertySerializer(serializers.ModelSerializer):
 	latitude = serializers.FloatField(source='geopoint.y')
 	user_avatar = serializers.URLField(source='user.profile.get_avatar')
 	user_url = serializers.URLField(source='user.profile.get_absolute_url')
+	user_name = serializers.CharField(source='user.first_name')
 
 	class Meta:
 		model = Property
 		fields = (
 			'url', 'category','address', 'purpose', 
 			'category', 'cover', 'stars', 'reviews', 'phone', 
-			'longitude', 'latitude', 'user_avatar', 'user_url'
+			'longitude', 'latitude', 'user_avatar', 'user_url',
+			'user_name'
 		)

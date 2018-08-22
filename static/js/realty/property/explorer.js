@@ -25,22 +25,29 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (purpose) url+= 'purpose='+purpose+'&';
 		if (address) url+= 'address='+address+'&';
 
-		getData(url);
+		getLocations(map, url);
 	});
-
-	var getData = function (url) {		
-		$.get(url, function (data) {
-			console.log(data);
-		});
-	}
 
 });
 
-var markers = [];
 
-var getLocations = function(map) {		
+var vueApp = new Vue({
+ 	el: '#locations',
+ 	data: {
+    	locations: []
+  	}
+});
+
+var map;
+var markers = [];
+var cluster;
+var infobox;
+
+var getLocations = function(map, url) {			
 	var base_url = '/api/properties/';
-	$.get(base_url, function (data) {		
+	url = url || base_url;
+	$.get(url, function (data) {
+		vueApp.locations = data;		
 		buildMarkers(data, map);
 	});
 }
@@ -88,12 +95,11 @@ var buildInfoBox = function (locations, map) {
 	};
 
 	for (var index in locations){				
-		var infobox = new InfoBox;
+		infobox = new InfoBox;
 		google.maps.event.addListener(infobox, 'domready',function(){cardRaining()});
 		google.maps.event.addListener(locations[index].marker, 'click', function(marker,index){
 			return function(){			
-				infobox.setOptions(options);
-				container.innerHTML = '';
+				infobox.setOptions(options);				
 				container.innerHTML=getInfoBoxTemplate(locations[index]);
 				infobox.open(map,marker);				
 				currentLocation = marker.id;
@@ -109,7 +115,6 @@ var buildInfoBox = function (locations, map) {
 			}
 		}(locations[index].marker,index))		
 	}
-
 
 	document.querySelector('.nextmap-nav').addEventListener('click', function(e){		
 		e.preventDefault();
@@ -128,7 +133,17 @@ var buildInfoBox = function (locations, map) {
 	});
 }
 
+var destroyMarkers = function(map) {
+	if (cluster) {
+		cluster.removeMarkers(markers, map);
+		map.setZoom(14);
+		markers = [];		
+	}
+}
+
 var buildMarkers = function(locations, map) {
+	destroyMarkers(map);
+
 	if (!locations.length) return;
 
 	var icon = {		
@@ -150,7 +165,7 @@ var buildMarkers = function(locations, map) {
 	
 	buildInfoBox(locations, map);			
 
-	var cluster = new MarkerClusterer(map, markers, {
+	cluster = new MarkerClusterer(map, markers, {
 		imagePath:"images/",
 		styles:[{url:"",height:40,width:40}],
 		minClusterSize:2
@@ -192,7 +207,7 @@ var buildMap = function (center) {
 	if(scroll) scroll=parseInt(scroll);
 	else scroll=false;
 			
-	var map = new google.maps.Map(
+	map = new google.maps.Map(
 		document.getElementById("map-main"),
 		{
 			zoom:zoom,
