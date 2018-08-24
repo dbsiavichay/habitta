@@ -28,6 +28,18 @@ document.addEventListener('DOMContentLoaded', function () {
 		getLocations(map, url);
 	});
 
+	var autocompleteAddress = document.getElementById('autocomplete-input');    
+    var autocomplete = new google.maps.places.Autocomplete(autocompleteAddress);
+    autocomplete.addListener('place_changed', function() {
+     	var place = autocomplete.getPlace();
+		if (place.geometry) {
+		   //mapBounds = place.geometry.viewport;
+		   document.getElementById('search').click();
+		   map.fitBounds(place.geometry.viewport);
+		}                
+    });             
+    
+
 });
 
 
@@ -39,6 +51,7 @@ var vueApp = new Vue({
 });
 
 var map;
+var mapBounds;
 var markers = [];
 var cluster;
 var infobox;
@@ -48,11 +61,12 @@ var getLocations = function(map, url) {
 	url = url || base_url;
 	$.get(url, function (data) {
 		vueApp.locations = data;		
-		buildMarkers(data, map);
+		buildMarkers(data, map);		
 	});
 }
 
-var getInfoBoxTemplate = function(location){	
+var getInfoBoxTemplate = function(location){
+	console.log(location);
 	var template = '<div class="map-popup-wrap">'+
 				'<div class="map-popup">'+
 					'<div class="infoBox-close"><i class="fa fa-times"></i></div>'+

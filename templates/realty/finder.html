@@ -55,14 +55,14 @@
                     <a  href="#"  class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
                 </div>
                 <!-- hidden-listing-filter -->
-                <div class="hidden-listing-filter fl-wrap">
+                <!-- <div class="hidden-listing-filter fl-wrap">
                     <div class="distance-input fl-wrap">
                         <div class="distance-title"> Radio alrededor del destino seleccionado <span></span> km</div>
                         <div class="distance-radius-wrap fl-wrap">
                             <input class="distance-radius rangeslider--horizontal" type="range" min="1" max="100" step="1" value="1" data-title="Radius around selected destination">
                         </div>
                     </div>
-                    <!-- Checkboxes -->
+                    
                     <div class=" fl-wrap filter-tags">
                         <h4>Filtrar por tags</h4>
                         <input id="check-aa" type="checkbox" name="check">
@@ -74,10 +74,10 @@
                         <input id="check-d" type="checkbox" name="check">
                         <label for="check-d">Wireless Internet</label>
                     </div>
-                </div>
+                </div> -->
                 <!-- hidden-listing-filter end -->
                 <button id="search" class="button fs-map-btn">Actualizar</button>
-                <div class="more-filter-option">Más filtros <span></span></div>
+                <!-- <div class="more-filter-option">Más filtros <span></span></div> -->
             </div>
             <!-- listsearch-input-wrap end -->
         </div>
@@ -141,7 +141,7 @@
 {% endblock %}
 
 {% block 'extrajs' %}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places&callback=initAutocomplete"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places"></script>
     <script type="text/javascript" src="{% static 'js/map_infobox.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/markerclusterer.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>

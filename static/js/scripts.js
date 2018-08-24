@@ -652,26 +652,10 @@ cr2.each(function (cr) {
 });
 $(".location a , .loc-act").on("click", function (e) {
 	e.preventDefault();
-$.get("http://ipinfo.io", function (response) {
-  $(".location input , .qodef-archive-places-search").val( response.city);
- 
-}, "jsonp");
+    $.get("http://ipinfo.io", function (response) {
+        $(".location input, .qodef-archive-places-search").val(response.city); 
+    }, "jsonp");    
  });
- 
-function initAutocomplete() {
-    var input = document.getElementById('autocomplete-input');
-    if (input) {
-        var autocomplete = new google.maps.places.Autocomplete(input);
-        autocomplete.addListener('place_changed', function() {
-          var place = autocomplete.getPlace();
-          if (!place.geometry) {
-            window.alert("No details available for input: '" + place.name + "'");
-            return;
-          }
-          //console.log(place);
-        });             
-    }
-}
 
 //   Init All ------------------
 $(function () {
