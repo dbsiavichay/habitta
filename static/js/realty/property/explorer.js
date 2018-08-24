@@ -34,12 +34,29 @@ document.addEventListener('DOMContentLoaded', function () {
      	var place = autocomplete.getPlace();
 		if (place.geometry) {
 		   //mapBounds = place.geometry.viewport;
-		   document.getElementById('search').click();
+		   document.getElementById('search').click();		   
 		   map.fitBounds(place.geometry.viewport);
 		}                
-    });             
-    
+    });
 
+
+    document.querySelector('.loc-act').addEventListener('click', function (e) {
+		e.preventDefault();
+		if ("geolocation" in navigator) {
+	        navigator.geolocation.getCurrentPosition(function(position) {        	
+	        	var lng = position.coords.longitude;
+	        	var lat = position.coords.latitude
+	        	var url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+lat+','+lng+'&key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I';
+			    $.get(url, function (response) {
+			        if (response.status=='OK') {
+			        	var address = response.results[1].formatted_address
+			        	document.querySelector('.qodef-archive-places-search').value = address;			        
+			        }
+			    });	        	
+	        });
+	    }
+
+	});             
 });
 
 

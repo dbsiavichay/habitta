@@ -650,12 +650,6 @@ cr2.each(function (cr) {
     var starcount2 = $(this).attr("data-starrating2");
     $("<i class='fa fa-star'></i>").duplicate(starcount2).prependTo(this);
 });
-$(".location a , .loc-act").on("click", function (e) {
-	e.preventDefault();
-    $.get("http://ipinfo.io", function (response) {
-        $(".location input, .qodef-archive-places-search").val(response.city); 
-    }, "jsonp");    
- });
 
 //   Init All ------------------
 $(function () {
