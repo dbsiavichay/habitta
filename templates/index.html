@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
+
 {% load static %}
+{% load components %}
 {% load comments %}
 
 {% block 'content' %}
 
 <!--section -->
 <section class="scroll-con-sec hero-section" data-scrollax-parent="true" id="sec1">
-    <div class="bg"  data-bg="{% static 'images/bg/bg.jpg' %}" data-scrollax="properties: { translateY: '200px' }"></div>
+    <div class="bg" data-bg="{% static 'images/bg/bg.jpg' %}" data-scrollax="properties: { translateY: '200px' }"></div>
     <div class="overlay"></div>
     <div class="hero-section-wrap fl-wrap">
         <div class="container">
@@ -16,22 +18,20 @@
             </div>
             <div class="main-search-input-wrap">
                 <div class="main-search-input fl-wrap">
-                    <div class="main-search-input-item">
-                        <input type="text" placeholder="¿Qué estas buscando?" value=""/>
-                    </div>
-                    <div class="main-search-input-item location" id="autocomplete-container">
-                        <input type="text" placeholder="Lugar" id="autocomplete-input" value=""/>
-                        <a href="#"><i class="fa fa-dot-circle-o"></i></a>
-                    </div>
-                    <div class="main-search-input-item">
-                        <select data-placeholder="Todas las categorias" class="chosen-select" >
-                            <option>Todas las categorias</option>
-                            {% for category in categories %}
-                            <option>{{ category }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button class="main-search-button" onclick="window.location.href='listings-half-screen-map-list.html'">Búsqueda</button>
+                    <form method="POST" action="{% url 'finder' %}">
+                        {% csrf_token %}
+                        <div class="main-search-input-item location" id="autocomplete-container">
+                            {{ form.address|attr:"id:ac_address"|append_attr:"placeholder:Destino, cuidad, área" }}
+                            <a href="#"><i class="fa fa-dot-circle-o"></i></a>
+                        </div>
+                        <div class="main-search-input-item">
+                            {{ form.category|add_class:"chosen-select" }}
+                        </div>
+                        <div class="main-search-input-item">
+                            {{ form.purpose|add_class:"chosen-select" }}
+                        </div>
+                        <button type="submit" class="main-search-button">Búsqueda</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -522,4 +522,9 @@
     </div>
 </section>
 <!-- section end -->
+{% endblock %}
+
+{% block 'extrajs' %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places"></script>
+    <script src="{% static 'js/index.js' %}"></script>
 {% endblock %}

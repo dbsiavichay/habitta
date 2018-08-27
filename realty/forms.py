@@ -7,7 +7,7 @@ from django.forms.widgets import (
 	TextInput, NumberInput, HiddenInput,
 	Select, RadioSelect
 )
-from .models import Category, Property, PropertyImage
+from .models import Category, Purpose, Property, PropertyImage
 from django.contrib.gis.geos import Point
 
 import datetime as dt
@@ -116,3 +116,16 @@ class PropertyBase64ImageForm(ModelForm):
 		if commit:
 			obj.save()            
 		return obj
+
+class FinderForm(Form):
+	address = CharField(required=False)
+	category = ModelChoiceField(
+		queryset = Category.objects.all(),
+		empty_label = 'Todas las categorías',		
+		required = False
+	)
+	purpose = ModelChoiceField(
+		queryset = Purpose.objects.all(),
+		empty_label = 'Todos los propósitos',
+		required = False
+	)

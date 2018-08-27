@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-	var base_url = '/api/properties/';
 	var center = {'lng': -78.11685009999997, 'lat': -2.2874005};
 
 	if ("geolocation" in navigator) {
@@ -12,30 +11,18 @@ document.addEventListener('DOMContentLoaded', function () {
     	buildMap(center);
     }
 
-	document.getElementById('search').addEventListener('click', function () {
-		var category = document.querySelector('[name=category]').value;
-		var purpose = document.querySelector('[name=purpose]').value;
-		var address = document.querySelector('[name=address]').value;
-
-		if (!category && !purpose && !address) return;
-
-		var url = base_url+'?';
-
-		if (category) url+= 'category='+category+'&';
-		if (purpose) url+= 'purpose='+purpose+'&';
-		if (address) url+= 'address='+address+'&';
-
-		getLocations(map, url);
+	document.getElementById('search').addEventListener('click', function () {		
+		getLocations(map, getSearchUrl());
 	});
 
-	var autocompleteAddress = document.getElementById('autocomplete-input');    
-    var autocomplete = new google.maps.places.Autocomplete(autocompleteAddress);
+	var autocompleteAddress = document.getElementById('ac_address');    
+    var autocomplete = new google.maps.places.Autocomplete(autocompleteAddress);    
     autocomplete.addListener('place_changed', function() {
      	var place = autocomplete.getPlace();
 		if (place.geometry) {
 		   //mapBounds = place.geometry.viewport;
 		   document.getElementById('search').click();		   
-		   map.fitBounds(place.geometry.viewport);
+		   map.fitBounds(place.geometry.viewport);		   
 		}                
     });
 
@@ -55,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			    });	        	
 	        });
 	    }
-
 	});             
 });
 
@@ -73,17 +59,29 @@ var markers = [];
 var cluster;
 var infobox;
 
-var getLocations = function(map, url) {			
-	var base_url = '/api/properties/';
-	url = url || base_url;
+var getSearchUrl = function () {
+	var url = '/api/properties/';
+	var category = document.getElementById('id_category').value;
+	var purpose = document.getElementById('id_purpose').value;
+	var address = document.getElementById('ac_address').value;
+
+	if (!category && !purpose && !address) return url;
+
+	url+='?';
+	if (category) url+= 'category='+category+'&';
+	if (purpose) url+= 'purpose='+purpose+'&';
+	if (address) url+= 'address='+address+'&';
+	return url;
+}
+
+var getLocations = function(map, url) {	
 	$.get(url, function (data) {
 		vueApp.locations = data;		
 		buildMarkers(data, map);		
 	});
 }
 
-var getInfoBoxTemplate = function(location){
-	console.log(location);
+var getInfoBoxTemplate = function(location){	
 	var template = '<div class="map-popup-wrap">'+
 				'<div class="map-popup">'+
 					'<div class="infoBox-close"><i class="fa fa-times"></i></div>'+
@@ -105,7 +103,7 @@ var getInfoBoxTemplate = function(location){
 	return template;
 }
 
-var buildInfoBox = function (locations, map) {		
+var buildInfoBox = function (locations, map) {			
 	var currentLocation;	
 	var container=document.createElement("div");
 	container.className="map-box";	
@@ -258,7 +256,7 @@ var buildMap = function (center) {
 	);
 
 	buildControls(map);
-	getLocations(map);
+	getLocations(map, getSearchUrl());
 
 	google.maps.event.addDomListener(window, 'resize', function() {		
 		google.maps.event.trigger(map,'resize');

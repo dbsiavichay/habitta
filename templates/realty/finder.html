@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load components %}
 {% load comments %}
 
 
@@ -34,24 +35,14 @@
                     <input type="text" placeholder="Palabras clave?" value=""/>
                 </div> -->
                 <div class="listsearch-input-item">
-                    <select name="category" class="chosen-select" >
-                        <option value="">Todas la categorías</option>
-                        {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category }}</option>
-                        {% endfor %}                        
-                    </select>
+                    {{ form.category|add_class:"chosen-select" }}                    
                 </div>
                 <div class="listsearch-input-item">
-                    <select name="purpose" class="chosen-select" >
-                        <option value="">Todos los propósitos</option>
-                        {% for purpose in purposes %}
-                        <option value="{{ purpose.id }}">{{ purpose }}</option>
-                        {% endfor %}
-                    </select>
+                    {{ form.purpose|add_class:"chosen-select" }}                    
                 </div>
                 <div class="listsearch-input-text" id="autocomplete-container">
-                    <label><i class="mbri-map-pin"></i>Ingrese un dirección </label>
-                    <input type="text" name="address" placeholder="Destino, área, calle" id="autocomplete-input" class="qodef-archive-places-search" value=""/>
+                    <label><i class="mbri-map-pin"></i>Ingrese una dirección </label>
+                    {{ form.address|attr:"id:ac_address"|add_class:"qodef-archive-places-search"|append_attr:"placeholder:Destino, cuidad, área" }}                    
                     <a  href="#" class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
                 </div>
                 <!-- hidden-listing-filter -->

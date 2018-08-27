@@ -651,6 +651,8 @@ cr2.each(function (cr) {
     $("<i class='fa fa-star'></i>").duplicate(starcount2).prependTo(this);
 });
 
+
+
 //   Init All ------------------
 $(function () {
     initCitybook();
