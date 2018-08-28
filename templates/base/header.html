@@ -52,23 +52,11 @@
             <nav>
                 <ul>
                     <li>
-                        <a href="{% url 'home' %}">Inicio</a>
+                        <a href="{% url 'home' %}" {% if request.path == '/' %}class="act-link"{% endif %}>Inicio</a>
                     </li>
                     <li>
-                        <a href="{% url 'finder' %}">Explora</a>
+                        <a href="{% url 'finder' %}" {% if 'finder' in request.path %}class="act-link"{% endif %}>Explora</a>
                     </li>
-                    <li>
-                        <a href="#" class="act-link">Categorias <i class="fa fa-caret-down"></i></a>
-                        <!--second level -->
-                        <ul>
-                            <li><a href="index.html">Parallax Image</a></li>
-                            <li><a href="index2.html">Video</a></li>
-                            <li><a href="index3.html">Map</a></li>
-                            <li><a href="index4.html">Slideshow</a></li>
-                            <li><a href="index5.html">Sider</a></li>
-                        </ul>
-                        <!--second level end-->
-                    </li>                    
                     <li>
                         <a href="#">Precios</a>
                     </li>                    

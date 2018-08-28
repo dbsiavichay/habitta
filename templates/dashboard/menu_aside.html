@@ -5,9 +5,9 @@
             <div class="user-profile-menu">
                 <h3>Principal</h3>
                 <ul>
-                    <li><a href="{% url 'update_profile' %}"><i class="fa fa-user-o"></i> Editar perfil</a></li>
+                    <li><a {% if 'profile/update' in request.path %} class="user-profile-act" {% endif %} href="{% url 'update_profile' %}"><i class="fa fa-user-o"></i> Editar perfil</a></li>
                     <li><a href="dashboard-messages.html"><i class="fa fa-envelope-o"></i> Mensajes <span>3</span></a></li>
-                    <li><a href="dashboard-password.html"><i class="fa fa-unlock-alt"></i>Cambiar contraseña</a></li>
+                    <li><a {% if 'password' in request.path %} class="user-profile-act" {% endif %} href="{% url 'change_password' %}"><i class="fa fa-unlock-alt"></i>Cambiar contraseña</a></li>
                 </ul>
             </div>
             <!-- user-profile-menu end-->
@@ -15,10 +15,9 @@
             <div class="user-profile-menu">
                 <h3>Publicaciones</h3>
                 <ul>
-                    <li><a href="{% url 'properties' %}"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>
-                    <li><a href="dashboard-bookings.html"> <i class="fa fa-calendar-check-o"></i> Reservaciones <span>2</span></a></li>
-                    <li><a href="dashboard-review.html"><i class="fa fa-comments-o"></i> Comentarios </a></li>
-                    <li><a href="dashboard-add-listing.html" class="user-profile-act"><i class="fa fa-plus-square-o"></i> Publicar</a></li>
+                    <li><a {% if 'properties' in request.path %} class="user-profile-act" {% endif %} href="{% url 'properties' %}"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>
+                    <li><a href="dashboard-review.html"><i class="fa fa-comments-o"></i> Comentarios <span>2</span></a></li>
+                    <li><a href="{% url 'choose_category' %}" {% if 'property' in request.path %} class="user-profile-act" {% endif %}><i class="fa fa-plus-square-o"></i> Publicar</a></li>
                 </ul>
             </div>
             <!-- user-profile-menu end-->                                        

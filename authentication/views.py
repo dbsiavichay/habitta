@@ -3,6 +3,7 @@ from django.http import Http404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.contrib.auth.views import LoginView as AuthLoginView
+from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
 from .models import Profile, SocialNetwork, SocialNetworkProfile
@@ -23,6 +24,7 @@ class UserCreationView(CreateView):
 
 	def form_valid(self, form):
 		self.object = form.save()
+		login(self.request, self.object)
 		return redirect(reverse_lazy('complete_register', args=[self.object.profile.id]))
 
 class CompleteRegisterView(UpdateView):
