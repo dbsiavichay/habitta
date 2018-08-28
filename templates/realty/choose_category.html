@@ -18,7 +18,7 @@
                 {% for category in object_list %}
                 <!--box-cat-->
                 <a href="{% url 'add_property' category.pk %}" class="box-cat color-bg">
-                    <i class="fa fa-cutlery"></i>
+                    <i class="fa fa-{{ category.icon }}"></i>
                     <h4>{{ category }}</h4>
                 </a>                
                 <!--box-cat end-->

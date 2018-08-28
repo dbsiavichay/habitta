@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Specification, Service, Category, Purpose, Property
+from .models import Specification, Service, Category, Purpose, Property, PropertyImage
 
 class SpecificationAdmin(admin.ModelAdmin):
 	pass
@@ -13,8 +13,13 @@ class CategoryAdmin(admin.ModelAdmin):
 class PurposeAdmin(admin.ModelAdmin):
 	pass
 
+class PropertyImageInline(admin.TabularInline):
+    model = PropertyImage
+
 class PropertyAdmin(admin.ModelAdmin):
-	pass
+	inlines = [
+		PropertyImageInline,
+	]
 
 admin.site.register(Specification, SpecificationAdmin)
 admin.site.register(Service, ServiceAdmin)

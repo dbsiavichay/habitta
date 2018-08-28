@@ -40,7 +40,8 @@ class Category(models.Model):
 	class Meta:
 		verbose_name = 'categoría'
 
-	name = models.CharField(max_length=32, verbose_name='nombre')	
+	name = models.CharField(max_length=32, verbose_name='nombre')
+	icon = IconField()	
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
 	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
 
@@ -123,7 +124,6 @@ class Property(models.Model):
 
 	def get_absolute_url(self):		
 		return reverse('detail_property', args=[str(self.id)])
-
 
 class PropertyImage(models.Model):
 	class Meta:

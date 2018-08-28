@@ -1,8 +1,14 @@
 from django.contrib import admin
-from .models import Profile, SocialProfile, SocialNetwork
+from .models import Profile, SocialProfile, SocialNetwork, SocialNetworkProfile
+
+class SocialNetworkProfileInline(admin.TabularInline):
+	model = SocialNetworkProfile
 
 class ProfileAdmin(admin.ModelAdmin):
 	list_display = ('user', 'phone', 'website',)
+	inlines = [
+		SocialNetworkProfileInline,
+	]
 
 class SocialProfileAdmin(admin.ModelAdmin):
 	list_display = ('identifier', 'provider', 'user',)
