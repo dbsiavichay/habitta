@@ -10,8 +10,6 @@ from django.forms.widgets import (
 from .models import Category, Purpose, Property, PropertyImage
 from django.contrib.gis.geos import Point
 
-import datetime as dt
-
 class PropertyForm(ModelForm):
 	longitude = FloatField(label='Longitud')
 	latitude = FloatField(label='Latitud')

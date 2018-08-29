@@ -66,6 +66,7 @@ class Property(models.Model):
 	class Meta:
 		verbose_name = 'propiedad'
 		verbose_name_plural = 'propiedades'
+
 	DRAFT, PUBLISHED, COMPLETE = (1, 2, 3)
 
 	STATUS_CHOICES = (
@@ -120,7 +121,7 @@ class Property(models.Model):
 	def get_gallery(self):
 		instances = self.images.filter(is_cover=False)
 		images = [i.img for i in instances if i.img]
-		return images
+		return images	
 
 	def get_absolute_url(self):		
 		return reverse('detail_property', args=[str(self.id)])

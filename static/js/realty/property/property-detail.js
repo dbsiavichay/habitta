@@ -154,8 +154,5 @@ $(function () {
         .then(function () {
             createCropper(image, true);                    
         });
-    });
-
-
-    
+    });    
 });

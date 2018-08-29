@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'authentication',
     'comments',
     'realty',
+    'logs',
 ]
 
 MIDDLEWARE = [

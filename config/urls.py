@@ -27,4 +27,5 @@ urlpatterns = [
     path('authentication/', include('authentication.urls')),
     path('comments/', include('comments.urls')),
     path('realty/', include('realty.urls')),
+    path('logs/', include('logs.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

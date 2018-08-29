@@ -4,6 +4,7 @@ from authentication.decorators import owner_required
 from .views import (
 	ChooseCategoryListView, 
 	PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView,
+	PropertyFavoriteListView,
 	PropertyBase64ImageUploadView,
 	FinderListView,
 )
@@ -14,7 +15,8 @@ urlpatterns = [
 	path('property/add/category/<int:category>/', login_required(PropertyCreateView.as_view()), name='add_property'),    	
 	path('property/<int:pk>/update/', owner_required(PropertyUpdateView.as_view()), name='update_property'),    		
 	path('property/base64image/add/', login_required(PropertyBase64ImageUploadView.as_view()), name='add_property_base64image'),
-
 	path('property/<int:pk>/detail/', PropertyDetailView.as_view(), name='detail_property'),    	
+	path('favorite/properties/', login_required(PropertyFavoriteListView.as_view()), name='favorite_properties'),
+	
 	path('finder/', FinderListView.as_view(), name='finder'),
 ]

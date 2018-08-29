@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load logs %}
 
 {% block 'extracss' %}
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/cropper/cropper.css' %}">
@@ -18,7 +19,7 @@
                 <li><a href="#sec4">Comentarios</a></li>
             </ul>
         </nav>
-        <a href="#" class="save-btn"> <i class="fa fa-heart"></i> Me gusta </a>
+        {% like_log object user %}
     </div>
 </div>
 <!--  section  --> 
@@ -71,8 +72,9 @@
 {% endblock %}
 
 {% block 'extrajs' %}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places&callback=initAutocomplete"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I"></script>
     <script type="text/javascript" src="{% static 'js/realty/property/map.js' %}"></script>   
+    <script type="text/javascript" src="{% static 'js/realty/property/save.js' %}"></script>   
     {% if object.user == user %}
     <script type="text/javascript" src="{% static 'js/csfrtoken.js' %}"></script>   
     <script type="text/javascript" src="{% static 'plugins/cropper/cropper.js' %}"></script>

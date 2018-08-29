@@ -1,14 +1,16 @@
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, FormView, TemplateView
-
+from django.views.generic import (
+	ListView, CreateView, UpdateView, DetailView, FormView,
+)
 from .models import Category, Property, PropertyImage
 from .forms import (
 	PropertyForm, PropertyDetailsForm,
 	PropertyBase64ImageForm,
 	FinderForm
 )
+from logs.models import Log
 
 class ChooseCategoryListView(ListView):
 	model = Category
@@ -144,6 +146,15 @@ class PropertyBase64ImageUploadView(CreateView):
 
 	def get(self, request, *args, **kwargs):
 		raise Http404
+
+class PropertyFavoriteListView(ListView):
+	model = Property
+	template_name_suffix = '_favorite_list'
+
+	def get_queryset(self):
+		properties = Log.objects.values_list('property_id', flat=True).filter(type=Log.LIKE, user=self.request.user)
+		queryset = super().get_queryset()
+		return queryset.filter(id__in=properties)
 
 class FinderListView(FormView):	
 	template_name = 'realty/finder.html'

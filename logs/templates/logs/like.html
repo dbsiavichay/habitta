@@ -1,0 +1,13 @@
+{% if log_form %}
+    <form id="log_form" action="{% url 'add_log' %}" method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {{ log_form }}
+    </form>
+    <a href="#" class="save-btn"><i class="fa fa-heart-o" style="color: #878C9F!important;"></i> Me gusta </a>
+{% else %}
+	<form id="log_form" action="{% url 'delete_log' log.id %}" method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}        
+    </form>
+	<a href="#" class="save-btn"><i class="fa fa-heart"></i> Me gusta </a>
+{% endif %}    
+

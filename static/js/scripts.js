@@ -295,7 +295,7 @@ function initCitybook() {
     }
     $(".showshare").on("click", function () {
         $(this).toggleClass("vis-butsh");
-        $(this).find("span").text($(this).text() === 'Close' ? 'Share' : 'Close');
+        $(this).find("span").text($(this).text() === 'Cerrar' ? 'Compartir' : 'Cerrar');
         if ($(".share-container").hasClass("isShare")) showShare();
         else hideShare();
     });
