@@ -20,15 +20,15 @@
                 <div class="main-search-input fl-wrap">
                     <form method="POST" action="{% url 'finder' %}">
                         {% csrf_token %}
-                        <div class="main-search-input-item location" id="autocomplete-container">
-                            {{ form.address|attr:"id:ac_address"|append_attr:"placeholder:Destino, cuidad, área" }}
-                            <a href="#"><i class="fa fa-dot-circle-o"></i></a>
+                        <div class="main-search-input-item">
+                            {{ form.purpose|add_class:"chosen-select" }}
                         </div>
                         <div class="main-search-input-item">
                             {{ form.category|add_class:"chosen-select" }}
                         </div>
-                        <div class="main-search-input-item">
-                            {{ form.purpose|add_class:"chosen-select" }}
+                        <div class="main-search-input-item location" id="autocomplete-container">
+                            {{ form.address|attr:"id:ac_address"|append_attr:"placeholder:Destino, cuidad, área" }}
+                            <a href="#"><i class="fa fa-dot-circle-o"></i></a>
                         </div>
                         <button type="submit" class="main-search-button">Búsqueda</button>
                     </form>

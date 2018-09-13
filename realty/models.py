@@ -54,13 +54,14 @@ class Purpose(models.Model):
 		verbose_name = 'propósito'
 		ordering = ['order',]
 
-	name = models.CharField(max_length=32, verbose_name='nombre')	
+	for_owner = models.CharField(max_length=32, verbose_name='para el propietario')	
+	for_user = models.CharField(max_length=32, verbose_name='para el usuario')		
 	activity = models.CharField(max_length=32, verbose_name='actividad')
 	participle = models.CharField(max_length=32, verbose_name='participio')
 	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')
 
 	def __str__(self):
-		return self.name
+		return self.for_owner
 
 class Property(models.Model):
 	class Meta:

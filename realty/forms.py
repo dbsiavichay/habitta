@@ -147,6 +147,6 @@ class FinderForm(Form):
 	)
 	purpose = ModelChoiceField(
 		queryset = Purpose.objects.all(),
-		empty_label = 'Todos los propósitos',
+		empty_label = '¿Que deseas hacer?',
 		required = False
 	)
