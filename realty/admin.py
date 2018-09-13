@@ -1,8 +1,9 @@
 from django.contrib import admin
 from .models import Specification, Service, Category, Purpose, Property, PropertyImage
+from .forms import SpecificationForm
 
 class SpecificationAdmin(admin.ModelAdmin):
-	pass
+	form = SpecificationForm
 	
 class ServiceAdmin(admin.ModelAdmin):
 	pass

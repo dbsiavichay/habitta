@@ -1,14 +1,37 @@
 from django.forms import ( 
 	ModelForm, Form, 
-	CheckboxSelectMultiple, ModelChoiceField, ModelMultipleChoiceField, 
-	CharField, FloatField, ChoiceField
+	ModelChoiceField, ModelMultipleChoiceField, 
+	CharField, FloatField, ChoiceField, BooleanField,
+	ValidationError
 )
 from django.forms.widgets import (
 	TextInput, NumberInput, HiddenInput,
-	Select, RadioSelect
+	Select, RadioSelect,
+	CheckboxSelectMultiple
 )
-from .models import Category, Purpose, Property, PropertyImage
+from .models import Specification, Category, Purpose, Property, PropertyImage
 from django.contrib.gis.geos import Point
+
+class SpecificationForm(ModelForm):
+	class Meta:
+		model = Specification
+		fields = '__all__'
+
+	def clean(self):
+		super().clean()
+		widget = self.cleaned_data.get('widget')
+		choices = self.cleaned_data.get('choices')
+
+		CHOICE_WIDGETS = ('Select', 'RadioSelect')
+
+		if widget in CHOICE_WIDGETS  and choices is None:            
+			raise ValidationError(
+				'Si selecciona un widget de tipo %(widget)s debe completar las elecciones',
+				code = 'invalid',
+				params = {'widget': widget}                
+			)           
+
+		return self.cleaned_data
 
 class PropertyForm(ModelForm):
 	longitude = FloatField(label='Longitud')
@@ -58,7 +81,7 @@ class PropertyDetailsForm(Form):
 		if category is None or not isinstance(category, Category): 
 			raise ValueError('Debe indicar una categoria')
 
-		INPUT_WIDGETS = ('TextInput', 'NumberInput')
+		INPUT_WIDGETS = ('TextInput', 'NumberInput',)
 		CHOICE_WIDGETS = ('Select', 'RadioSelect')		
 
 		for specification in category.specifications.all():
@@ -71,14 +94,14 @@ class PropertyDetailsForm(Form):
 					required = specification.is_required,
 				)			
 			elif specification.widget in CHOICE_WIDGETS:
-				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]				
+				CHOICES = [(choice, choice) for choice in specification.choices.split(',')] if specification.choices is not None else []
 				self.fields[key] = ChoiceField(
 					label = specification.name,
 					choices = CHOICES,
 					widget = eval(specification.widget),					
 					required = specification.is_required,					
 				)							
-			elif specification.widget == 'checkbox':
+			elif specification.widget == 'CheckboxInput':
 				self.fields[key] = BooleanField(
 					label = specification.name,					
 				)

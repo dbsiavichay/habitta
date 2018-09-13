@@ -22,8 +22,8 @@ class Specification(models.Model):
 		ordering = ['order',]
 
 	WIDGET_CHOICES = (
-		('TextInput', 'Texto'), ('NumberInput', 'Número'),
-		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple')
+		('TextInput', 'Texto'), ('NumberInput', 'Número'), 
+		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple'),
 	)	
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
