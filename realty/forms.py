@@ -138,6 +138,11 @@ class PropertyBase64ImageForm(ModelForm):
 			obj.save()            
 		return obj
 
+
+class PurposeChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.for_user
+
 class FinderForm(Form):
 	address = CharField(required=False)
 	category = ModelChoiceField(
@@ -145,7 +150,7 @@ class FinderForm(Form):
 		empty_label = 'Todas las categorías',		
 		required = False
 	)
-	purpose = ModelChoiceField(
+	purpose = PurposeChoiceField(
 		queryset = Purpose.objects.all(),
 		empty_label = '¿Que deseas hacer?',
 		required = False
