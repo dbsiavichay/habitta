@@ -39,9 +39,11 @@ class Specification(models.Model):
 class Category(models.Model):
 	class Meta:
 		verbose_name = 'categoría'
+		ordering = ('order',)
 
 	name = models.CharField(max_length=32, verbose_name='nombre')
-	icon = IconField()	
+	icon = IconField()
+	order = models.PositiveSmallIntegerField(verbose_name='orden')	
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
 	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
 
