@@ -1,9 +1,7 @@
-from .models import Category, Purpose
+from .forms import FinderForm
 
 def search_bar(request):
-	categories = Category.objects.all()	
-	purposes = Purpose.objects.all()
+	form = FinderForm()
 	return {
-		'categories': categories,
-		'purposes': purposes,
+		'search_form': form,		
 	}

@@ -1,24 +1,25 @@
 {% load static %}
+{% load components %}
 <!-- header-->
 <header class="main-header dark-header fs-header sticky">
     <div class="header-inner">
         <div class="logo-holder">
             <a href="{% url 'home' %}"><img src="{% static 'images/logo.png' %}" alt=""></a>
         </div>
+        {% if request.path != '/' %}
         <div class="header-search vis-header-search">
-            <div class="header-search-input-item">
-                <input type="text" placeholder="Palabra clave" value=""/>
-            </div>
-            <div class="header-search-select-item">
-                <select data-placeholder="All Categories" class="chosen-select" >
-                    <option>Todas las categorias</option>
-                    {% for category in categories %}
-                    <option>{{ category }}</option>
-                    {% endfor %}                    
-                </select>
-            </div>
-            <button class="header-search-button" onclick="window.location.href='listing.html'">Buscar</button>
+            <form method="POST" action="{% url 'finder' %}">
+                {% csrf_token %}
+                <div class="header-search-select-item custom">
+                    {{ search_form.purpose|add_class:"chosen-select" }}
+                </div>
+                <div class="header-search-select-item">
+                    {{ search_form.category|add_class:"chosen-select" }}
+                </div>
+                <button type="submit" class="header-search-button">Buscar</button>
+            </form>
         </div>
+        {% endif %}
         <div class="show-search-button"><i class="fa fa-search"></i> <span>Búsqueda</span></div>
         <a href="{% url 'choose_category' %}" class="add-list">Publica <span><i class="fa fa-plus"></i></span></a>
 
@@ -59,7 +60,7 @@
                         <a href="{% url 'finder' %}" {% if 'finder' in request.path %}class="act-link"{% endif %}>Explora</a>
                     </li>
                     <li>
-                        <a href="#">Precios</a>
+                        <a href="#">Servicios</a>
                     </li>                    
                 </ul>
             </nav>

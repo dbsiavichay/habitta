@@ -413,6 +413,10 @@ blockquote p {
 	height:40px;
 	border-left:1px solid #eee;
 }
+.header-search-select-item.custom {
+	border-top-left-radius:20px;
+	border-bottom-left-radius:20px;
+}
 .header-search-select-item .nice-select {
 	color:#292929;
 	float:left;

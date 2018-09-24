@@ -2,7 +2,7 @@ from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
-	ListView, CreateView, UpdateView, DetailView, FormView,
+	ListView, CreateView, UpdateView, DetailView, FormView, TemplateView
 )
 from .models import Category, Property, PropertyImage
 from .forms import (
@@ -156,16 +156,15 @@ class PropertyFavoriteListView(ListView):
 		queryset = super().get_queryset()
 		return queryset.filter(id__in=properties)
 
-class FinderListView(FormView):	
+class FinderListView(FormView) :	
 	template_name = 'realty/finder.html'
 	form_class = FinderForm
 
 	def post(self, request, *args, **kwargs):
 		return self.get(request, *args, **kwargs)
 
-class HomeView(FormView):
+class HomeView(TemplateView):
 	template_name = 'index.html'
-	form_class = FinderForm
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

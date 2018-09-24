@@ -144,14 +144,14 @@ class PurposeChoiceField(ModelChoiceField):
         return obj.for_user
 
 class FinderForm(Form):
-	address = CharField(required=False)
-	category = ModelChoiceField(
-		queryset = Category.objects.all(),
-		empty_label = 'Todas las categorías',		
-		required = False
-	)
 	purpose = PurposeChoiceField(
 		queryset = Purpose.objects.all(),
 		empty_label = '¿Que deseas hacer?',
 		required = False
 	)
+	category = ModelChoiceField(
+		queryset = Category.objects.all(),
+		empty_label = 'Todas las categorías',		
+		required = False
+	)
+	address = CharField(required=False)
