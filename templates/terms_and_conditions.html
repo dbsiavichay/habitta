@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block 'content' %}
+<!--section -->
+<section class="parallax-section" data-scrollax-parent="true" id="sec1">
+    <div class="bg par-elem "  data-bg="{% static 'images/bg/1.jpg' %}" data-scrollax="properties: { translateY: '30%' }"></div>
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="section-title center-align">
+            <h2><span>Términos y condiciones de servicio</span></h2>
+            <div class="breadcrumbs fl-wrap"><a href="{% url 'home' %}">Inicio</a><span>Términos y condiciones</span></div>
+            <span class="section-separator"></span>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+<!--section -->
+<section>
+    <div class="container">        
+        <!--about-wrap --> 
+        <div class="about-wrap">
+        	<div class="list-single-main-item-title fl-wrap">
+                <h3>Privacidad</h3>                
+                <span class="section-separator fl-sec-sep"></span>
+            </div>
+            <p>Larbit garantiza la privacidad de la información del usuario, no se comparte nada con terceros a menos que así lo desee el propietario o por motivos legales.</p>                               
+        </div>
+        <!-- about-wrap end  -->         
+    </div>
+</section>
+<!-- section end -->
+{% endblock %}
