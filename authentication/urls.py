@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import logout_then_login, password_change, password_change_done
+from django.contrib.auth.views import logout_then_login, PasswordChangeView, PasswordChangeDoneView
 from .views import (
 	UserCreationView, CompleteRegisterView, LoginView,
 	ProfileUpdateView, ProfileUploadImageView, ProfileDetailView,
@@ -17,18 +17,16 @@ urlpatterns = [
 	path('profile/<slug:username>/', ProfileDetailView.as_view(), name='detail_profile'),
 	
 	path(
-		'change-password/', password_change, 
-		{
-			'template_name': 'authentication/change_password.html',
-			'post_change_redirect': '/authentication/change-password-done/'
-		},
+		'change-password/', PasswordChangeView.as_view(
+			template_name = 'authentication/change_password.html',
+			success_url = '/authentication/change-password-done/'
+		), 		
 		name='change_password'
 	),
 	path(
-    	'change-password-done/', password_change_done, 
-    	{
-    		'template_name': 'authentication/change_password_done.html',
-    	}
+    	'change-password-done/', PasswordChangeDoneView.as_view(
+    		template_name = 'authentication/change_password_done.html',
+    	), 
     ),
 
 	
