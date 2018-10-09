@@ -8,6 +8,7 @@ from fontawesome.fields import IconField
 class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
+		ordering = ('name',)
 		
 	name = models.CharField(max_length=32, verbose_name='nombre')
 	icon = IconField(verbose_name='ícono')
