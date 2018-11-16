@@ -4122,12 +4122,12 @@ article .list-single-main-item {
 }
 .dashboard-listing-table-opt li  a {
 	color:#fff;
-	padding:9px 22px;
-	border-radius:30px;
+	padding:5px 15px;
+	border-radius: 5px;
 	background: #5ECFB1;
 	float:left;
 }
-.dashboard-listing-table-opt li  a.del-btn:hover {
+.dashboard-listing-table-opt li  a.del-btn {
 	background:#f91942;
 }
 /*-------------Button---------------------------------------*/
