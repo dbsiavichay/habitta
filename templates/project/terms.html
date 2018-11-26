@@ -19,13 +19,15 @@
 <section>
     <div class="container">        
         <!--about-wrap --> 
+        {% for term in object_list %}
         <div class="about-wrap">
         	<div class="list-single-main-item-title fl-wrap">
-                <h3>Privacidad</h3>                
+                <h3>{{ term.title }}</h3>                
                 <span class="section-separator fl-sec-sep"></span>
             </div>
-            <p>Larbit garantiza la privacidad de la información del usuario, no se comparte nada con terceros a menos que así lo desee el propietario o por motivos legales.</p>                               
+            <p>{{ term.description }}</p>                               
         </div>
+        {% endfor %}
         <!-- about-wrap end  -->         
     </div>
 </section>
