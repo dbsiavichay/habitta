@@ -39,6 +39,13 @@
                                     <li><a href="{% url 'update_service' service.id %}"><i class="fa fa-pencil-square-o"></i></a></li>                                    
                                     <li><a href="#" class="del-btn"><i class="fa fa-trash-o"></i></a></li>
                                 </ul>
+                            </div>
+                            <div class="post-opt">
+                                <ul>
+                                    <li><i class="fa fa-calendar-check-o"></i> <span>{{ service.date }}</span></li>
+                                    <li><i class="fa fa-eye"></i> <span>264</span></li>
+                                    <li><i class="fa fa-tags"></i> <a href="#">{{ service.activity }}</a> </li>
+                                </ul>
                             </div>                            
                         </div>                        
                         <!-- dashboard-list end-->
