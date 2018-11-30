@@ -16,6 +16,7 @@ class Settings(models.Model):
 class Term(models.Model):
 	class Meta:
 		verbose_name = 'Término'
+		ordering = ['order',]
 
 	title = models.CharField(max_length=64, verbose_name='título')
 	description = models.TextField(verbose_name='descripción')
