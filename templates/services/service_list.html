@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Mis servicios</h2>
+                <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Servicios</span></div>
+            </div>
+            <div class="row">                
+                <div class="col-md-12">
+                    <div class="dashboard-list-box fl-wrap">
+                        <div class="dashboard-header fl-wrap">
+                            <h3>Listado</h3>
+                            <a class="btn-default" href="{% url 'user_services' %}">
+                                <i class="fa fa-plus"></i>
+                                Pública tus servicios
+                            </a>
+                        </div>
+                        {% for service in object_list %}
+                        <!-- dashboard-list end-->    
+                        <div class="item-list">                            
+                            <span class="item-badge">{{ service.activity }}</span>                                
+                            <div class="item-text">                                    
+                                <div class="item">
+                                    <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
+                                </div>
+                                
+                                <p>{{ service.description }}</p>                                
+                            </div>                            
+                            <div class="post-author">
+                                <a href="{{ service.user.profile.get_absolute_url }}">
+                                    <img src="{{ service.user.profile.get_avatar }}" alt="">
+                                    <span>Por, {{ service.user.get_full_name }}</span>
+                                </a>
+                            </div>
+                            <div class="post-opt">
+                                <ul>
+                                    <li><i class="fa fa-whatsapp"></i> <span>{{ service.user.profile.phone }}</span></li>
+                                    <li><i class="fa fa-envelope"></i> <span>{{ service.user.email }}</span></li>                                    
+                                </ul>
+                            </div>
+                            <span class="fw-separator"></span>                            
+                            <div class="post-opt">
+                                <ul>
+                                    <li><i class="fa fa-calendar-check-o"></i> <span>{{ service.date }}</span></li>
+                                    <li><i class="fa fa-eye"></i> <span>264</span></li>
+                                    <li><i class="fa fa-tags"></i> <a href="#">{{ service.activity }}</a> </li>
+                                </ul>
+                            </div>
+                        </div>                        
+                        <!-- dashboard-list end-->
+                        {% endfor %}    
+                    </div>
+                    <!-- pagination-->
+                    <div class="pagination">
+                        <a href="#" class="prevposts-link"><i class="fa fa-caret-left"></i></a>
+                        <a href="#">1</a>
+                        <a href="#" class="current-page">2</a>
+                        <a href="#">3</a>
+                        <a href="#">4</a>
+                        <a href="#" class="nextposts-link"><i class="fa fa-caret-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+<!--section -->
+<section class="gradient-bg">
+    <div class="cirle-bg">
+        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+    </div>
+    <div class="container">
+        <div class="join-wrap fl-wrap">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Do You Have Questions ?</h3>
+                    <p>Lorem ipsum dolor sit amet, harum dolor nec in, usu molestiae at no.</p>
+                </div>
+                <div class="col-md-4"><a href="contacts.html" class="join-wrap-btn">Get In Touch <i class="fa fa-envelope-o"></i></a></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+{% endblock %}

@@ -68,3 +68,50 @@
 .half {
     width: 50%!important;
 }
+
+
+.item-list {
+    float: left;
+    padding: 25px 30px;
+    position: relative;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+}
+
+.item-badge {
+    position: absolute;
+    right: 30px;
+    top: 22px;
+    padding: 6px 15px;
+    border-radius: 4px;
+    color: #fff;
+    background: #5ECFB1;
+    z-index: 10;
+}
+
+.item-list p {
+    text-align: left;
+}
+
+.item {
+    padding-bottom: 20px;
+    text-align: left;
+}
+
+.item a {
+    font-weight: 500;
+    color: #666;
+}
+
+.item i {
+    padding-right: 10px;
+    color: #4DB7FE;
+}
+
+.btn-default {
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 5px;
+    background: #5ECFB1;
+    float: right;
+}

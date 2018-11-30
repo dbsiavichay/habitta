@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'authentication',
     'comments',
     'realty',
+    'services',
     'logs',
 ]
 
