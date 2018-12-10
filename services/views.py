@@ -18,14 +18,16 @@ class UserServiceCreateView(CreateView):
 	model = Service
 	form_class = ServiceForm
 	template_name = 'services/userservice_form.html'
+	success_url = reverse_lazy('user_services')
 
 	def form_valid(self, form):
 		self.object = form.save(commit=False)
 		self.object.user = self.request.user
 		self.object.save()
-		return redirect('user_services')
+		return redirect(self.success_url)
 
 class UserServiceUpdateView(UpdateView):
 	model = Service
 	form_class = ServiceForm
+	template_name = 'services/userservice_form.html'
 	success_url = reverse_lazy('user_services')

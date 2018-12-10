@@ -24,40 +24,52 @@
                                 Pública tus servicios
                             </a>
                         </div>
-                        {% for service in object_list %}
-                        <!-- dashboard-list end-->    
-                        <div class="item-list">                            
-                            <span class="item-badge">{{ service.activity }}</span>                                
-                            <div class="item-text">                                    
-                                <div class="item">
-                                    <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
+                        {% regroup object_list by activity as activity_list %}
+
+                        <div class="accordion">
+                            {% for activity in activity_list %}                                            
+                            <!-- dashboard-list end-->
+                            <a class="toggle {% if forloop.counter == 1 %} act-accordion {% endif %}" href="#">
+                                {{ activity.grouper }} | {{ activity.list|length }} items.
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <div class="accordion-inner {% if forloop.counter == 1 %} visible {% endif %}">
+                                <!-- dashboard-list end-->    
+                                {% for service in activity.list %}
+                                <div class="item-list">                            
+                                    <span class="item-badge">{{ service.activity }}</span>                                
+                                    <div class="item-text">                                    
+                                        <div class="item">
+                                            <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
+                                        </div>
+                                        
+                                        <p>{{ service.description }}</p>                                
+                                    </div>                            
+                                    <div class="post-author">
+                                        <a href="{{ service.user.profile.get_absolute_url }}">
+                                            <img src="{{ service.user.profile.get_avatar }}" alt="">
+                                            <span>Por, {{ service.user.get_full_name }}</span>
+                                        </a>
+                                    </div>
+                                    <div class="post-opt">
+                                        <ul>
+                                            <li><i class="fa fa-whatsapp"></i> <span>{{ service.user.profile.phone }}</span></li>
+                                            <li><i class="fa fa-envelope"></i> <span>{{ service.user.email }}</span></li>                                    
+                                        </ul>
+                                    </div>
+                                    <span class="fw-separator"></span>                            
+                                    <div class="post-opt">
+                                        <ul>
+                                            <li><i class="fa fa-calendar-check-o"></i> <span>{{ service.date }}</span></li>
+                                            <li><i class="fa fa-eye"></i> <span>264</span></li>
+                                            <li><i class="fa fa-tags"></i> <a href="#">{{ service.activity }}</a> </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                                
-                                <p>{{ service.description }}</p>                                
-                            </div>                            
-                            <div class="post-author">
-                                <a href="{{ service.user.profile.get_absolute_url }}">
-                                    <img src="{{ service.user.profile.get_avatar }}" alt="">
-                                    <span>Por, {{ service.user.get_full_name }}</span>
-                                </a>
-                            </div>
-                            <div class="post-opt">
-                                <ul>
-                                    <li><i class="fa fa-whatsapp"></i> <span>{{ service.user.profile.phone }}</span></li>
-                                    <li><i class="fa fa-envelope"></i> <span>{{ service.user.email }}</span></li>                                    
-                                </ul>
-                            </div>
-                            <span class="fw-separator"></span>                            
-                            <div class="post-opt">
-                                <ul>
-                                    <li><i class="fa fa-calendar-check-o"></i> <span>{{ service.date }}</span></li>
-                                    <li><i class="fa fa-eye"></i> <span>264</span></li>
-                                    <li><i class="fa fa-tags"></i> <a href="#">{{ service.activity }}</a> </li>
-                                </ul>
-                            </div>
-                        </div>                        
-                        <!-- dashboard-list end-->
-                        {% endfor %}    
+                                {% endfor %}   
+                            </div>                         
+                            {% endfor %}
+                        </div>
                     </div>
                     <!-- pagination-->
                     <div class="pagination">
@@ -96,3 +108,4 @@
 </section>
 <!-- section end -->
 {% endblock %}
+
