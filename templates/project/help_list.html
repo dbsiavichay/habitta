@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Servicios</h2>
+                <div class="breadcrumbs"><a href="#">Inicio</a><span>Ayuda</span></div>
+            </div>
+            <div class="row">                
+                <div class="col-md-12">
+                    <div class="dashboard-list-box fl-wrap">
+                        <div class="dashboard-header fl-wrap">
+                            <h3>Listado</h3>                            
+                        </div>
+                        <div class="accordion">
+                            {% for object in object_list %}                                            
+                            <!-- dashboard-list end-->
+                            <a class="toggle {% if forloop.counter == 1 %} act-accordion {% endif %}" href="#">
+                                {{ object.title }}
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <div class="accordion-inner {% if forloop.counter == 1 %} visible {% endif %}">
+                                <!-- dashboard-list end-->    
+                                <div class="item-list">                            
+                                    <div class="item-text">
+                                        <p>{{ object.description }}</p>                                
+                                    </div>                            
+                                    <div class="post-author">
+                                        <a href="{{ object.user.profile.get_absolute_url }}">
+                                            <img src="{{ object.user.profile.get_avatar }}" alt="">
+                                            <span>Por, {{ object.user.get_full_name }}</span>
+                                        </a>
+                                    </div>
+                                    <div class="post-opt">
+                                        <ul>                                            
+                                            <li><i class="fa fa-envelope"></i> <span>{{ object.user.email }}</span></li>
+                                            <li><i class="fa fa-eye"></i> <span>264</span></li>                                    
+                                            <li><i class="fa fa-calendar-check-o"></i> <span>{{ object.pub_date }}</span></li>
+                                        </ul>
+                                    </div>                                    
+                                </div> 
+                            </div>                         
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- pagination-->
+                    <div class="pagination">
+                        <a href="#" class="prevposts-link"><i class="fa fa-caret-left"></i></a>
+                        <a href="#">1</a>
+                        <a href="#" class="current-page">2</a>
+                        <a href="#">3</a>
+                        <a href="#">4</a>
+                        <a href="#" class="nextposts-link"><i class="fa fa-caret-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+<!--section -->
+<section class="gradient-bg">
+    <div class="cirle-bg">
+        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+    </div>
+    <div class="container">
+        <div class="join-wrap fl-wrap">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Do You Have Questions ?</h3>
+                    <p>Lorem ipsum dolor sit amet, harum dolor nec in, usu molestiae at no.</p>
+                </div>
+                <div class="col-md-4"><a href="contacts.html" class="join-wrap-btn">Get In Touch <i class="fa fa-envelope-o"></i></a></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+{% endblock %}
+

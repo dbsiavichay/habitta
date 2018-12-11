@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView
 
 from realty.models import Property
-from.models import Settings, Term
+from.models import Settings, Term, Help
 
 class HomeView(TemplateView):
 	template_name = 'index.html'
@@ -21,3 +21,6 @@ class HomeView(TemplateView):
 class TermListView(ListView):
 	model = Term
 	template_name = 'project/terms.html'
+
+class HelpListView(ListView):
+	model = Help
