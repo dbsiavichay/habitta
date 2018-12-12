@@ -115,3 +115,15 @@
     background: #5ECFB1;
     float: right;
 }
+
+.parallax-section.parallax-sm {
+    padding: 35px 0;
+}
+
+.no-padding {
+    padding: unset;
+}
+
+.terms-container {
+    padding: 40px 0;
+}

@@ -16,6 +16,7 @@ class Activity(models.Model):
 class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
+		ordering = ['activity']
 
 	description = models.TextField(verbose_name='descripción')
 	address = models.CharField(max_length=64, verbose_name='dirección')
