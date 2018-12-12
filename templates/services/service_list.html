@@ -29,11 +29,11 @@
                         <div class="accordion">
                             {% for activity in activity_list %}                                            
                             <!-- dashboard-list end-->
-                            <a class="toggle {% if forloop.counter == 1 %} act-accordion {% endif %}" href="#">
+                            <a class="toggle" href="#">
                                 {{ activity.grouper }} | {{ activity.list|length }} items.
                                 <i class="fa fa-angle-down"></i>
                             </a>
-                            <div class="accordion-inner {% if forloop.counter == 1 %} visible {% endif %}">
+                            <div class="accordion-inner">
                                 <!-- dashboard-list end-->    
                                 {% for service in activity.list %}
                                 <div class="item-list">                            

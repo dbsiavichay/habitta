@@ -23,29 +23,16 @@
                         <div class="accordion">
                             {% for object in object_list %}                                            
                             <!-- dashboard-list end-->
-                            <a class="toggle {% if forloop.counter == 1 %} act-accordion {% endif %}" href="#">
+                            <a class="toggle" href="#">
                                 {{ object.title }}
                                 <i class="fa fa-angle-down"></i>
                             </a>
-                            <div class="accordion-inner {% if forloop.counter == 1 %} visible {% endif %}">
+                            <div class="accordion-inner">
                                 <!-- dashboard-list end-->    
                                 <div class="item-list">                            
                                     <div class="item-text">
                                         <p>{{ object.description }}</p>                                
                                     </div>                            
-                                    <div class="post-author">
-                                        <a href="{{ object.user.profile.get_absolute_url }}">
-                                            <img src="{{ object.user.profile.get_avatar }}" alt="">
-                                            <span>Por, {{ object.user.get_full_name }}</span>
-                                        </a>
-                                    </div>
-                                    <div class="post-opt">
-                                        <ul>                                            
-                                            <li><i class="fa fa-envelope"></i> <span>{{ object.user.email }}</span></li>
-                                            <li><i class="fa fa-eye"></i> <span>264</span></li>                                    
-                                            <li><i class="fa fa-calendar-check-o"></i> <span>{{ object.pub_date }}</span></li>
-                                        </ul>
-                                    </div>                                    
                                 </div> 
                             </div>                         
                             {% endfor %}
