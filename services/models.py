@@ -16,7 +16,7 @@ class Activity(models.Model):
 class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
-		ordering = ['activity']
+		ordering = ['activity__name']
 
 	business_name = models.CharField(max_length=32, verbose_name='nombre del negocio')
 	description = models.TextField(verbose_name='descripción')
