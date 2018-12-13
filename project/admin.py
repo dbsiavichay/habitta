@@ -9,6 +9,11 @@ class TermAdmin(admin.ModelAdmin):
 
 class HelpAdmin(admin.ModelAdmin):
 	model = Help
+	exclude = ('user',)
+
+	def save_model(self, request, obj, form, change):
+		obj.user = request.user
+		super().save_model(request, obj, form, change)
 
 
 admin.site.register(Term, TermAdmin)
