@@ -18,6 +18,7 @@ class Service(models.Model):
 		verbose_name = 'servicio'
 		ordering = ['activity']
 
+	business_name = models.CharField(max_length=32, verbose_name='nombre del negocio')
 	description = models.TextField(verbose_name='descripción')
 	address = models.CharField(max_length=64, verbose_name='dirección')
 	date = models.DateTimeField(auto_now_add=True)

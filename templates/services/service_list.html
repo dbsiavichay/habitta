@@ -40,10 +40,14 @@
                                     <span class="item-badge">{{ service.activity }}</span>                                
                                     <div class="item-text">                                    
                                         <div class="item">
-                                            <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
+                                            <i class="fa fa-check"></i><a  href="#">{{ service.business_name }}</a>
                                         </div>
                                         
-                                        <p>{{ service.description }}</p>                                
+                                        <p>{{ service.description }}</p>
+
+                                        <div class="item">
+                                            <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
+                                        </div>                                
                                     </div>                            
                                     <div class="post-author">
                                         <a href="{{ service.user.profile.get_absolute_url }}">

@@ -29,12 +29,16 @@
                         <!-- dashboard-list end-->    
                         <div class="item-list">                            
                             <span class="item-badge">{{ service.activity }}</span>                                
-                            <div class="item-text">                                    
+                            <div class="item-text">
+                                <div class="item">
+                                    <i class="fa fa-check"></i><a  href="#">{{ service.business_name }}</a>
+                                </div>                                
+                                
+                                <p>{{ service.description }}</p>
+
                                 <div class="item">
                                     <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
                                 </div>
-                                
-                                <p>{{ service.description }}</p>
                                 <ul class="dashboard-listing-table-opt fl-wrap">
                                     <li><a href="{% url 'update_service' service.id %}"><i class="fa fa-pencil-square-o"></i></a></li>                                    
                                     <li><a href="#" class="del-btn"><i class="fa fa-trash-o"></i></a></li>
