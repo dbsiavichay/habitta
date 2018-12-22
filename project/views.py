@@ -11,7 +11,7 @@ class HomeView(TemplateView):
 		context = super().get_context_data(**kwargs)
 		properties = Property.objects.all()
 		try:
-			settings = Settings.objects.get(pk=1)
+			settings = Settings.objects.get(is_active=True)
 			context.update({'settings': settings})
 		except Settings.DoesNotExist:
 			pass
