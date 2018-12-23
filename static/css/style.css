@@ -1026,6 +1026,10 @@ section.gray-section .section-separator {
 	background-color: transparent;
 }
 
+.choices__list--dropdown .choices__list {
+	max-height: 140px;
+}
+
 
 
 
