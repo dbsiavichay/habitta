@@ -21,6 +21,8 @@ var citybook = {
 //   all ------------------
 function initCitybook() {
     "use strict";
+    // Niceselect 
+    $('.chosen-select').niceSelect();
     //   loader ------------------    
     $(".loader-wrap").fadeOut(300, function () {
         $("#main").animate({
@@ -487,7 +489,7 @@ function initCitybook() {
         $('.modal').fadeIn();
         $("html, body").addClass("hid-body");
     });
-    $('.close-reg').on("click", function () {
+    $('.modal-close').on("click", function () {
         modal.hide();
     });
 	// click ------------------

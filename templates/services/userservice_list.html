@@ -41,7 +41,7 @@
                                 </div>
                                 <ul class="dashboard-listing-table-opt fl-wrap">
                                     <li><a href="{% url 'update_service' service.id %}"><i class="fa fa-pencil-square-o"></i></a></li>                                    
-                                    <li><a href="#" class="del-btn"><i class="fa fa-trash-o"></i></a></li>
+                                    <li><a href="#" data-id="{{ service.id }}" class="del-btn"><i class="fa fa-trash-o"></i></a></li>
                                 </ul>
                             </div>
                             <div class="post-opt">
@@ -91,4 +91,26 @@
     </div>
 </section>
 <!-- section end -->
+{% include 'services/userservice_delete_modal.html' %}
+{% endblock %}
+
+{% block 'extrajs' %}
+<script type="text/javascript">
+    var prepareForm = function (pk) {
+        var url = '/services/service/' + pk + '/delete/';
+        var form = document.getElementById('deleteServiceForm');
+        form.setAttribute('action', url);
+    }
+
+    var openModal = function (e) {
+        e.preventDefault();
+        var pk = this.getAttribute('data-id');
+        prepareForm(pk);
+        document.getElementById('deleteServiceModal').style.display = 'block';
+    }
+
+    var btn = document.querySelectorAll('.del-btn').forEach(function (item, index) {
+        item.addEventListener('click', openModal);
+    });
+</script>
 {% endblock %}

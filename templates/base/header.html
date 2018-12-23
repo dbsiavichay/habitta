@@ -19,8 +19,8 @@
                 <button type="submit" class="header-search-button">Buscar</button>
             </form>
         </div>
-        {% endif %}
         <div class="show-search-button"><i class="fa fa-search"></i> <span>Búsqueda</span></div>
+        {% endif %}
         <a href="{% url 'choose_category' %}" class="add-list">Publica ¡GRATIS!</span></a>
 
         {% if not user.is_authenticated %}

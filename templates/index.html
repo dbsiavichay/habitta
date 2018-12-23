@@ -25,10 +25,10 @@
                     <form method="POST" action="{% url 'finder' %}">
                         {% csrf_token %}
                         <div class="main-search-input-item">
-                            {{ search_form.purpose|add_class:"chosen-select" }}
+                            {{ search_form.purpose|add_class:"custom-select" }}
                         </div>
                         <div class="main-search-input-item">
-                            {{ search_form.category|add_class:"chosen-select" }}
+                            {{ search_form.category|add_class:"custom-select" }}
                         </div>
                         <div class="main-search-input-item location" id="autocomplete-container">
                             {{ search_form.address|attr:"id:ac_address"|append_attr:"placeholder:Destino, cuidad, área" }}
@@ -437,7 +437,7 @@
     <script src="{% static 'js/index.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/choices/choices.js' %}"></script>
     <script type="text/javascript">
-        new Choices('.chosen-select', {
+        new Choices('.custom-select', {
             itemSelectText: 'Seleccionar',
         });
     </script>
