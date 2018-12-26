@@ -517,7 +517,6 @@ function initCitybook() {
         $radio.closest('label').addClass('selected');
     });
  
-	 $('.chosen-select').niceSelect();
     $('input[type="range"].distance-radius').rangeslider({
         polyfill: false,
         onInit: function () {
