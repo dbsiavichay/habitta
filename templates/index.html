@@ -20,17 +20,17 @@
                 <h2>{{ settings.title }}</h2>                
                 <h3>{{ settings.subtitle }}</h3>
             </div>
-            <div class="main-search-input-wrap">
-                <div class="main-search-input fl-wrap">
+            <div class="main-search-wrap">
+                <div class="main-search fl-wrap">
                     <form method="POST" action="{% url 'finder' %}">
                         {% csrf_token %}
-                        <div class="main-search-input-item">
+                        <div class="main-search-input">
                             {{ search_form.purpose|add_class:"custom-select" }}
                         </div>
-                        <div class="main-search-input-item">
+                        <div class="main-search-input">
                             {{ search_form.category|add_class:"custom-select" }}
                         </div>
-                        <div class="main-search-input-item location" id="autocomplete-container">
+                        <div class="main-search-input location" id="autocomplete-container">
                             {{ search_form.address|attr:"id:ac_address"|append_attr:"placeholder:Destino, cuidad, área" }}
                             <a href="#"><i class="fa fa-dot-circle-o"></i></a>
                         </div>
