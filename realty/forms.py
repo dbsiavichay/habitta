@@ -81,7 +81,7 @@ class PropertyDetailsForm(Form):
 		if category is None or not isinstance(category, Category): 
 			raise ValueError('Debe indicar una categoria')
 
-		INPUT_WIDGETS = ('TextInput', 'NumberInput',)
+		INPUT_WIDGETS = ('TextInput',)
 		CHOICE_WIDGETS = ('Select', 'RadioSelect')		
 
 		for specification in category.specifications.all():
@@ -104,6 +104,12 @@ class PropertyDetailsForm(Form):
 			elif specification.widget == 'CheckboxInput':
 				self.fields[key] = BooleanField(
 					label = specification.name,					
+				)
+			elif specification.widget == 'NumberInput':
+				self.fields[key] = CharField(
+					label = specification.name,
+					widget = NumberInput(attrs={'min':0,}),								
+					required = specification.is_required,
 				)
 			else:
 				pass
