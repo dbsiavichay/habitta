@@ -57,6 +57,13 @@
     left: 3px;
 }
 
+.filter-tags .clean {
+    float: left;
+    margin-top: 5px;
+    margin-left: 5px;
+    text-decoration: underline;
+}
+
 .register {
     box-shadow: none;
 }

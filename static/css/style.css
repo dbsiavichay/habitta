@@ -937,6 +937,11 @@ section.gray-section .section-separator {
 	height:50px;
 	position:relative;
 }
+
+/*.main-search-input input:first-child {
+    border-radius: 100%;
+}*/
+
 .main-search-input input {
 	/*float:left;*/
 	border:none;
