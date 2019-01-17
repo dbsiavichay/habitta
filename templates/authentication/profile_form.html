@@ -19,7 +19,7 @@
                 <div class="col-md-7">
                     {{ user_form.errors }}
                     {{ form.errors }}
-                    <form action="" method="POST" enctype="multipart/form-data" novalidate>
+                    <form action="" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <!-- profile-edit-container--> 
                     <div class="profile-edit-container">
@@ -101,10 +101,10 @@
         <div class="join-wrap fl-wrap">
             <div class="row">
                 <div class="col-md-8">
-                    <h3>Do You Have Questions ?</h3>
-                    <p>Lorem ipsum dolor sit amet, harum dolor nec in, usu molestiae at no.</p>
+                    <h3>¿Tienes preguntas o dudas?</h3>
+                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
                 </div>
-                <div class="col-md-4"><a href="contacts.html" class="join-wrap-btn">Get In Touch <i class="fa fa-envelope-o"></i></a></div>
+                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
             </div>
         </div>
     </div>
