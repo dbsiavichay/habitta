@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
-from django.urls import reverse
+from django.urls import reverse_lazy
+from .utils import get_category_icons
 
 from fontawesome.fields import IconField
 
@@ -37,13 +38,15 @@ class Specification(models.Model):
 	def __str__(self):
 		return self.name
 
-class Category(models.Model):
+class Category(models.Model):	
 	class Meta:
 		verbose_name = 'categoría'
 		ordering = ('order',)
 
+	ICON_CHOICES = get_category_icons()
+
 	name = models.CharField(max_length=32, verbose_name='nombre')
-	icon = IconField()
+	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	order = models.PositiveSmallIntegerField(verbose_name='orden')	
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
 	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
@@ -128,7 +131,7 @@ class Property(models.Model):
 		return images	
 
 	def get_absolute_url(self):		
-		return reverse('detail_property', args=[str(self.id)])
+		return reverse_lazy('detail_property', args=[str(self.id)])
 
 class PropertyImage(models.Model):
 	class Meta:

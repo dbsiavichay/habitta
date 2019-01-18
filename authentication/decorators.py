@@ -37,7 +37,7 @@ def owner_required(function):
 			return response
 
 		owner = get_attr(obj, models[obj.__class__.__name__])
-		if owner == request.user || request.user.is_superuser:
+		if owner == request.user or request.user.is_superuser:
 			return response
 
 		raise Http404

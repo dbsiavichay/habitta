@@ -10,13 +10,14 @@ def base64_to_image(base64image):
 		
 		return (data, ext)
 
-def get_fontawesome_icons():
-	file = open('static/plugins/fontawesome/fontawesome.min.css', 'r')
-	regex = regex = re.compile(r'fa-(?P<icon>[\w_-]+):before')
+def get_category_icons():
+	CHOICES = []
+	file = open('static/plugins/fontcategories/fontcategories.css', 'r')
+	regex = regex = re.compile(r'fc-(?P<icon>[\w_-]+):before')
 	for line in file:
-	    match = regex.findall(line)    	    
-	    icons = [icon for icon in match]
+	    match = regex.findall(line)    	    	    
+	    CHOICES = CHOICES + [icon for icon in match]
 	
-	icons = sorted(icons)	    
-
-	return [(icon, icon) for icon in icons]
+	CHOICES = sorted(CHOICES)
+	CHOICES = [(icon, icon.capitalize()) for icon in CHOICES]
+	return CHOICES

@@ -1235,18 +1235,24 @@ section.gray-section .section-separator {
 	display:inline-block;
 	padding:20px 0;
 	border-radius:6px;
-	color:#fff;
-	margin:0 10px;
-	min-width:120px;
-	box-shadow: 0px 0px 0px 5px rgba(255,255,255,0.2);
+	color:#2B2B28;
+	margin:0 10px 20px 10px;
+	min-width:190px;	
 }
 .box-cat:hover{
-	background: #2C3B5A;
+	background: #EBEBE3;	
 }
-.box-cat  i {
+.box-cat i {
 	padding-bottom:10px;
-	font-size:16px;
+	font-size:80px;
 }
+
+.box-cat .name {
+	margin-top: 5px;
+	font-weight: bold;
+	font-size: 18px;
+}
+
 .bg-ser{
 	-webkit-transition: all 400ms linear;
     transition: all 400ms linear;
