@@ -12,6 +12,25 @@ from django.forms.widgets import (
 from .models import Specification, Category, Purpose, Property, PropertyImage
 from django.contrib.gis.geos import Point
 
+#Custom form fields
+class PurposeChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.for_user
+
+class SpecificationMultipleChoiceField(ModelMultipleChoiceField):
+	def label_from_instance(self, obj):
+		return obj.internal_name
+#####
+
+class CategoryForm(ModelForm):
+	specifications = SpecificationMultipleChoiceField(
+		queryset = Specification.objects.all(),
+	)
+
+	class Meta:
+		model = Category
+		fields = '__all__'
+
 class SpecificationForm(ModelForm):
 	class Meta:
 		model = Specification
@@ -144,10 +163,6 @@ class PropertyBase64ImageForm(ModelForm):
 			obj.save()            
 		return obj
 
-
-class PurposeChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.for_user
 
 class FinderForm(Form):
 	purpose = PurposeChoiceField(

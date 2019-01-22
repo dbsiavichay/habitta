@@ -1,15 +1,16 @@
 from django.contrib import admin
 from .models import Specification, Service, Category, Purpose, Property, PropertyImage
-from .forms import SpecificationForm
+from .forms import SpecificationForm, CategoryForm
 
 class SpecificationAdmin(admin.ModelAdmin):
 	form = SpecificationForm
+	list_display = ['order', 'name', 'internal_name', 'is_required',]
 	
 class ServiceAdmin(admin.ModelAdmin):
 	pass
 
 class CategoryAdmin(admin.ModelAdmin):
-	pass
+	form = CategoryForm
 
 class PurposeAdmin(admin.ModelAdmin):
 	pass

@@ -29,6 +29,7 @@ class Specification(models.Model):
 	)	
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
+	internal_name = models.CharField(max_length=128, verbose_name='nombre interno')
 	widget = models.CharField(max_length=64, choices=WIDGET_CHOICES)
 	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')	
 	icon = IconField(verbose_name='ícono')
