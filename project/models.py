@@ -10,6 +10,7 @@ class Settings(models.Model):
 	title = models.CharField(max_length=128, verbose_name='título principal')
 	subtitle = models.CharField(max_length=128, verbose_name='subtitulo')
 	cover = models.ImageField(upload_to='covers')
+	subcover = models.ImageField(upload_to='covers')
 	is_active = models.BooleanField(default=False, verbose_name='activo?')
 
 	def __str__(self):

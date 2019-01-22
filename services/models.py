@@ -18,9 +18,10 @@ class Service(models.Model):
 		verbose_name = 'servicio'
 		ordering = ['activity__name']
 
-	business_name = models.CharField(max_length=32, verbose_name='nombre del negocio')
-	description = models.TextField(verbose_name='descripción')
+	business_name = models.CharField(max_length=32, verbose_name='nombre de negocio')
+	description = models.TextField(verbose_name='descripción')	
 	address = models.CharField(max_length=64, verbose_name='dirección')
+	business_phone = models.CharField(max_length=10, blank=True, null=True, verbose_name='telefono de negocio')
 	date = models.DateTimeField(auto_now_add=True)
 	activity = models.ForeignKey(Activity, verbose_name='actividad', on_delete=models.CASCADE)
 	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)

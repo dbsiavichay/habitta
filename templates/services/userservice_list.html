@@ -39,6 +39,9 @@
                                 <div class="item">
                                     <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
                                 </div>
+                                <div class="item">
+                                    <i class="fa fa-phone"></i><a  href="#">{{ service.business_phone }}</a>
+                                </div>
                                 <ul class="dashboard-listing-table-opt fl-wrap">
                                     <li><a href="{% url 'update_service' service.id %}"><i class="fa fa-pencil-square-o"></i></a></li>                                    
                                     <li><a href="#" data-id="{{ service.id }}" class="del-btn"><i class="fa fa-trash-o"></i></a></li>

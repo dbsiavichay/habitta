@@ -108,9 +108,11 @@ class PropertyDetailView(DetailView):
 		context = super().get_context_data(**kwargs)
 		self.object = self.get_object()		
 		image_form = PropertyBase64ImageForm(initial={'property':self.object})
+		more_for_this_user = self.model.objects.filter(user=self.object.user).exclude(pk=self.object.pk)
 		
 		context.update({
 			'image_form': image_form,
+			'more_for_this_user': more_for_this_user,
 		})
 
 		return context

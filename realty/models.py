@@ -129,7 +129,7 @@ class Property(models.Model):
 	def get_gallery(self):
 		instances = self.images.filter(is_cover=False)
 		images = [i.img for i in instances if i.img]
-		return images	
+		return images
 
 	def get_absolute_url(self):		
 		return reverse_lazy('detail_property', args=[str(self.id)])

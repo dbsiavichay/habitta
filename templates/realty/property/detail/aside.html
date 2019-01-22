@@ -81,6 +81,7 @@
         </div>
     </div>
     <!--box-widget-item end -->
+    {% if more_for_this_user %}
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
         <div class="box-widget-item-header">
@@ -89,31 +90,20 @@
         <div class="box-widget widget-posts">
             <div class="box-widget-content">
                 <ul>
+                    {% for obj in more_for_this_user %}
                     <li class="clearfix">
-                        <a href="#"  class="widget-posts-img"><img src="{% static 'images/all/1.jpg' %}"  alt=""></a>
+                        <a href="{{ obj.get_absolute_url }}"  class="widget-posts-img"><img src="{{ obj.get_cover }}"  alt=""></a>
                         <div class="widget-posts-descr">
-                            <a href="#" title="">Cafe "Lollipop"</a>
-                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i> 21 Mar 2017 </span> 
+                            <a href="{{ obj.get_absolute_url }}" title="">{{ obj.category }}</a>
+                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i>{{ obj.pub_date }}</span> 
                         </div>
                     </li>
-                    <li class="clearfix">
-                        <a href="#"  class="widget-posts-img"><img src="{% static 'images/all/1.jpg' %}"  alt=""></a>
-                        <div class="widget-posts-descr">
-                            <a href="#" title=""> Apartment in the Center</a>
-                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i> 7 Mar 2017 </span> 
-                        </div>
-                    </li>
-                    <li class="clearfix">
-                        <a href="#"  class="widget-posts-img"><img src="{% static 'images/all/1.jpg' %}"  alt=""></a>
-                        <div class="widget-posts-descr">
-                            <a href="#" title="">Event in City Mol</a>
-                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i> 7 Mar 2017 </span>
-                        </div>
-                    </li>
+                    {% endfor %}
                 </ul>
                 <a class="widget-posts-link" href="#">Todas las publicaciones<span><i class="fa fa-angle-right"></i></span></a>   
             </div>
         </div>
     </div>
-    <!--box-widget-item end -->     
+    <!--box-widget-item end -->
+    {% endif %}     
 </div>

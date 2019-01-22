@@ -3,7 +3,7 @@ from .models import Settings, Term, Help
 
 class SettingsAdmin(admin.ModelAdmin):
 	model = Settings
-	list_display = ('title', 'subtitle', 'cover','is_active')
+	list_display = ('title', 'subtitle', 'cover', 'subcover', 'is_active')
 
 	def save_model(self, request, obj, form, change):
 		if obj.is_active:

@@ -171,7 +171,7 @@
     </div>
 </section>
 <section class="parallax-section" data-scrollax-parent="true">
-    <div class="bg"  data-bg="{% static 'images/bg/bg2.jpg' %}" data-scrollax="properties: { translateY: '100px' }"></div>
+    <div class="bg"  data-bg="{% if settings.subcover %} {{ settings.subcover.url }} {% endif %}" data-scrollax="properties: { translateY: '100px' }"></div>
     <div class="overlay co lor-overlay"></div>
     <!--container-->
     <div class="container">
