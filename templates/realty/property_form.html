@@ -27,6 +27,8 @@
                             <h4>Información básica</h4>
                         </div>
                         <div class="custom-form">
+                            {% render_field form.purpose %}
+                            
                             {% render_field form.price icon='usd' %}
 
                             {% render_field form.description %}
@@ -53,8 +55,6 @@
                         <div class="custom-form">                            
                             <!-- Checkboxes -->
                             {% render_field form.services title='Servicios' %}
-
-                            {% render_field form.purpose %} 
 
                             {% load realtytags %}
                             {% for field in details_form %}
