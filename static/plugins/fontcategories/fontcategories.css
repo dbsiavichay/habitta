@@ -25,44 +25,50 @@
 }
 
 .fc-casa:before {
-  content: "\e600";
-}
-.fc-estudiantil:before {
   content: "\e601";
 }
-.fc-compartido:before {
+.fc-estudiantil:before {
   content: "\e602";
 }
-.fc-negocios:before {
+.fc-compartido:before {
   content: "\e603";
 }
-.fc-villas:before {
+.fc-negocio:before {
   content: "\e604";
 }
-.fc-departamento:before {
+.fc-villa:before {
   content: "\e605";
 }
-.fc-minidepartamento:before {
+.fc-finca:before {
   content: "\e606";
 }
-.fc-edificio:before {
+.fc-departamento:before {
   content: "\e607";
 }
-.fc-oficina:before {
+.fc-minidepartamento:before {
   content: "\e608";
 }
-.fc-hotel:before {
+.fc-edificio:before {
   content: "\e609";
 }
-.fc-hostal:before {
+.fc-oficina:before {
   content: "\e610";
 }
-.fc-bodega:before {
+.fc-hotel:before {
   content: "\e611";
 }
-.fc-plano:before {
+.fc-hostal:before {
   content: "\e612";
 }
-.fc-lote:before {
+.fc-local:before {
   content: "\e613";
+}
+.fc-bodega:before {
+  content: "\e614";
+}
+.fc-plano:before {
+  content: "\e615";
+}
+.fc-lote:before {
+  content: "\e616";
 }
