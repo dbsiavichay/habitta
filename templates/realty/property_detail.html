@@ -75,7 +75,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I"></script>
     <script type="text/javascript" src="{% static 'js/realty/property/map.js' %}"></script>   
     <script type="text/javascript" src="{% static 'js/realty/property/save.js' %}"></script>   
-    {% if object.user == user %}
+    {% if object.user == user or user.is_superuser %}
     <script type="text/javascript" src="{% static 'js/csfrtoken.js' %}"></script>   
     <script type="text/javascript" src="{% static 'plugins/cropper/cropper.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>

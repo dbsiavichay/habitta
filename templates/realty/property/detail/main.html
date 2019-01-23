@@ -91,7 +91,7 @@
             {% endfor %}        
         </div>
 
-        {% if object.user == request.user %}
+        {% if object.user == user or user.is_superuser %}
         <div class="add-list-media-wrap">                        
             <div class="fuzone">                
                 <div class="fu-text">
