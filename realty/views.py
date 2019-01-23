@@ -134,7 +134,7 @@ class PropertyBase64ImageUploadView(CreateView):
 			property = form.cleaned_data['property']
 			#Solo el propietario puede cambiar la foto de portada
 			if property.user != request.user:
-				return redirect(reverse_lazy('detail_local', args=[property.id]))
+				return redirect(reverse_lazy('detail_property', args=[property.id]))
 			####
 			self.form_valid(form, property)
 
