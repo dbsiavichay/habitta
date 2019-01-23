@@ -3,7 +3,7 @@
 <!--  section  --> 
 <section class="parallax-section single-par list-single-section" data-scrollax-parent="true" id="sec1">
 
-    {% if object.user == user %}
+    {% if object.user == user or user.is_superuser %}
     <label class="cover-overlay">
         <i class="fa fa-image"></i>
         <div>Cambiar foto de portada</div>

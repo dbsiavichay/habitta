@@ -24,7 +24,7 @@
 </div>
 <!--  section  --> 
 <section class="gray-section no-top-padding">
-    {% if object.user == user %}
+    {% if object.user == user or user.is_superuser %}
     <a class="update-place" href="{% url 'update_property' object.id %}">
         Editar datos <i class="fa fa-gear"></i>
     </a>
@@ -62,7 +62,7 @@
     </div>   
 </section>
 <!--  section  end-->
-{% if object.user == user %}
+{% if object.user == user or user.is_superuser %}
 <form id="image_form" action="{% url 'add_property_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {{ image_form }}
