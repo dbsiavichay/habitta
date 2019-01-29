@@ -25,6 +25,8 @@ class SpecificationMultipleChoiceField(ModelMultipleChoiceField):
 class CategoryForm(ModelForm):
 	specifications = SpecificationMultipleChoiceField(
 		queryset = Specification.objects.all(),
+		label = 'Especificaciones',
+		required = False,
 	)
 
 	class Meta:

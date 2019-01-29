@@ -4,13 +4,14 @@ from .forms import SpecificationForm, CategoryForm
 
 class SpecificationAdmin(admin.ModelAdmin):
 	form = SpecificationForm
-	list_display = ['order', 'name', 'internal_name', 'is_required',]
+	list_display = ['name', 'internal_name', 'is_required', 'order',]
 	
 class ServiceAdmin(admin.ModelAdmin):
 	pass
 
 class CategoryAdmin(admin.ModelAdmin):
 	form = CategoryForm
+	list_display = ['name', 'singular_name', 'order']
 
 class PurposeAdmin(admin.ModelAdmin):
 	pass

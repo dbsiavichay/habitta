@@ -24,7 +24,7 @@
                         <span>  Promocionado <i class="fa fa-check"></i></span>
                     </div>
                 </div>
-                <h2>{{ object.category }} <span> - Publicado por </span><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></h2>
+                <h2>{{ object.category.singular_name }} <span> - Publicado por </span><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></h2>
                 <span class="section-separator"></span>
                 <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
                     <span>({% comments_count object %} comentarios)</span>

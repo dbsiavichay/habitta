@@ -47,6 +47,7 @@ class Category(models.Model):
 	ICON_CHOICES = get_category_icons()
 
 	name = models.CharField(max_length=32, verbose_name='nombre')
+	singular_name = models.CharField(max_length=32, verbose_name='nombre singular')	
 	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	order = models.PositiveSmallIntegerField(verbose_name='orden')	
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
