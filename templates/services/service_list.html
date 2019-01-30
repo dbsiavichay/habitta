@@ -1,117 +1,134 @@
 {% extends 'base.html' %}
 
 {% load static %}
-{% load components %}
 
 {% block 'content' %}
-<!--section -->
-<section id="sec1">
-    <!-- container -->
-    <div class="container">
-        <!-- profile-edit-wrap -->
-        <div class="profile-edit-wrap">
-            <div class="profile-edit-page-header">
-                <h2>Servicios</h2>
-                <div class="breadcrumbs"><a href="#">Inicio</a><span>Servicios</span></div>
+<!-- wrapper -->    
+    <!--  content -->   
+    <div class="content">
+        <!--  section  --> 
+        <section class="parallax-section" data-scrollax-parent="true" id="sec1">
+            <div class="bg par-elem "  data-bg="{% if settings.service_cover %} {{ settings.service_cover.url }} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
+            <div class="overlay"></div>
+            <div class="container">
+                <div class="section-title center-align">
+                    <h2><span>Nuestros servicios</span></h2>                    
+                    <span class="section-separator"></span>
+                </div>
             </div>
-            <div class="row">                
-                <div class="col-md-12">
-                    <div class="dashboard-list-box fl-wrap">
-                        <div class="dashboard-header fl-wrap">
-                            <h3>Listado</h3>
-                            <a class="btn-default" href="{% url 'user_services' %}">
-                                <i class="fa fa-plus"></i>
-                                Pública tus servicios
-                            </a>
-                        </div>
-                        {% regroup object_list by activity as activity_list %}
-
-                        <div class="accordion">
-                            {% for activity in activity_list %}                                            
-                            <!-- dashboard-list end-->
-                            <a class="toggle" href="#">
-                                {{ activity.grouper }} | {{ activity.list|length }} items.
-                                <i class="fa fa-angle-down"></i>
-                            </a>
-                            <div class="accordion-inner">
-                                <!-- dashboard-list end-->    
-                                {% for service in activity.list %}
-                                <div class="item-list">                                                                
-                                    <div class="item-text">                                    
-                                        <div class="item">
-                                            <i class="fa fa-check"></i><a  href="#">{{ service.business_name }}</a>
-                                        </div>
-                                        
-                                        <p>{{ service.description }}</p>
-
-                                        <div class="item">
-                                            <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
-                                        </div>                                
-                                        <div class="item">
-                                            <i class="fa fa-phone"></i><a  href="#">{{ service.business_phone }}</a>
-                                        </div>                                         
-                                    </div>                            
-                                    <div class="post-author">
-                                        <a href="{{ service.user.profile.get_absolute_url }}">
-                                            <img src="{{ service.user.profile.get_avatar }}" alt="">
-                                            <span>Por, {{ service.user.get_full_name }}</span>
-                                        </a>
-                                    </div>
-                                    <div class="post-opt">
-                                        <ul>
-                                            <li><i class="fa fa-whatsapp"></i> <span>{{ service.user.profile.phone }}</span></li>
-                                            <li><i class="fa fa-envelope"></i> <span>{{ service.user.email }}</span></li>                                    
-                                        </ul>
-                                    </div>
-                                    <span class="fw-separator"></span>                            
-                                    <div class="post-opt">
-                                        <ul>
-                                            <li><i class="fa fa-calendar-check-o"></i> <span>{{ service.date }}</span></li>
-                                            <li><i class="fa fa-eye"></i> <span>264</span></li>
-                                            <li><i class="fa fa-tags"></i> <a href="#">{{ service.activity }}</a> </li>
-                                        </ul>
-                                    </div>
+            <div class="header-sec-link">
+                <div class="container"><a href="#sec2" class="custom-scroll-link">Empezar</a></div>
+            </div>
+        </section>
+        <!--  section end --> 
+        <!--section -->
+        <section id="sec1">
+            <!-- container -->
+            <div class="container">
+                <!-- profile-edit-wrap -->
+                <div class="profile-edit-wrap">                    
+                    <div class="row">                
+                        <div class="col-md-12">
+                            <div class="dashboard-list-box fl-wrap">
+                                <div class="dashboard-header fl-wrap">
+                                    <h3>¿Necesitas servicios? Aquí búscalos</h3>
+                                    <a class="btn-default" href="{% url 'user_services' %}">
+                                        <i class="fa fa-plus"></i>
+                                        Pública tus servicios
+                                    </a>
                                 </div>
-                                {% endfor %}   
-                            </div>                         
-                            {% endfor %}
+                                {% regroup object_list by activity as activity_list %}
+
+                                <div class="accordion">
+                                    {% for activity in activity_list %}                                            
+                                    <!-- dashboard-list end-->
+                                    <a class="toggle" href="#">
+                                        {{ activity.grouper }} | {{ activity.list|length }} items.
+                                        <i class="fa fa-angle-down"></i>
+                                    </a>
+                                    <div class="accordion-inner">
+                                        <!-- dashboard-list end-->    
+                                        {% for service in activity.list %}
+                                        <div class="item-list">                                                                
+                                            <div class="item-text">                                    
+                                                <div class="item">
+                                                    <i class="fa fa-check"></i><a  href="#">{{ service.business_name }}</a>
+                                                </div>
+                                                
+                                                <p>{{ service.description }}</p>
+
+                                                <div class="item">
+                                                    <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>
+                                                </div>                                
+                                                <div class="item">
+                                                    <i class="fa fa-phone"></i><a  href="#">{{ service.business_phone }}</a>
+                                                </div>                                         
+                                            </div>                            
+                                            <div class="post-author">
+                                                <a href="{{ service.user.profile.get_absolute_url }}">
+                                                    <img src="{{ service.user.profile.get_avatar }}" alt="">
+                                                    <span>Por, {{ service.user.get_full_name }}</span>
+                                                </a>
+                                            </div>
+                                            <div class="post-opt">
+                                                <ul>
+                                                    <li><i class="fa fa-whatsapp"></i> <span>{{ service.user.profile.phone }}</span></li>
+                                                    <li><i class="fa fa-envelope"></i> <span>{{ service.user.email }}</span></li>                                    
+                                                </ul>
+                                            </div>
+                                            <span class="fw-separator"></span>                            
+                                            <div class="post-opt">
+                                                <ul>
+                                                    <li><i class="fa fa-calendar-check-o"></i> <span>{{ service.date }}</span></li>
+                                                    <li><i class="fa fa-eye"></i> <span>264</span></li>
+                                                    <li><i class="fa fa-tags"></i> <a href="#">{{ service.activity }}</a> </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        {% endfor %}   
+                                    </div>                         
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- pagination-->
+                            <div class="pagination">
+                                <a href="#" class="prevposts-link"><i class="fa fa-caret-left"></i></a>
+                                <a href="#">1</a>
+                                <a href="#" class="current-page">2</a>
+                                <a href="#">3</a>
+                                <a href="#">4</a>
+                                <a href="#" class="nextposts-link"><i class="fa fa-caret-right"></i></a>
+                            </div>
                         </div>
                     </div>
-                    <!-- pagination-->
-                    <div class="pagination">
-                        <a href="#" class="prevposts-link"><i class="fa fa-caret-left"></i></a>
-                        <a href="#">1</a>
-                        <a href="#" class="current-page">2</a>
-                        <a href="#">3</a>
-                        <a href="#">4</a>
-                        <a href="#" class="nextposts-link"><i class="fa fa-caret-right"></i></a>
+                </div>
+                <!--profile-edit-wrap end -->
+            </div>
+            <!--container end -->
+        </section>
+        <!-- section end -->    
+        <div class="limit-box fl-wrap"></div>
+        <!--section -->
+        <section class="gradient-bg">
+            <div class="cirle-bg">
+                <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+            </div>
+            <div class="container">
+                <div class="join-wrap fl-wrap">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h3>¿Tienes preguntas o dudas?</h3>
+                            <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
+                        </div>
+                        <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!--profile-edit-wrap end -->
+        </section>
+        <!-- section end -->
+        <div class="limit-box"></div>
     </div>
-    <!--container end -->
-</section>
-<!-- section end -->    
-<div class="limit-box fl-wrap"></div>
-<!--section -->
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-    </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>¿Tienes preguntas o dudas?</h3>
-                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
-                </div>
-                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+    <!--  content end -->  
+<!-- wrapper end -->
 {% endblock %}
 

@@ -11,6 +11,7 @@ class Settings(models.Model):
 	subtitle = models.CharField(max_length=128, verbose_name='subtitulo')
 	cover = models.ImageField(upload_to='covers')
 	subcover = models.ImageField(upload_to='covers')
+	service_cover = models.ImageField(upload_to='covers', verbose_name='cover de servicios')
 	is_active = models.BooleanField(default=False, verbose_name='activo?')
 
 	def __str__(self):

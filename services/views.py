@@ -1,11 +1,21 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from project.models import Settings
 from .models import Service
 from .forms import ServiceForm
 
 class ServiceListView(ListView):
 	model = Service
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		try:
+			settings = Settings.objects.get(is_active=True)
+			context.update({'settings': settings})
+		except Settings.DoesNotExist:
+			pass
+		return context
 
 class UserServiceListView(ServiceListView):	
 	template_name = 'services/userservice_list.html'
