@@ -78,7 +78,7 @@
                                 <span class="avatar-tooltip">Publicado por <strong>{{ object.user.get_full_name }}</strong></span>
                             </div>
                             <h3><a href="{% url 'detail_property' object.id %}">{{ object.category.singular_name }}</a></h3>
-                            <p>{{ object.description }}</p>
+                            <p>{{ object.description|truncatewords:10 }}</p>
                             <div class="geodir-category-options fl-wrap">
                                 <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
                                     <span>({% comments_count object %} comentarios)</span>
