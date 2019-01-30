@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import Profile, SocialProfile, SocialNetwork, SocialNetworkProfile
 
+admin.site.site_header = 'Administración de Larbit'
+
 class SocialNetworkProfileInline(admin.TabularInline):
 	model = SocialNetworkProfile
 

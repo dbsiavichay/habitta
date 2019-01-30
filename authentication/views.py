@@ -27,6 +27,11 @@ class UserCreationView(CreateView):
 		login(self.request, self.object)
 		return redirect(reverse_lazy('complete_register', args=[self.object.profile.id]))
 
+	def get(self, request, *args, **kwargs):
+		if request.user.is_authenticated:
+			return render(request, template_name = 'authentication/register_yet.html')
+		return super().get(request, *args, **kwargs)
+
 class CompleteRegisterView(UpdateView):
 	model = Profile
 	form_class = CompleteRegisterForm
