@@ -135,6 +135,12 @@ class PropertyDetailsForm(Form):
 			else:
 				pass
 
+	def get_not_empty_cleaned_data(self):
+		if not self.cleaned_data:
+			return []
+		not_empty_cleaned_data = { key:self.cleaned_data[key] for key in self.cleaned_data if self.cleaned_data[key] }
+		return not_empty_cleaned_data
+
 class PropertyBase64ImageForm(ModelForm):
 	class Meta:
 		model = PropertyImage		

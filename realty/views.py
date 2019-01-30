@@ -35,7 +35,7 @@ class PropertyCreateView(CreateView):
 
 		details = {
 			'services': [service.id for service in form.cleaned_data['services']],
-			'specifications': details_form.cleaned_data,
+			'specifications': details_form.get_not_empty_cleaned_data(),
 		}
 
 		self.object = form.save(commit=False)
@@ -74,7 +74,7 @@ class PropertyUpdateView(UpdateView):
 
 		details = {
 			'services': [service.id for service in form.cleaned_data['services']],
-			'specifications': details_form.cleaned_data,
+			'specifications': details_form.get_not_empty_cleaned_data(),
 		}
 
 		self.object = form.save(commit=False)		
