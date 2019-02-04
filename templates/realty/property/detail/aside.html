@@ -3,11 +3,26 @@
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
         <div class="box-widget-item-header">
+            <h3><i class="fa fa-usd"></i> Precio : {{ object.price }}</h3>
+        </div>        
+    </div>
+    <!--box-widget-item end --> 
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
             <h3><i class="fa fa-leaf"></i> Detalles : </h3>
         </div>
         <div class="box-widget opening-hours">
             <div class="box-widget-content">                                
                 <ul>
+                    <li>
+                        <span class="opening-hours-day">
+                            <i class="fa fa-usd"></i> Precio
+                        </span>
+                        <span class="opening-hours-time">
+                            {{ object.price }}
+                        </span>
+                    </li>
                     {% for spc in object.get_specifications %}
                     <li>
                         <span class="opening-hours-day">

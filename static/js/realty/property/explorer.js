@@ -42,9 +42,27 @@ document.addEventListener('DOMContentLoaded', function () {
 			    });	        	
 	        });
 	    }
-	});             
+	});	             
 });
 
+
+document.addEventListener('DOMContentLoaded', function () {
+	var band;
+
+	var setClicksProperties = function () {
+		var items = document.querySelectorAll('.geodir-category-listing');
+	 	items.forEach(function (elem) {
+	        elem.addEventListener('click', function () {
+	            url = window.location.origin + this.dataset.url;
+	            window.location.assign(url);
+	        });
+	    });	    
+	    if (items.length) clearInterval(band);
+	}
+
+	band = setInterval(setClicksProperties, 500);
+	
+});
 
 var vueApp = new Vue({
  	el: '#locations',
@@ -77,7 +95,7 @@ var getSearchUrl = function () {
 var getLocations = function(map, url) {	
 	$.get(url, function (data) {
 		vueApp.locations = data;		
-		buildMarkers(data, map);		
+		buildMarkers(data, map);
 	});
 }
 
@@ -198,7 +216,7 @@ var buildMarkers = function(locations, map) {
 		imagePath:"images/",
 		styles:[{url:"",height:40,width:40}],
 		minClusterSize:2
-	});
+	});	
 }
 
 var buildControls = function(map){

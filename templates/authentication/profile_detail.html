@@ -50,24 +50,29 @@
                     {% for property in object.user.property_set.all %}
                     <!-- listing-item -->
                     <div class="listing-item">
-                        <article class="geodir-category-listing fl-wrap">
+                        <article data-url="{{ property.get_absolute_url }}" class="geodir-category-listing fl-wrap">
                             <div class="geodir-category-img">
                                 <img src="{{ property.get_cover }}" alt="">
                                 <div class="overlay"></div>
                                 <div class="list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
                             </div>
                             <div class="geodir-category-content fl-wrap">
-                                <a class="listing-geodir-category" href="{% url 'detail_property' property.id %}">{{ property.purpose.activity }}</a>
+                                <span class="listing-geodir-category">
+                                    <i class="fa fa-usd"></i> {{ property.price }}
+                                </span>
                                 <div class="listing-avatar"><a href="{% url 'detail_profile' object.user.username %}"><img src="{{ object.get_avatar }}" alt=""></a>
                                     <span class="avatar-tooltip">Publicado por <strong>{{ object.user.get_full_name }}</strong></span>
                                 </div>
-                                <h3><a href="{% url 'detail_property' property.id %}">{{ property.category }}</a></h3>
-                                <p>{{ property.description }}</p>
+                                <h3>
+                                    <div>{{ property.purpose.activity }}</div>
+                                    <span>{{ property.category.singular_name}}</span>
+                                </h3>
+                                <p>{{ property.description|truncatewords:25 }}</p>
                                 <div class="geodir-category-options fl-wrap">
                                     <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
                                         <span>(7 comentarios)</span>
                                     </div>
-                                    <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>{{ property.address }}</a></div>
+                                    <div class="geodir-category-location"><span><i class="fa fa-map-marker" aria-hidden="true"></i>{{ property.address }}</span></div>
                                 </div>
                             </div>
                         </article>

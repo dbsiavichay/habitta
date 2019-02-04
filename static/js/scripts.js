@@ -1,3 +1,12 @@
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.geodir-category-listing').forEach(function (elem) {
+        elem.addEventListener('click', function () {
+            url = window.location.origin + this.dataset.url;
+            window.location.assign(url);
+        });
+    });
+});
+
 var citybook = {
     initLightGallery: function () {
         var gallery = $(".lightgallery"),
