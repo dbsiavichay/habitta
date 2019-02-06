@@ -72,10 +72,17 @@
         <div id="gallery" class="gallery-items grid-small-pad  list-single-gallery three-coulms lightgallery">
             {% for image in object.get_gallery %}
             <div class="gallery-item">
+                {% if object.user == user %}
+                <a href="{% url 'delete_property_image' image.id %}" class="gallery-item-del">
+                    <i class="fa fa-close"></i>
+                </a>
+                {% endif %}
                 <div class="grid-item-holder">
                     <div class="box-item">
-                        <img  src="{{ image.url }}"   alt="">
-                        <a href="{{ image.url }}" class="gal-link popup-image"><i class="fa fa-search"  ></i></a>
+                        <img  src="{{ image.img.url }}"   alt="">                        
+                        <a href="{{ image.img.url }}" class="gal-link popup-image">
+                            <i class="fa fa-search"></i>
+                        </a>                                                                            
                     </div>
                 </div>
             </div>

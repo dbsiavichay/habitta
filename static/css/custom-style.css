@@ -212,3 +212,17 @@
     margin-top: 12px;
     background: #4DB7FE;
 }
+
+.gallery-item-del {
+    background-color: #FF2400;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    height: 30px;
+    line-height: 29px;
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    width: 30px;
+    z-index: 20;
+}

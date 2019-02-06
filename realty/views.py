@@ -2,7 +2,7 @@ from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
-	ListView, CreateView, UpdateView, DetailView, FormView,
+	ListView, CreateView, UpdateView, DeleteView, DetailView, FormView,
 )
 from .models import Category, Property, PropertyImage
 from .forms import (
@@ -139,7 +139,12 @@ class PropertyBase64ImageUploadView(CreateView):
 			self.form_valid(form, property)
 
 			if request.is_ajax():
-				return JsonResponse({'image_url': self.object.img.url}, status=200)
+				return JsonResponse({
+						'image_url': self.object.img.url,
+						'delete_image_url': reverse_lazy('delete_property_image', args=[self.object.id]),
+					}, 
+					status=200
+				)
 
 			return redirect(reverse_lazy('detail_property', args=[property.id]))
 
@@ -148,6 +153,19 @@ class PropertyBase64ImageUploadView(CreateView):
 
 	def get(self, request, *args, **kwargs):
 		raise Http404
+
+class PropertyImageDeleteView(DeleteView):
+	model = PropertyImage
+	http_method_names = ['post',]
+
+	def delete(self, request, *args, **kwargs):		
+		if not request.is_ajax():
+			raise Http404
+		self.object = self.get_object()	    
+		if self.object.property.user != request.user:
+			return JsonResponse({'message': 'No estas autorizado para realizar esta acción'}, status=403)
+		self.object.delete()
+		return JsonResponse({}, status=200)
 
 class PropertyFavoriteListView(ListView):
 	model = Property

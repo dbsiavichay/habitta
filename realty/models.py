@@ -117,7 +117,7 @@ class Property(models.Model):
 		instances = self.images.filter(is_cover=True)
 
 		if len(instances) > 0:
-			return instances[0]		
+			return instances[0]	
 
 	def get_cover(self):
 		instance = self.get_cover_instance()
@@ -129,7 +129,7 @@ class Property(models.Model):
 
 	def get_gallery(self):
 		instances = self.images.filter(is_cover=False)
-		images = [i.img for i in instances if i.img]
+		images = [i for i in instances if i.img]
 		return images
 
 	def get_absolute_url(self):		

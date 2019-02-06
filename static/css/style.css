@@ -1237,7 +1237,7 @@ section.gray-section .section-separator {
 	border-radius:6px;
 	color:#2B2B28;
 	margin:0 10px 20px 10px;
-	min-width:190px;	
+	width:150px;	
 }
 .box-cat:hover{
 	background: #EBEBE3;	

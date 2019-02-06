@@ -262,7 +262,7 @@ var buildMap = function (center) {
 			center:center,
 			mapTypeId:google.maps.MapTypeId.ROADMAP,
 			zoomControl:false,
-			mapTypeControl:false,
+			mapTypeControl:true,
 			scaleControl:false,
 			panControl:false,
 			navigationControl:false,

@@ -102,11 +102,13 @@ $(function () {
                 }
 
                 galleryItem.querySelector('img').src = data['image_url'];
-                galleryItem.querySelector('a').href = data['image_url'];
+                galleryItem.querySelector('.gal-link.popup-image').href = data['image_url'];
+                galleryItem.querySelector('.gallery-item-del').href = data['delete_image_url'];
 
                 document.getElementById('gallery').appendChild(galleryItem);
                 citybook.destroyLightGallery();
                 destroyCropper();
+                unsetDeleteImageGallery();
             },
 
             error: function (err) {
@@ -116,9 +118,41 @@ $(function () {
 
             complete: function () {
                 citybook.initLightGallery();
+                setDeleteImageGallery();
             },
         });
     }
+
+    var deleteImageGallery = function (event) {
+        event.preventDefault();
+        var self = this;
+        $.ajax(self.getAttribute('href'), 
+            {
+                method: 'POST',
+                data:{},
+                success: function () {                    
+                    $(self).parents('.gallery-item').remove();
+                    citybook.destroyLightGallery();
+                },
+                complete: function () {
+                    citybook.initLightGallery();
+                },                
+                error: function (err) {
+                    console.log(err);
+                }
+            }
+        );
+    }
+
+    var setDeleteImageGallery = function () {
+        $('.gallery-item-del').on('click', deleteImageGallery);        
+    }
+
+    var unsetDeleteImageGallery = function () {
+        $('.gallery-item-del').off('click', deleteImageGallery);
+    }
+
+    setDeleteImageGallery();
 
     //Cover engine
     var modalShow =  function () {
