@@ -21,7 +21,7 @@ class Specification(models.Model):
 	class Meta:
 		verbose_name = 'especificación'
 		verbose_name_plural = 'especificaciones'
-		ordering = ['order',]
+		ordering = ['name',]
 
 	WIDGET_CHOICES = (
 		('TextInput', 'Texto'), ('NumberInput', 'Número'), 
@@ -75,6 +75,7 @@ class Property(models.Model):
 	class Meta:
 		verbose_name = 'propiedad'
 		verbose_name_plural = 'propiedades'
+		ordering = ['-pub_date',]
 
 	DRAFT, PUBLISHED, COMPLETE = (1, 2, 3)
 
@@ -88,7 +89,7 @@ class Property(models.Model):
 	geopoint = models.PointField()	
 	status = models.PositiveSmallIntegerField(default=DRAFT)
 	details = JSONField(blank=True, null=True, verbose_name='detalles')
-	pub_date = models.DateTimeField(auto_now_add=True)
+	pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación')
 	purpose	 = models.ForeignKey(Purpose, verbose_name='¿Que desea hacer?', on_delete=models.CASCADE)
 	category = models.ForeignKey(Category, verbose_name='categoría', on_delete=models.CASCADE)	
 	user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)

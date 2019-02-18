@@ -20,6 +20,7 @@ class PropertyImageInline(admin.TabularInline):
     model = PropertyImage
 
 class PropertyAdmin(admin.ModelAdmin):
+	list_display = ('price', 'description', 'address', 'pub_date')
 	inlines = [
 		PropertyImageInline,
 	]
