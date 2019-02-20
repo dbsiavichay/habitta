@@ -36,6 +36,7 @@
                     </div>
                     <!-- profile-edit-container end-->                    
                     
+                    {% if require_location %}
                     <!-- profile-edit-container--> 
                     <div class="profile-edit-container add-list-container">
                         <div class="profile-edit-header fl-wrap">
@@ -46,15 +47,17 @@
                         </div>
                     </div>
                     <!-- profile-edit-container end-->
+                    {% endif %}
                     
                     <!-- profile-edit-container--> 
                     <div class="profile-edit-container add-list-container">
                         <div class="profile-edit-header fl-wrap">
                             <h4>Detalles </h4>
                         </div>
-                        <div class="custom-form">                            
+                        <div class="custom-form">                                                    
                             <!-- Checkboxes -->
                             {% render_field form.services title='Servicios' %}
+                            
 
                             {% load realtytags %}
                             {% for field in details_form %}

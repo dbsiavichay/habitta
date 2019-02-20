@@ -64,7 +64,7 @@
                                     <span class="avatar-tooltip">Publicado por <strong>{{ object.user.get_full_name }}</strong></span>
                                 </div>
                                 <h3>
-                                    <div>{{ property.purpose.activity }}</div>
+                                    <div>{{ property.get_purpose.activity }}</div>
                                     <span>{{ property.category.singular_name}}</span>
                                 </h3>
                                 <p>{{ property.description|truncatewords:25 }}</p>

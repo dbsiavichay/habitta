@@ -6,7 +6,7 @@ class PropertySerializer(serializers.ModelSerializer):
 	price = serializers.CharField()
 	category = serializers.SlugRelatedField(slug_field='singular_name', read_only=True)
 	cover = serializers.URLField(source='get_cover')
-	purpose = serializers.SlugRelatedField(slug_field='activity', read_only=True)	
+	purpose = serializers.CharField(source='get_purpose.activity')	
 	phone = serializers.CharField(source='user.profile.phone')
 	stars = serializers.IntegerField(default=5)
 	reviews = serializers.IntegerField(default=11)

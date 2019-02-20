@@ -26,17 +26,22 @@ class CategoryForm(ModelForm):
 	specifications = SpecificationMultipleChoiceField(
 		queryset = Specification.objects.all(),
 		label = 'Especificaciones',
+		widget = CheckboxSelectMultiple,
 		required = False,
 	)
 
 	class Meta:
 		model = Category
 		fields = '__all__'
+		widgets = {
+			'purposes': CheckboxSelectMultiple,
+			'services': CheckboxSelectMultiple,			
+		}
 
 class SpecificationForm(ModelForm):
 	class Meta:
 		model = Specification
-		fields = '__all__'
+		fields = '__all__'		
 
 	def clean(self):
 		super().clean()
@@ -55,36 +60,55 @@ class SpecificationForm(ModelForm):
 		return self.cleaned_data
 
 class PropertyForm(ModelForm):
-	longitude = FloatField(label='Longitud')
-	latitude = FloatField(label='Latitud')
+	longitude = FloatField(widget=HiddenInput)
+	latitude = FloatField(widget=HiddenInput)
+	purpose = ModelChoiceField(
+		label = '¿Que desea hacer?',
+		empty_label = None,
+		widget = RadioSelect,
+		queryset = None,
+		required = True,
+
+	)
 	services = ModelMultipleChoiceField(
 		widget = CheckboxSelectMultiple,
 		queryset = None,
 		required = False
 	)
 
+
 	class Meta:
 		model = Property
-		exclude = ('user', 'geopoint', 'status', 'category')
-		widgets = {
-			'purpose': RadioSelect
-		}
+		exclude = ('user', 'geopoint', 'status', 'category')		
 
 	def __init__(self, *args, **kwargs):		
 		category = kwargs.pop('category', None)
 		super().__init__(*args, **kwargs)				
 		if self.instance.pk is not None:
+			purposes = self.instance.category.purposes
 			services = self.instance.category.services			
 		elif category is not None:
+			purposes = category.purposes
 			services = category.services
 
-		self.fields['services'].queryset = services 		
-		self.fields['services'].initial = self.instance.details['services'] if self.instance.pk else []
+		self.fields['purpose'].queryset = purposes		 
+		self.fields['services'].queryset = services		
+
+		if self.instance.pk:
+			try:
+				self.fields['purpose'].initial = self.instance.details['purpose']
+			except KeyError:
+				pass
+			try:
+				self.fields['services'].initial = self.instance.details['services']
+			except KeyError:
+				pass
+
 		if self.instance.geopoint is not None:
 			self.fields['longitude'].initial = self.instance.geopoint.x
 			self.fields['latitude'].initial = self.instance.geopoint.y 
 
-		self.fields['purpose'].choices = ((obj.id, obj) for obj in self.fields['purpose'].choices.queryset)		
+		#self.fields['purpose'].choices = ((obj.id, obj) for obj in self.fields['purpose'].choices.queryset)		
 
 	def save(self, commit=True):
 		property = super().save(commit=False)

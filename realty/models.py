@@ -6,6 +6,21 @@ from .utils import get_category_icons
 
 from fontawesome.fields import IconField
 
+#Lo que se pretende hacer con la propiedad ej: vender, rentar
+class Purpose(models.Model):
+	class Meta:
+		verbose_name = 'propósito'
+		ordering = ['order',]
+
+	for_owner = models.CharField(max_length=32, verbose_name='para el propietario')	
+	for_user = models.CharField(max_length=32, verbose_name='para el usuario')		
+	activity = models.CharField(max_length=32, verbose_name='actividad')
+	participle = models.CharField(max_length=32, verbose_name='participio')
+	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')
+
+	def __str__(self):
+		return self.for_owner
+
 class Service(models.Model):
 	class Meta:
 		verbose_name = 'servicio'
@@ -26,6 +41,7 @@ class Specification(models.Model):
 	WIDGET_CHOICES = (
 		('TextInput', 'Texto'), ('NumberInput', 'Número'), 
 		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple'),
+		('FileField', 'Archivo'),
 	)	
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
@@ -50,26 +66,13 @@ class Category(models.Model):
 	singular_name = models.CharField(max_length=32, verbose_name='nombre singular')	
 	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	order = models.PositiveSmallIntegerField(verbose_name='orden')	
+	require_location = models.BooleanField(default=True, verbose_name='requiere ubicación?')
+	purposes = models.ManyToManyField(Purpose, blank=True, verbose_name='propósitos')
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
 	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
 
 	def __str__(self):
 		return self.name
-
-#Lo que se pretende hacer con la propiedad ej: vender, rentar
-class Purpose(models.Model):
-	class Meta:
-		verbose_name = 'propósito'
-		ordering = ['order',]
-
-	for_owner = models.CharField(max_length=32, verbose_name='para el propietario')	
-	for_user = models.CharField(max_length=32, verbose_name='para el usuario')		
-	activity = models.CharField(max_length=32, verbose_name='actividad')
-	participle = models.CharField(max_length=32, verbose_name='participio')
-	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')
-
-	def __str__(self):
-		return self.for_owner
 
 class Property(models.Model):
 	class Meta:
@@ -89,13 +92,20 @@ class Property(models.Model):
 	geopoint = models.PointField()	
 	status = models.PositiveSmallIntegerField(default=DRAFT)
 	details = JSONField(blank=True, null=True, verbose_name='detalles')
-	pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación')
-	purpose	 = models.ForeignKey(Purpose, verbose_name='¿Que desea hacer?', on_delete=models.CASCADE)
+	pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación')	
 	category = models.ForeignKey(Category, verbose_name='categoría', on_delete=models.CASCADE)	
 	user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.description
+
+	def get_purpose(self):
+		try:
+			pk = self.details['purpose']
+			purpose = Purpose.objects.get(pk=pk)
+			return purpose		
+		except:
+			return {'activity': 'No definido'}
 
 	def get_specifications(self):
 		specifications = []

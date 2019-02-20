@@ -34,6 +34,7 @@ class PropertyCreateView(CreateView):
 			return self.form_invalid(form)
 
 		details = {
+			'purpose': form.cleaned_data['purpose'].id,
 			'services': [service.id for service in form.cleaned_data['services']],
 			'specifications': details_form.get_not_empty_cleaned_data(),
 		}
@@ -48,7 +49,10 @@ class PropertyCreateView(CreateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)		
-		context.update({'details_form': self.get_details_form()})
+		context.update({
+			'require_location': self.category.require_location,			
+			'details_form': self.get_details_form()
+		})
 		return context
 
 	def get_details_form(self):
@@ -73,6 +77,7 @@ class PropertyUpdateView(UpdateView):
 			return self.form_invalid(form)
 
 		details = {
+			'purpose': form.cleaned_data['purpose'].id,
 			'services': [service.id for service in form.cleaned_data['services']],
 			'specifications': details_form.get_not_empty_cleaned_data(),
 		}
@@ -85,8 +90,11 @@ class PropertyUpdateView(UpdateView):
 		return redirect(self.success_url)
 
 	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)		
-		context.update({'details_form': self.get_details_form()})
+		context = super().get_context_data(**kwargs)	
+		context.update({
+			'require_location': self.object.category.require_location,			
+			'details_form': self.get_details_form()
+		})			
 		return context
 
 	def get_details_form(self):

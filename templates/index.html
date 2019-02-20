@@ -80,7 +80,7 @@
                                 <span class="avatar-tooltip">Publicado por <strong>{{ object.user.get_full_name }}</strong></span>
                             </div>
                             <h3>
-                                <div>{{ object.purpose.activity }}</div>
+                                <div>{{ object.get_purpose.activity }}</div>
                                 <span>{{ object.category.singular_name}}</span>
                             </h3>
                             <p>{{ object.description|truncatewords:25 }}</p>
