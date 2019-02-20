@@ -38,15 +38,17 @@ class Specification(models.Model):
 		verbose_name_plural = 'especificaciones'
 		ordering = ['name',]
 
-	WIDGET_CHOICES = (
+	FIELD_CHOICES = (
 		('TextInput', 'Texto'), ('NumberInput', 'Número'), 
 		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple'),
+		('CharField', '-Texto'),('PositiveSmallIntegerField', '-Número'),
+		('ChoiceField', '-Selector'), ('ChoiceField:RadioSelect', '-RadioMultiple'), 
 		('FileField', 'Archivo'),
 	)	
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
 	internal_name = models.CharField(max_length=128, verbose_name='nombre interno')
-	widget = models.CharField(max_length=64, choices=WIDGET_CHOICES)
+	widget = models.CharField(max_length=64, choices=FIELD_CHOICES)
 	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')	
 	icon = IconField(verbose_name='ícono')
 	is_required = models.BooleanField(default=False, verbose_name='requerido?')
