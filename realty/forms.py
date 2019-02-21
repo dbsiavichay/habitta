@@ -45,16 +45,16 @@ class SpecificationForm(ModelForm):
 
 	def clean(self):
 		super().clean()
-		widget = self.cleaned_data.get('widget')
+		field_type = self.cleaned_data.get('field_type')
 		choices = self.cleaned_data.get('choices')
 
 		CHOICE_WIDGETS = ('Select', 'RadioSelect')
 
-		if widget in CHOICE_WIDGETS  and choices is None:            
+		if field_type in CHOICE_WIDGETS  and choices is None:            
 			raise ValidationError(
-				'Si selecciona un widget de tipo %(widget)s debe completar las elecciones',
+				'Si selecciona un widget de tipo %(field_type)s debe completar las elecciones',
 				code = 'invalid',
-				params = {'widget': widget}                
+				params = {'field_type': field_type}                
 			)           
 
 		return self.cleaned_data
@@ -127,37 +127,58 @@ class PropertyDetailsForm(Form):
 			raise ValueError('Debe indicar una categoria')
 
 		INPUT_WIDGETS = ('TextInput',)
-		CHOICE_WIDGETS = ('Select', 'RadioSelect')		
+		CHOICE_WIDGETS = ('Select', 'RadioSelect')
+		FIELDS = (choice[0] for choice in Specification.FIELD_CHOICES)
 
 		for specification in category.specifications.all():
-			key = str(specification.id)			
+			key = str(specification.id)
 
-			if specification.widget in INPUT_WIDGETS:
-				self.fields[key] = CharField(
-					label = specification.name,
-					widget = eval(specification.widget),								
-					required = specification.is_required,
-				)			
-			elif specification.widget in CHOICE_WIDGETS:
-				CHOICES = [(choice, choice) for choice in specification.choices.split(',')] if specification.choices is not None else []
-				self.fields[key] = ChoiceField(
-					label = specification.name,
-					choices = CHOICES,
-					widget = eval(specification.widget),					
-					required = specification.is_required,					
-				)							
-			elif specification.widget == 'CheckboxInput':
-				self.fields[key] = BooleanField(
-					label = specification.name,					
-				)
-			elif specification.widget == 'NumberInput':
-				self.fields[key] = CharField(
-					label = specification.name,
-					widget = NumberInput(attrs={'min':0,}),								
-					required = specification.is_required,
-				)
-			else:
-				pass
+			try:
+				form_field, widget = specification.field_type.split(':')
+			except ValueError:
+				form_field = specification.field_type
+				widget = None
+
+			self.fields[key] = eval(form_field)(
+				label = specification.name,				
+				required = specification.is_required,
+			)
+			
+			if widget:
+				attrs = dict(specification.attributes.strip())
+				self.fields[key].widget = eval(widget)(attrs=attrs)
+
+			if specification.choices:
+				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]
+				self.fields[key].choices = CHOICES
+
+
+			# if specification.widget in INPUT_WIDGETS:
+			# 	self.fields[key] = CharField(
+			# 		label = specification.name,
+			# 		widget = eval(specification.widget),								
+			# 		required = specification.is_required,
+			# 	)			
+			# elif specification.widget in CHOICE_WIDGETS:
+			# 	CHOICES = [(choice, choice) for choice in specification.choices.split(',')] if specification.choices is not None else []
+			# 	self.fields[key] = ChoiceField(
+			# 		label = specification.name,
+			# 		choices = CHOICES,
+			# 		widget = eval(specification.widget),					
+			# 		required = specification.is_required,					
+			# 	)							
+			# elif specification.widget == 'CheckboxInput':
+			# 	self.fields[key] = BooleanField(
+			# 		label = specification.name,					
+			# 	)
+			# elif specification.widget == 'NumberInput':
+			# 	self.fields[key] = CharField(
+			# 		label = specification.name,
+			# 		widget = NumberInput(attrs={'min':0,}),								
+			# 		required = specification.is_required,
+			# 	)
+			# else:
+			# 	pass
 
 	def get_not_empty_cleaned_data(self):
 		if not self.cleaned_data:

@@ -41,14 +41,15 @@ class Specification(models.Model):
 	FIELD_CHOICES = (
 		('TextInput', 'Texto'), ('NumberInput', 'Número'), 
 		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple'),
-		('CharField', '-Texto'),('PositiveSmallIntegerField', '-Número'),
+		('CharField', '-Texto'),('IntegerField', '-Número'),
 		('ChoiceField', '-Selector'), ('ChoiceField:RadioSelect', '-RadioMultiple'), 
 		('FileField', 'Archivo'),
 	)	
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
 	internal_name = models.CharField(max_length=128, verbose_name='nombre interno')
-	widget = models.CharField(max_length=64, choices=FIELD_CHOICES)
+	field_type = models.CharField(max_length=64, choices=FIELD_CHOICES, verbose_name='tipo de campo')
+	attributes = models.CharField(max_length=128, blank=True, null=True, verbose_name='atributos')
 	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')	
 	icon = IconField(verbose_name='ícono')
 	is_required = models.BooleanField(default=False, verbose_name='requerido?')
