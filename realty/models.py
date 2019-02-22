@@ -38,11 +38,9 @@ class Specification(models.Model):
 		verbose_name_plural = 'especificaciones'
 		ordering = ['name',]
 
-	FIELD_CHOICES = (
-		('TextInput', 'Texto'), ('NumberInput', 'Número'), 
-		('Select', 'Selector'), ('RadioSelect', 'RadioMultiple'),
-		('CharField', '-Texto'),('IntegerField', '-Número'),
-		('ChoiceField', '-Selector'), ('ChoiceField:RadioSelect', '-RadioMultiple'), 
+	FIELD_CHOICES = (		
+		('CharField', 'Texto'),('IntegerField', 'Número'),
+		('ChoiceField', 'Selector'), ('ChoiceField:RadioSelect', 'RadioMultiple'), 
 		('FileField', 'Archivo'),
 	)	
 	
@@ -91,8 +89,8 @@ class Property(models.Model):
 	
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
-	address = models.CharField(max_length=64, verbose_name='dirección')
-	geopoint = models.PointField()	
+	address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')
+	geopoint = models.PointField(blank=True, null=True)	
 	status = models.PositiveSmallIntegerField(default=DRAFT)
 	details = JSONField(blank=True, null=True, verbose_name='detalles')
 	pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación')	

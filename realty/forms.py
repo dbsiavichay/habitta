@@ -1,7 +1,7 @@
 from django.forms import ( 
 	ModelForm, Form, 
 	ModelChoiceField, ModelMultipleChoiceField, 
-	CharField, FloatField, ChoiceField, BooleanField,
+	CharField, IntegerField,FloatField, ChoiceField, BooleanField, FileField,
 	ValidationError
 )
 from django.forms.widgets import (
@@ -11,6 +11,8 @@ from django.forms.widgets import (
 )
 from .models import Specification, Category, Purpose, Property, PropertyImage
 from django.contrib.gis.geos import Point
+
+from django.core.files.storage import FileSystemStorage
 
 #Custom form fields
 class PurposeChoiceField(ModelChoiceField):
@@ -47,10 +49,9 @@ class SpecificationForm(ModelForm):
 		super().clean()
 		field_type = self.cleaned_data.get('field_type')
 		choices = self.cleaned_data.get('choices')
+		
 
-		CHOICE_WIDGETS = ('Select', 'RadioSelect')
-
-		if field_type in CHOICE_WIDGETS  and choices is None:            
+		if 'ChoiceField' in field_type  and choices is None:            
 			raise ValidationError(
 				'Si selecciona un widget de tipo %(field_type)s debe completar las elecciones',
 				code = 'invalid',
@@ -76,20 +77,16 @@ class PropertyForm(ModelForm):
 		required = False
 	)
 
-
 	class Meta:
 		model = Property
 		exclude = ('user', 'geopoint', 'status', 'category')		
 
 	def __init__(self, *args, **kwargs):		
-		category = kwargs.pop('category', None)
-		super().__init__(*args, **kwargs)				
-		if self.instance.pk is not None:
-			purposes = self.instance.category.purposes
-			services = self.instance.category.services			
-		elif category is not None:
-			purposes = category.purposes
-			services = category.services
+		self.category = kwargs.pop('category', None)
+		super().__init__(*args, **kwargs)						
+		if self.category is not None:
+			purposes = self.category.purposes
+			services = self.category.services
 
 		self.fields['purpose'].queryset = purposes		 
 		self.fields['services'].queryset = services		
@@ -104,6 +101,10 @@ class PropertyForm(ModelForm):
 			except KeyError:
 				pass
 
+		if not self.category.require_location:
+			self.fields['longitude'].required = False
+			self.fields['latitude'].required = False
+
 		if self.instance.geopoint is not None:
 			self.fields['longitude'].initial = self.instance.geopoint.x
 			self.fields['latitude'].initial = self.instance.geopoint.y 
@@ -112,7 +113,8 @@ class PropertyForm(ModelForm):
 
 	def save(self, commit=True):
 		property = super().save(commit=False)
-		property.geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])
+		if self.category.require_location:		
+			property.geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])
 		if commit:
 			property.save()            
 		return property
@@ -120,70 +122,48 @@ class PropertyForm(ModelForm):
 
 class PropertyDetailsForm(Form):
 	def __init__(self, *args, **kwargs):
-		category = kwargs.pop('category', None)		
+		self.category = kwargs.pop('category', None)		
 		super().__init__(*args, **kwargs)
 
-		if category is None or not isinstance(category, Category): 
+		if self.category is None or not isinstance(self.category, Category): 
 			raise ValueError('Debe indicar una categoria')
 
-		INPUT_WIDGETS = ('TextInput',)
-		CHOICE_WIDGETS = ('Select', 'RadioSelect')
-		FIELDS = (choice[0] for choice in Specification.FIELD_CHOICES)
-
-		for specification in category.specifications.all():
+		for specification in self.category.specifications.all():
 			key = str(specification.id)
-
 			try:
 				form_field, widget = specification.field_type.split(':')
 			except ValueError:
 				form_field = specification.field_type
-				widget = None
+				widget = None			
 
 			self.fields[key] = eval(form_field)(
-				label = specification.name,				
+				label = specification.name,
 				required = specification.is_required,
 			)
-			
-			if widget:
-				attrs = dict(specification.attributes.strip())
-				self.fields[key].widget = eval(widget)(attrs=attrs)
-
+						
+			if widget: self.fields[key].widget = eval(widget)()
 			if specification.choices:
 				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]
 				self.fields[key].choices = CHOICES
 
-
-			# if specification.widget in INPUT_WIDGETS:
-			# 	self.fields[key] = CharField(
-			# 		label = specification.name,
-			# 		widget = eval(specification.widget),								
-			# 		required = specification.is_required,
-			# 	)			
-			# elif specification.widget in CHOICE_WIDGETS:
-			# 	CHOICES = [(choice, choice) for choice in specification.choices.split(',')] if specification.choices is not None else []
-			# 	self.fields[key] = ChoiceField(
-			# 		label = specification.name,
-			# 		choices = CHOICES,
-			# 		widget = eval(specification.widget),					
-			# 		required = specification.is_required,					
-			# 	)							
-			# elif specification.widget == 'CheckboxInput':
-			# 	self.fields[key] = BooleanField(
-			# 		label = specification.name,					
-			# 	)
-			# elif specification.widget == 'NumberInput':
-			# 	self.fields[key] = CharField(
-			# 		label = specification.name,
-			# 		widget = NumberInput(attrs={'min':0,}),								
-			# 		required = specification.is_required,
-			# 	)
-			# else:
-			# 	pass
+			pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None
+			attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
+			self.fields[key].widget.attrs.update(attrs)
 
 	def get_not_empty_cleaned_data(self):
 		if not self.cleaned_data:
 			return []
 		not_empty_cleaned_data = { key:self.cleaned_data[key] for key in self.cleaned_data if self.cleaned_data[key] }
+
+		for specification in self.category.specifications.all():
+			key = str(specification.id)
+			if 'FileField' in specification.field_type:
+				file = self.cleaned_data[key]
+				fs = FileSystemStorage()
+				filename = fs.save(file.name, file)
+				file_url = fs.url(filename)
+				not_empty_cleaned_data[key] = file_url
+
 		return not_empty_cleaned_data
 
 class PropertyBase64ImageForm(ModelForm):

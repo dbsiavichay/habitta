@@ -37,7 +37,7 @@ class PropertyCreateView(CreateView):
 			'purpose': form.cleaned_data['purpose'].id,
 			'services': [service.id for service in form.cleaned_data['services']],
 			'specifications': details_form.get_not_empty_cleaned_data(),
-		}
+		}		
 
 		self.object = form.save(commit=False)
 		self.object.user = self.request.user
@@ -57,7 +57,8 @@ class PropertyCreateView(CreateView):
 
 	def get_details_form(self):
 		post_data = self.request.POST if self.request.method == 'POST' else None		
-		form = PropertyDetailsForm(post_data, **{'category':self.category})
+		files_data = self.request.FILES if self.request.method == 'POST' else None		
+		form = PropertyDetailsForm(post_data, files_data, **{'category':self.category})
 		return form
 	
 	def get_form_kwargs(self):
@@ -100,14 +101,20 @@ class PropertyUpdateView(UpdateView):
 	def get_details_form(self):
 		self.object = self.get_object()
 		post_data = self.request.POST if self.request.method == 'POST' else None
+		files_data = self.request.FILES if self.request.method == 'POST' else None
 		kwargs = {'category':self.object.category}
 
 		if self.request.method == 'GET':
 			initials = self.object.details['specifications']
 			kwargs.update({'initial': initials})
 
-		form = PropertyDetailsForm(post_data, **kwargs)
+		form = PropertyDetailsForm(post_data, files_data,**kwargs)
 		return form
+
+	def get_form_kwargs(self):
+		kwargs = super().get_form_kwargs()		
+		kwargs.update({'category': self.get_object().category})
+		return kwargs
 
 class PropertyDetailView(DetailView):
 	model = Property
