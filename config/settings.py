@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'fontawesome',    
     'components',
+    'payments',
     'project',
     'authentication',
     'comments',
