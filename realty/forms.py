@@ -13,6 +13,8 @@ from .models import Specification, Category, Purpose, Property, PropertyImage
 from django.contrib.gis.geos import Point
 
 from django.core.files.storage import FileSystemStorage
+import os
+import uuid
 
 #Custom form fields
 class PurposeChoiceField(ModelChoiceField):
@@ -151,6 +153,7 @@ class PropertyDetailsForm(Form):
 			self.fields[key].widget.attrs.update(attrs)
 
 	def get_not_empty_cleaned_data(self):
+		import time
 		if not self.cleaned_data:
 			return []
 		not_empty_cleaned_data = { key:self.cleaned_data[key] for key in self.cleaned_data if self.cleaned_data[key] }
@@ -158,11 +161,13 @@ class PropertyDetailsForm(Form):
 		for specification in self.category.specifications.all():
 			key = str(specification.id)
 			if 'FileField' in specification.field_type:
-				file = self.cleaned_data[key]
-				fs = FileSystemStorage()
-				filename = fs.save(file.name, file)
-				file_url = fs.url(filename)
-				not_empty_cleaned_data[key] = file_url
+				uploaded_file = self.cleaned_data[key]
+				name, extension = os.path.splitext(uploaded_file.name)
+				fs = FileSystemStorage(location='media/files/%s/'% (time.strftime('%Y/%m/%d')))
+				filename = '%s%s' % (str(uuid.uuid4()),extension)
+				file = fs.save(filename, uploaded_file)
+				file_path = fs.path(file)
+				not_empty_cleaned_data[key] = file_path
 
 		return not_empty_cleaned_data
 
@@ -177,8 +182,7 @@ class PropertyBase64ImageForm(ModelForm):
 
 	base64image = CharField(widget = HiddenInput,)	
 
-	def save(self, commit=True):
-		import uuid
+	def save(self, commit=True):		
 		from .utils import base64_to_image
 
 		base64image = self.cleaned_data['base64image']			

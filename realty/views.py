@@ -1,4 +1,4 @@
-from django.http import JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -11,6 +11,10 @@ from .forms import (
 	FinderForm
 )
 from logs.models import Log
+
+import os
+import zipfile
+from io import BytesIO
 
 class ChooseCategoryListView(ListView):
 	model = Category
@@ -105,8 +109,11 @@ class PropertyUpdateView(UpdateView):
 		kwargs = {'category':self.object.category}
 
 		if self.request.method == 'GET':
-			initials = self.object.details['specifications']
-			kwargs.update({'initial': initials})
+			try:
+				initials = self.object.details['specifications']
+				kwargs.update({'initial': initials})
+			except KeyError:
+				pass
 
 		form = PropertyDetailsForm(post_data, files_data,**kwargs)
 		return form
@@ -190,6 +197,26 @@ class PropertyFavoriteListView(ListView):
 		properties = Log.objects.values_list('property_id', flat=True).filter(type=Log.LIKE, user=self.request.user)
 		queryset = super().get_queryset()
 		return queryset.filter(id__in=properties)
+
+
+class PropertyDownloadView(DetailView):
+	model = Property
+
+	def render_to_response(self, context, **httpresponse_kwargs):		
+		dirname = u'property_files_{0}'.format(self.object.id)
+		filename = u'{0}.zip'.format(dirname)
+
+		buffer = BytesIO()
+		z = zipfile.ZipFile(buffer, 'w')
+
+		for path in self.object.get_path_files():						
+			z.write(path, os.path.join(dirname, os.path.basename(path)))
+		z.close()
+		buffer.seek(0)
+		response = HttpResponse(buffer.read())
+		response['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
+		response['Content-Type'] = 'application/x-zip'
+		return response
 
 class FinderListView(FormView) :	
 	template_name = 'realty/finder.html'

@@ -121,6 +121,15 @@ class Property(models.Model):
 				})
 		return specifications
 
+	def get_path_files(self):
+		files = []
+
+		for spc in self.category.specifications.all():
+			key = str(spc.id)
+			if 'FileField' in spc.field_type and key in self.details['specifications']:
+				files.append(self.details['specifications'][key])
+		return files
+
 	def get_services(self):
 		services =	Service.objects.filter(pk__in=self.details['services'])		
 		return services
