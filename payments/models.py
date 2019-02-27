@@ -1,4 +1,5 @@
 from django.db import models
+from decimal import Decimal
 
 class Bank(models.Model):
 	ACCOUNT_TYPE_CHOICES = (
@@ -14,16 +15,16 @@ class Bank(models.Model):
 	def __str__(self):
 		return self.name
 
-class Deposit(models.Model):
-	STATUS_CHOICES = (
-		(1, 'Ingresado'), (2, 'En proceso'), (3, 'Confirmado')
-	)
-
-	bank = models.ForeignKey(Bank, on_delete=models.CASCADE, verbose_name='banco')
-	amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='valor')
-	date = models.DateTimeField(verbose_name='fecha')
-	voucher = models.CharField(max_length=64, verbose_name='número de comprobante')
-	object_id = models.IntegerField()
-	content_type = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE)
-	status = models.PositiveSmallIntegerField(default=1, choices=STATUS_CHOICES, verbose_name='estado')
-	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+class PaypalPayment(models.Model):
+	# Identificador de paypal para este pago
+    payment_id = models.CharField(max_length=64)
+    # Id unico asignado por paypal a cada usuario no cambia aunque
+    # la dirección de email lo haga.
+    payer_id = models.CharField(max_length=128, blank=True)
+    # Dirección de email del cliente proporcionada por paypal.
+    payer_email = models.EmailField(blank=True)
+    # Guardamos una copia del precio de libro, porque puede variar en el tiempo
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default = Decimal('0.00'))
+	date = models.DateTimeField(auto_now_add=True)
+    is_paid = models.BooleanField(default=False)
+	property = models.ForeignKey('realty.Property')
