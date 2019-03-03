@@ -17,14 +17,14 @@ class Bank(models.Model):
 
 class PaypalPayment(models.Model):
 	# Identificador de paypal para este pago
-    payment_id = models.CharField(max_length=64)
-    # Id unico asignado por paypal a cada usuario no cambia aunque
-    # la dirección de email lo haga.
-    payer_id = models.CharField(max_length=128, blank=True)
-    # Dirección de email del cliente proporcionada por paypal.
-    payer_email = models.EmailField(blank=True)
-    # Guardamos una copia del precio de libro, porque puede variar en el tiempo
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default = Decimal('0.00'))
+	payment_id = models.CharField(max_length=64)
+	# Id unico asignado por paypal a cada usuario no cambia aunque
+	# la dirección de email lo haga.
+	payer_id = models.CharField(max_length=128, blank=True)
+	# Dirección de email del cliente proporcionada por paypal.
+	payer_email = models.EmailField(blank=True)
+	# Guardamos una copia del precio de libro, porque puede variar en el tiempo
+	amount = models.DecimalField(max_digits=10, decimal_places=2, default = Decimal('0.00'))
 	date = models.DateTimeField(auto_now_add=True)
-    is_paid = models.BooleanField(default=False)
-	property = models.ForeignKey('realty.Property')
+	is_paid = models.BooleanField(default=False)
+	property = models.ForeignKey('realty.Property', on_delete=models.CASCADE)
