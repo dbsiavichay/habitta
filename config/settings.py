@@ -153,3 +153,8 @@ LOGIN_REDIRECT_URL = reverse_lazy('home')
 #Twitter app config
 TWITTER_API_KEY = os.environ['TWITTER_API_KEY']
 TWITTER_API_SECRET = os.environ['TWITTER_API_SECRET']
+
+#Paypal config
+PAYPAL_MODE= os.environ['PAYPAL_MODE']
+PAYPAL_CLIENT_ID  = os.environ['PAYPAL_CLIENT_ID']
+PAYPAL_CLIENT_SECRET = os.environ['PAYPAL_CLIENT_SECRET']
