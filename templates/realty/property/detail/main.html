@@ -11,12 +11,9 @@
         </div>
         <p>{{ object.description }}</p>
 
-        {% if object.get_path_files|length %}
-        <!-- <a href="{% url 'download_property' object.id %}" class="btn big-btn color-bg flat-btn">Descargar
-            <i class="fa fa-download"></i>
-        </a> -->
-        <a href="{% url 'paypal_payment' object.id %}" class="btn big-btn color-bg flat-btn">Comprar ${{ object.price }}</a>
-        {% endif %}
+        {% if object.get_path_files|length %}        
+        <a href="{% url 'process_paypal_payment' object.id %}" class="btn big-btn color-bg flat-btn">Comprar ${{ object.price }}</a>
+        {% endif %}        
 
         <span class="fw-separator"></span>
         <div class="list-single-main-item-title fl-wrap">

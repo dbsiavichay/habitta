@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, Http404
 from django.urls import reverse
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView, DetailView
 
 
 from django.conf import settings
@@ -10,10 +10,10 @@ import paypalrestsdk
 from realty.models import Property 
 from .models import PaypalPayment
 
-class PaypalView(RedirectView): 
+class PaypalPaymentView(RedirectView): 
 	permanent = False
 
-	def _generar_lista_items(self, property):	        
+	def get_items(self, property):	        
 		items = []
 		items.append({
 			'name': str(property.category),
@@ -24,103 +24,110 @@ class PaypalView(RedirectView):
 		})
 		return items
 
-	def _generar_peticion_pago_paypal(self, property):
-		peticion_pago = {
+	def get_paypal_kwargs(self, property):
+		format_base_url = '%s://%s'
+		base_url = format_base_url % ('https' if self.request.is_secure() else 'http', self.request.get_host())	
+		kwargs = {
 			'intent': 'sale',
 			'payer': {'payment_method': 'paypal'},
 			'redirect_urls': {
-				'return_url': 'http://localhost:5000'+reverse('aceptar_pago_paypal'),
-				'cancel_url': 'http://localhost:5000'},
+				'return_url': base_url+reverse('execute_paypal_payment'),
+				'cancel_url': base_url},
 
 			# Transaction -
 			'transactions': [ {
 				# ItemList
 				'item_list':{
-					'items': self._generar_lista_items(property)},
+					'items': self.get_items(property)
+				},
 
 				# Amount
 				'amount': {
 					'total': ('%.2f' % property.price),
-					'currency': 'USD'},
+					'currency': 'USD'
+				},
 
 				#Description
-				'description': str(property),}
-			]}
-		return peticion_pago
+				'description': str(property),
+			}]
+		}
+		return kwargs
 
-	def _generar_pago_paypal(self, property):
+	def generate_paypal_payment(self, property):
 		credentials = paypalrestsdk.Api({
 			'mode': settings.PAYPAL_MODE,
 			'client_id': settings.PAYPAL_CLIENT_ID,
 			'client_secret': settings.PAYPAL_CLIENT_SECRET,
 		})
 
-		pago_paypal = paypalrestsdk.Payment(self._generar_peticion_pago_paypal(property), api=credentials)		
+		paypal_payment = paypalrestsdk.Payment(self.get_paypal_kwargs(property), api=credentials)		
 
-		if pago_paypal.create():
-			for link in pago_paypal.links:
+		if paypal_payment.create():
+			for link in paypal_payment.links:
 				if link.method == "REDIRECT":
-					url_pago = link.href
+					url_payment = link.href
 		else:
-			raise Exception(pago.error)
+			raise Exception(paypal_payment.error)
 
-		return url_pago, pago_paypal
+		return url_payment, paypal_payment
 
-	def get_redirect_url(self, *args, **kwargs):
-		"""Extrae el libro que el usuario quiere comprar, genera un pago de
-		paypal por el precio del libro, y devuelve la direccion de pago que
-		paypal generó"""
+	def get_redirect_url(self, *args, **kwargs):		
 		property = get_object_or_404(Property, pk=int(kwargs['pk']))
-		url_pago, pago_paypal = self._generar_pago_paypal(property)
+
+		try:
+			PaypalPayment.objects.get(user=self.request.user ,property=property)			
+			raise Http404
+		except PaypalPayment.DoesNotExist:
+			pass
+		url_payment, paypal_payment = self.generate_paypal_payment(property)
 
 		# Se añade el identificador del pago a la sesion para que PaypalExecuteView
 		# pueda identificar al ususuario posteriorment
-		self.request.session['payment_id'] = pago_paypal.id
+		#self.request.session['payment_id'] = paypal_payment.id
 
 		# Por ultimo salvar la informacion del pago para poder determinar que
 		# libro le corresponde, al terminar la transaccion.
-		PaypalPayment.objects.create(payment_id=pago_paypal.id, amount=property.price, property=property)
+		PaypalPayment.objects.create(
+			payment_id = paypal_payment.id, 
+			amount = property.price, 
+			user = self.request.user,
+			property = property
+		)
 
-		return url_pago
+		return url_payment
 
-class PaypalExecuteView(TemplateView):
-	template_name = 'payments/paypal_exito.html'
+class PaypalPaymentExecuteView(DetailView):
+	model = PaypalPayment
+	template_name = 'payments/paypal_successful.html'
 
-	# def _enviar_ebook_email(self, registro_pago):
-	# 	"""Enviar Email con el libro al cliente """
-	# 	#TODO: adjuntar los archivos del modelo libro
-	# 	libro = registro_pago.libro
-	# 	mensaje = "Gracias por su compra de %s" % libro.titulo
-	# 	send_mail('TiendaEbook', mensaje,
-	# 		from_email = settings.DEFAULT_FROM_EMAIL,
-	# 		recipient_list=[registro_pago.payer_email,])
-
-	def completar_pago_paypal(self, payment_id, payer_id):
+	def execute_paypal_payment(self, payer_id):
 		"""Aceptar el pago del cliente, actualiza el registro con los datos
-		del cliente proporcionados por paypal"""
-		payment = get_object_or_404(PaypalPayment, payment_id=payment_id)
-		paypal_payment = paypalrestsdk.Payment.find(payment_id)
+		del cliente proporcionados por paypal"""		
+		paypal_payment = paypalrestsdk.Payment.find(self.object.payment_id)
 		if paypal_payment.execute({'payer_id': payer_id}):
-			payment.is_paid = True
-			payment.payer_id = payer_id
-			payment.payer_email = paypal_payment.payer['payer_info']['email']
-			payment.save()
+			self.object.is_paid = True
+			self.object.payer_id = payer_id
+			self.object.payer_email = paypal_payment.payer['payer_info']['email']
+			self.object.save()
 		else:
-			raise HttpResponseBadRequest
-
-		return payment
+			raise HttpResponseBadRequest		
 
 	def get(self, request, *args, **kwargs):
 		"""Extraer identificacion de paypal del cliente, la id del pago,
-		aceptar el pago, y enviar el email."""
-		context = self.get_context_data(**kwargs)
+		aceptar el pago."""		
 		try:
-			payer_id = request.GET['PayerID']
-			payment_id = request.session['payment_id']
+			payer_id = request.GET['PayerID']			
 		except Exception:
 			raise HttpResponseBadRequest
 
-		payment = self.completar_pago_paypal(payment_id, payer_id)
-		#self._enviar_ebook_email(payment)
-
+		self.object = self.get_object()
+		self.execute_paypal_payment(payer_id)		
+		context = self.get_context_data(object=self.object)
 		return self.render_to_response(context)
+
+	def get_object(self):
+		try:			
+			payment_id = request.GET['paymentId']
+			return get_object_or_404(PaypalPayment, payment_id=payment_id)
+		except:
+			raise HttpResponseBadRequest		

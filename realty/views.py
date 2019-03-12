@@ -218,6 +218,10 @@ class PropertyDownloadView(DetailView):
 		response['Content-Type'] = 'application/x-zip'
 		return response
 
+	def get(self, request, *args, **kwargs):
+		
+		return super().get(request, *args, **kwargs)
+
 class FinderListView(FormView) :	
 	template_name = 'realty/finder.html'
 	form_class = FinderForm

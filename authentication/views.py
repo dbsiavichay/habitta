@@ -142,5 +142,3 @@ class SocialLoginView(LoginView):
 
 		if provider == 'twitter':
 			return redirect(get_twitter_authenticate_url())
-
-	
