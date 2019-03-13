@@ -114,20 +114,22 @@ class PaypalPaymentExecuteView(DetailView):
 
 	def get(self, request, *args, **kwargs):
 		"""Extraer identificacion de paypal del cliente, la id del pago,
-		aceptar el pago."""		
-		try:
-			payer_id = request.GET['PayerID']			
+		aceptar el pago."""					
+		self.object = self.get_object()
+		if self.object.is_paid: raise Http404
+
+		try:			
+			payer_id = request.GET['PayerID']
 		except Exception:
 			raise HttpResponseBadRequest
 
-		self.object = self.get_object()
 		self.execute_paypal_payment(payer_id)		
 		context = self.get_context_data(object=self.object)
 		return self.render_to_response(context)
 
 	def get_object(self):
 		try:			
-			payment_id = request.GET['paymentId']
+			payment_id = self.request.GET['paymentId']
 			return get_object_or_404(PaypalPayment, payment_id=payment_id)
 		except:
-			raise HttpResponseBadRequest		
+			raise HttpResponseBadRequest

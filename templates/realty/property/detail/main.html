@@ -1,4 +1,5 @@
 {% load static %}
+{% load payments %}
 <div class="list-single-main-wrapper fl-wrap" id="sec2">
     <div class="breadcrumbs gradient-bg  fl-wrap"><a href="#">Inicio</a><a href="#">Propiedades</a><span> {{ object.category.singular_name }}</span></div>
     <!-- <div class="list-single-main-media fl-wrap">
@@ -11,9 +12,7 @@
         </div>
         <p>{{ object.description }}</p>
 
-        {% if object.get_path_files|length %}        
-        <a href="{% url 'process_paypal_payment' object.id %}" class="btn big-btn color-bg flat-btn">Comprar ${{ object.price }}</a>
-        {% endif %}        
+        {% check_payment object user %}       
 
         <span class="fw-separator"></span>
         <div class="list-single-main-item-title fl-wrap">

@@ -5,7 +5,7 @@ from .views import (
 	ChooseCategoryListView, 
 	PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView,
 	PropertyBase64ImageUploadView, PropertyImageDeleteView,
-	PropertyFavoriteListView, PropertyDownloadView,
+	PropertyFavoriteListView, PropertyDownloadListView, PropertyDownloadView,
 	FinderListView,
 )
 
@@ -18,6 +18,7 @@ urlpatterns = [
 	path('property/image/<int:pk>/delete/', login_required(PropertyImageDeleteView.as_view()), name='delete_property_image'),	
 	path('property/<int:pk>/detail/', PropertyDetailView.as_view(), name='detail_property'),    	
 	path('favorite/properties/', login_required(PropertyFavoriteListView.as_view()), name='favorite_properties'),
+	path('property/downloads/', login_required(PropertyDownloadListView.as_view()), name='list_download_property'),    		
 	path('property/<int:pk>/download/', login_required(PropertyDownloadView.as_view()), name='download_property'),    		
 	
 	path('finder/', FinderListView.as_view(), name='finder'),

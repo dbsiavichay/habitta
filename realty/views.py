@@ -11,6 +11,7 @@ from .forms import (
 	FinderForm
 )
 from logs.models import Log
+from payments.models import PaypalPayment
 
 import os
 import zipfile
@@ -198,6 +199,13 @@ class PropertyFavoriteListView(ListView):
 		queryset = super().get_queryset()
 		return queryset.filter(id__in=properties)
 
+class PropertyDownloadListView(ListView):
+	model = PaypalPayment
+	template_name = 'realty/property_download_list.html'
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		return queryset.filter(user=self.request.user)
 
 class PropertyDownloadView(DetailView):
 	model = Property
@@ -219,7 +227,9 @@ class PropertyDownloadView(DetailView):
 		return response
 
 	def get(self, request, *args, **kwargs):
-		
+		self.object = self.get_object()
+		paypal = get_object_or_404(PaypalPayment, user=request.user, property=self.object)		
+		if not paypal.is_paid: raise Http404
 		return super().get(request, *args, **kwargs)
 
 class FinderListView(FormView) :	
