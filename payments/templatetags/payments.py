@@ -12,7 +12,7 @@ def check_payment(property, user):
     try:
         paypal = PaypalPayment.objects.get(property=property, user=user)
         res['is_paid'] = paypal.is_paid
-    except PaypalPayment.DoesNotExist:
+    except:
         res['is_paid'] = False
 
     return res
