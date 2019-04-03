@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Subastar</h2>
+                <div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dashboard</a><span>Subastar</span></div>
+            </div>
+            <div class="row">
+                {% include 'dashboard/menu_aside.html' %}
+                <div class="col-md-9">
+                    {{ form.errors }}
+                    {{ details_form.errors }}
+                    <form id="mainform" action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container add-list-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Información básica</h4>
+                        </div>
+                        <div class="custom-form">
+                            {% render_field form.start_date icon='usd' %}                            
+                            {% render_field form.start_time icon='usd' %}                            
+                            {% render_field form.ending_date icon='usd' %}                            
+                            {% render_field form.ending_time icon='usd' %}                            
+                            {% render_field form.base_amount icon='usd' %}                            
+                        </div>
+                    </div>
+                    <!-- profile-edit-container end-->  
+                    {{ category }}                  
+                    
+                    {% if require_location %}
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container add-list-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Localización</h4>
+                        </div>
+                        <div class="custom-form">                            
+                            {% render_component template='components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}                            
+                        </div>
+                    </div>
+                    <!-- profile-edit-container end-->
+                    {% endif %}
+                    
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container add-list-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Detalles </h4>
+                        </div>
+                        <div class="custom-form">                                                    
+                            <!-- Checkboxes -->
+                            {% render_field form.services title='Servicios' %}
+                            
+
+                            {% load realtytags %}
+                            {% for field in details_form %}
+                                {% if field|widget_type == 'select' %}
+                                    {% render_field field class='chosen-select' %}
+                                {% else %}
+                                    {% render_field field icon=field.name|icon %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <button type="submit" class="btn big-btn color-bg flat-btn">Guardar
+                                <i class="fa fa-angle-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- profile-edit-container end-->  
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+<!--section -->
+<section class="gradient-bg">
+    <div class="cirle-bg">
+        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+    </div>
+    <div class="container">
+        <div class="join-wrap fl-wrap">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>¿Tienes preguntas o dudas?</h3>
+                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
+                </div>
+                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+{% endblock %}
+{% block 'extrajs' %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/property/property.js' %}"></script>
+{% endblock %}
