@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.forms import ( 
 	ModelForm, Form, 
 	ModelChoiceField, ModelMultipleChoiceField, 
@@ -21,3 +23,20 @@ class AuctionForm(ModelForm):
 	start_time = TimeField(label='Hora de inicio')
 	ending_date = DateField(label='Fecha de finalización')
 	ending_time = TimeField(label='Hora de finalización')
+
+	def save(self, commit=True):
+		obj = super().save(commit=False)
+
+		obj.start_date = datetime.combine(
+			self.cleaned_data['start_date'],
+			self.cleaned_data['start_time']
+		)
+		obj.ending_date = datetime.combine(
+			self.cleaned_data['ending_date'],
+			self.cleaned_data['ending_time']
+		)
+
+		if commit:
+			obj.save
+
+		return obj

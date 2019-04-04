@@ -6,7 +6,7 @@ class Auction(models.Model):
 
 	start_date = models.DateTimeField()
 	ending_date = models.DateTimeField()
-	base_amount = models.DecimalField(max_digits=10, decimal_places=2)
+	base_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='monto base')
 	property = models.ForeignKey('realty.Property', on_delete=models.CASCADE)
 
 class Offer(models.Model):
