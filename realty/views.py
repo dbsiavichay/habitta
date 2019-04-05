@@ -136,6 +136,7 @@ class PropertyDetailView(DetailView):
 		context.update({
 			'image_form': image_form,
 			'more_for_this_user': more_for_this_user,
+			'auction':self.object.auction_set.first(),
 		})
 
 		return context
