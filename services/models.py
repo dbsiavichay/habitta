@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 
 class Activity(models.Model):
 	class Meta:
@@ -21,6 +21,7 @@ class Service(models.Model):
 	business_name = models.CharField(max_length=32, verbose_name='nombre de negocio')
 	description = models.TextField(verbose_name='descripción')	
 	address = models.CharField(max_length=64, verbose_name='dirección')
+	geopoint = models.PointField(blank=True, null=True)
 	business_phone = models.CharField(max_length=10, blank=True, null=True, verbose_name='telefono de negocio')
 	date = models.DateTimeField(auto_now_add=True)
 	activity = models.ForeignKey(Activity, verbose_name='actividad', on_delete=models.CASCADE)

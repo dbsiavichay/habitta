@@ -32,7 +32,7 @@
 
                             {% render_field form.description %}
 
-                            {% render_field form.address icon='map-marker' %}
+                            {% render_component template='components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}                            
 
                             {% render_field form.business_phone icon='phone' %}
                             <button class="btn  big-btn  color-bg flat-btn">Publicar<i class="fa fa-angle-right"></i></button>
@@ -67,4 +67,10 @@
     </div>
 </section>
 <!-- section end -->
+{% endblock %}
+{% block 'extrajs' %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/config.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/forms.js' %}"></script>
 {% endblock %}
