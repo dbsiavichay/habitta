@@ -26,10 +26,8 @@
                             <h4>Mi perfil</h4>
                         </div>
                         <div class="custom-form">
-                            {% render_field form.activity class='chosen-select' %}
-
                             {% render_field form.business_name icon='check' %}
-
+                            {% render_field form.activity class='chosen-select' %}
                             {% render_field form.description %}
 
                             {% render_component template='components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}                            

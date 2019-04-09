@@ -11,6 +11,12 @@ class ServiceForm(ModelForm):
 		model = Service
 		exclude = ['user', 'geopoint']
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		if self.instance.geopoint is not None:
+			self.fields['longitude'].initial = self.instance.geopoint.x
+			self.fields['latitude'].initial = self.instance.geopoint.y
+
 	def save(self, commit=True):
 		obj = super().save(commit=False)			
 		obj.geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])
