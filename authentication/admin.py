@@ -7,7 +7,7 @@ class SocialNetworkProfileInline(admin.TabularInline):
 	model = SocialNetworkProfile
 
 class ProfileAdmin(admin.ModelAdmin):
-	list_display = ('user', 'phone', 'website',)
+	list_display = ('user', 'phone',)
 	inlines = [
 		SocialNetworkProfileInline,
 	]
