@@ -10,7 +10,7 @@ class PropertyListAPIView(generics.ListAPIView):
 	serializer_class = PropertySerializer
 
 	def get_queryset(self):        
-		queryset = Property.objects.all()
+		queryset = Property.objects.exclude(category__require_location=False)
 
 		if len(self.request.query_params) == 0:		
 			return queryset
