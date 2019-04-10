@@ -117,7 +117,8 @@ class Property(models.Model):
 				specifications.append({
 					'key': spc.name,
 					'value': self.details['specifications'][key],
-					'icon': spc.icon
+					'icon': spc.icon,
+					'require_payment': True if 'FileField' in spc.field_type else False
 				})
 		return specifications
 

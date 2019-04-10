@@ -1,5 +1,5 @@
 {% load static %}
-{% load payments %}
+
 <div class="list-single-main-wrapper fl-wrap" id="sec2">
     <div class="breadcrumbs gradient-bg  fl-wrap"><a href="#">Inicio</a><a href="#">Propiedades</a><span> {{ object.category.singular_name }}</span></div>
     <!-- <div class="list-single-main-media fl-wrap">
@@ -10,9 +10,7 @@
         <div class="list-single-main-item-title fl-wrap">
             <h3>Acerca de </h3>
         </div>
-        <p>{{ object.description }}</p>
-
-        {% check_payment object user %}       
+        <p>{{ object.description }}</p>      
 
         <span class="fw-separator"></span>
         <div class="list-single-main-item-title fl-wrap">

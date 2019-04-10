@@ -1,4 +1,5 @@
 {% load static %}
+{% load payments %}
 <div class="box-widget-wrap">    
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
@@ -28,9 +29,13 @@
                         {% for spc in object.get_specifications %}
                         <li>
                             <span class=""><i class="fa fa-{{ spc.icon }}"></i> {{ spc.key }}</span>
+                            {% if not spc.require_payment %}
                             <a href="#">{{ spc.value }}</a>
+                            {% else %}
+                            {% check_payment object user %} 
+                            {% endif %}
                         </li>
-                        {% endfor %}                        
+                        {% endfor %}
                     </ul>
                 </div>                
             </div>

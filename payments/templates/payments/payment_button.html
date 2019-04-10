@@ -1,12 +1,9 @@
-
-{% if render %} 
 {% if is_paid %}
-<a href="{% url 'download_property' property.id %}" class="btn big-btn color-bg flat-btn">Descargar
+<a href="{% url 'download_property' property.id %}" class="btn color-bg flat-btn">Descargar
     <i class="fa fa-download"></i>
 </a>
 {% else %}
-<a href="{% url 'process_paypal_payment' property.id %}" class="btn big-btn color-bg flat-btn">
+<a href="{% url 'process_paypal_payment' property.id %}" class="btn color-bg flat-btn">
     Comprar ${{ property.price }}
 </a>
-{% endif %}
 {% endif %}
