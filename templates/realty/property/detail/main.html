@@ -6,6 +6,19 @@
         <img src="{% static 'images/all/1.jpg' %}" class="respimg" alt="">
         <a href="https://vimeo.com/70851162" class="promo-link gradient-bg image-popup"><i class="fa fa-play"></i><span>Promo Video</span></a>
     </div> -->
+
+    {% if object.user == user %}
+    <div class="box">
+        <a href="{% url 'update_property' object.id %}" class="btn btn-property">
+            <i class="fa fa-pencil"></i>
+            Editar
+        </span>
+        <a href="#" class="btn btn-property">
+            <i class="fa fa-pencil"></i>
+            Subastar
+        </a>
+    </div>
+    {% endif %}
     <div class="list-single-main-item fl-wrap">
         <div class="list-single-main-item-title fl-wrap">
             <h3>Acerca de </h3>
@@ -24,7 +37,7 @@
             </ul>
         </div>        
     </div>
-    
+
     <div class="list-single-facts fl-wrap gradient-bg">
         <!-- inline-facts -->
         <div class="inline-facts-wrap">
@@ -66,6 +79,7 @@
         </div>
         <!-- inline-facts end -->                            
     </div>
+
     <div class="list-single-main-item fl-wrap" id="sec3">
         <div class="list-single-main-item-title fl-wrap">
             <h3>Galería - Imagenes</h3>

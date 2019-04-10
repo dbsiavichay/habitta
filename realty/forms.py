@@ -53,7 +53,7 @@ class SpecificationForm(ModelForm):
 		choices = self.cleaned_data.get('choices')
 		
 
-		if 'ChoiceField' in field_type  and choices is None:            
+		if field_type and 'ChoiceField' in field_type  and choices is None:            
 			raise ValidationError(
 				'Si selecciona un widget de tipo %(field_type)s debe completar las elecciones',
 				code = 'invalid',
@@ -147,8 +147,8 @@ class PropertyDetailsForm(Form):
 			if specification.choices:
 				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]
 				self.fields[key].choices = CHOICES
-
-			pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None
+			
+			pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None			
 			attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
 			self.fields[key].widget.attrs.update(attrs)
 

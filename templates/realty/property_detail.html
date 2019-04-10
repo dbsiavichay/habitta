@@ -19,12 +19,7 @@
     </div>
 </div>
 <!--  section  --> 
-<section class="gray-section no-top-padding">
-    {% if object.user == user %}
-    <a class="update-place" href="{% url 'update_property' object.id %}">
-        Editar datos <i class="fa fa-gear"></i>
-    </a>
-    {% endif %}        
+<section class="gray-section no-top-padding">      
     <div class="container">
         <div class="row">
             <div class="col-md-8">
@@ -92,15 +87,6 @@
         cursor: pointer;
     }
 
-    .update-place {
-        position: absolute;
-        top: 5px;
-        right: 25px;
-        color: #4DB7FE;
-        font-weight: bold;
-        font-size: 1.1em;
-    }
-
     /*Para subastas*/
     .banner {
         background-color: rgba(200,33,33,0.8);
@@ -123,6 +109,30 @@
 
     .banner-body {
         height: 50px;
+    }
+
+    /*Opciones de propietario*/
+    .box {
+        border-radius: 6px;
+        float: left;
+        margin-bottom: 25px;
+        width: 100%;
+    }
+
+    .box a {
+        float: left;
+        width: 49%;
+        margin: 0 2px;                
+    }
+
+    .btn.btn-property {        
+        border: 1px solid rgba(0,0,0,0.20);
+        background-color: rgba(0,0,0,0.10);
+        font-size: 14px;        
+    }
+
+    .btn-property i {
+        font-size: 18px;
     }
 </style>
 {% endblock %}
