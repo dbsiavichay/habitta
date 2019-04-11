@@ -25,7 +25,7 @@
                 <h3>{{ term.title }}</h3>                
                 <span class="section-separator fl-sec-sep"></span>
             </div>
-            <p>{{ term.description }}</p>                               
+            <p>{{ term.description|linebreaks }}</p>                               
         </div>
         {% endfor %}
         <!-- about-wrap end  -->         

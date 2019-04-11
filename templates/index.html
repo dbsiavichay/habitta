@@ -3,6 +3,13 @@
 {% load static %}
 {% load components %}
 
+{% block opengraph %}
+<meta property="og:url" content="//larbit.com/" />        
+<meta property="og:title" content="Soluciones inmobiliarias | Larbit Ecuador" />
+<meta property="og:description" content="----Descripción----" />
+<meta property="og:image" content="{{ settings.cover.url }}" />
+{% endblock %}
+
 {% block 'extracss' %}
 <link type="text/css" rel="stylesheet" href="{% static 'plugins/choices/choices.css' %}">
 {% endblock %}
