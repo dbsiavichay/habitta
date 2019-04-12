@@ -1490,6 +1490,9 @@ section.gray-section .section-separator {
 	text-align:left;
 	font-size:12px;
 	color:#666;
+	/*dbsiavichay*/
+	min-height: 145px;
+	/*dbsiavichay*/
 }
 .card-listing  .geodir-category-img img {
 	float:left;

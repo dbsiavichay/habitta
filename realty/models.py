@@ -147,7 +147,7 @@ class Property(models.Model):
 		if instance and instance.img:
 			return instance.img.url
 
-		return settings.STATIC_URL + 'images/bg/1.jpg'
+		return settings.STATIC_URL + 'images/bg/1.png'
 
 	def get_gallery(self):
 		instances = self.images.filter(is_cover=False)
