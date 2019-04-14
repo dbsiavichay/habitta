@@ -19,6 +19,7 @@ from io import BytesIO
 
 class ChooseCategoryListView(ListView):
 	model = Category
+	queryset = Category.objects.filter(enabled=True)
 	template_name = 'realty/choose_category.html'
 
 class PropertyListView(ListView):
@@ -52,25 +53,36 @@ class PropertyCreateView(CreateView):
 
 		return redirect(self.object.get_absolute_url())
 
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)		
-		context.update({
-			'require_location': self.category.require_location,			
-			'details_form': self.get_details_form()
-		})
-		return context
+	def get_category(self):
+		pk = self.request.GET.get('category') or self.kwargs.get('category') or None
+		category = get_object_or_404(Category, pk=pk)
+		return category
+
+	def get_form_kwargs(self):
+		self.category = self.get_category()	
+		kwargs = super().get_form_kwargs()	
+		kwargs.update({'category': self.category})
+		return kwargs
 
 	def get_details_form(self):
 		post_data = self.request.POST if self.request.method == 'POST' else None		
 		files_data = self.request.FILES if self.request.method == 'POST' else None		
 		form = PropertyDetailsForm(post_data, files_data, **{'category':self.category})
 		return form
-	
-	def get_form_kwargs(self):
-		kwargs = super().get_form_kwargs()
-		self.category = get_object_or_404(Category, pk=self.kwargs.get('category'))		
-		kwargs.update({'category': self.category})
-		return kwargs
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)		
+		context.update({
+			'details_form': self.get_details_form(),
+			'require_location': self.category.require_location,			
+		})
+		return context
+
+	def get(self, request, *args, **kwargs):
+		category = self.get_category()
+		if not category.enabled:
+			raise Http404
+		return super().get(request, *args, **kwargs)
 
 class PropertyUpdateView(UpdateView):
 	model = Property

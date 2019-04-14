@@ -4,10 +4,12 @@
 {% load components %}
 
 {% block opengraph %}
-<meta property="og:url" content="//larbit.com/" />        
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
 <meta property="og:title" content="Soluciones inmobiliarias | Larbit Ecuador" />
-<meta property="og:description" content="----Descripción----" />
-<meta property="og:image" content="{{ settings.cover.url }}" />
+<meta property="og:description" content="{{ settings.subtitle }}" />
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ settings.cover.url }}" />
+<meta property="fb:app_id" content="489725724801134" />
 {% endblock %}
 
 {% block 'extracss' %}

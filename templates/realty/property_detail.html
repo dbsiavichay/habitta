@@ -3,6 +3,15 @@
 {% load static %}
 {% load logs %}
 
+{% block opengraph %}
+<meta property="og:type" content="article" />
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+<meta property="og:title" content="Soluciones inmobiliarias | Larbit Ecuador" />
+<meta property="og:description" content="{{ object.description }}" />
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ object.get_cover }}" />
+<meta property="fb:app_id" content="489725724801134" />
+{% endblock %}
+
 {% block 'content' %}
 {% include 'realty/property/detail/header.html' %}
 <div class="scroll-nav-wrapper fl-wrap">

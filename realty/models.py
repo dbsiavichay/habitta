@@ -65,6 +65,7 @@ class Category(models.Model):
 
 	name = models.CharField(max_length=32, verbose_name='nombre')
 	singular_name = models.CharField(max_length=32, verbose_name='nombre singular')	
+	enabled = models.BooleanField(default=True, verbose_name='habilitado?')
 	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	order = models.PositiveSmallIntegerField(verbose_name='orden')	
 	require_location = models.BooleanField(default=True, verbose_name='requiere ubicación?')
