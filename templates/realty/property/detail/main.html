@@ -89,7 +89,7 @@
             {% for image in object.get_gallery %}
             <div class="gallery-item">
                 {% if object.user == user %}
-                <a href="{% url 'delete_property_image' image.id %}" class="gallery-item-del">
+                <a href="{% url 'delete_image' image.id %}" class="gallery-item-del">
                     <i class="fa fa-close"></i>
                 </a>
                 {% endif %}

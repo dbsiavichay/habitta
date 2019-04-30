@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 from django.urls import reverse_lazy
+from multimedia.models import Image
+
 from .utils import get_category_icons
 
 from fontawesome.fields import IconField
@@ -137,10 +139,7 @@ class Property(models.Model):
 		return services
 
 	def get_cover_instance(self):
-		instances = self.images.filter(is_cover=True)
-
-		if len(instances) > 0:
-			return instances[0]	
+		return Image.objects.get_cover(self)
 
 	def get_cover(self):
 		instance = self.get_cover_instance()
@@ -151,13 +150,15 @@ class Property(models.Model):
 		return settings.STATIC_URL + 'images/bg/1.png'
 
 	def get_gallery(self):
-		instances = self.images.filter(is_cover=False)
+		instances = Image.objects.get_gallery(self)
 		images = [i for i in instances if i.img]
 		return images
 
 	def get_absolute_url(self):		
 		return reverse_lazy('detail_property', args=[str(self.id)])
 
+
+#Eliminar despues de subir a producción
 class PropertyImage(models.Model):
 	class Meta:
 		verbose_name = 'imagen'

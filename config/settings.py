@@ -31,8 +31,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 
 # Application definition
-
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,8 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+]
+
+THIRD_PARTY_APPS = [
     'rest_framework',
     'fontawesome',
+]
+
+MY_APPS = [    
     'auctions',    
     'components',
     'payments',
@@ -50,8 +55,11 @@ INSTALLED_APPS = [
     'comments',
     'realty',
     'services',
+    'multimedia',
     'logs',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -92,7 +100,7 @@ DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.environ['DB_LARBIT'],
+        'NAME': 'larbitimages',
         'USER': os.environ['DB_USER'],
         'PASSWORD': os.environ['DB_PASSWORD'],
         'HOST': os.environ['DB_HOST'],
@@ -144,7 +152,7 @@ STATICFILES_DIRS = (
 )
 
 # Media files
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
 
 # Login config

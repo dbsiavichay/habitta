@@ -9,7 +9,7 @@ from django.forms.widgets import (
 	Select, RadioSelect,
 	CheckboxSelectMultiple
 )
-from .models import Specification, Category, Purpose, Property, PropertyImage
+from .models import Specification, Category, Purpose, Property
 from django.contrib.gis.geos import Point
 
 from django.core.files.storage import FileSystemStorage
@@ -170,36 +170,6 @@ class PropertyDetailsForm(Form):
 				not_empty_cleaned_data[key] = file_path
 
 		return not_empty_cleaned_data
-
-class PropertyBase64ImageForm(ModelForm):
-	class Meta:
-		model = PropertyImage		
-		fields = ('is_cover', 'property',)
-		widgets = {				
-			'is_cover': HiddenInput,
-			'property': HiddenInput,
-		}
-
-	base64image = CharField(widget = HiddenInput,)	
-
-	def save(self, commit=True):		
-		from .utils import base64_to_image
-
-		base64image = self.cleaned_data['base64image']			
-
-		if self.instance.id is not None and self.instance.img:
-			self.instance.img.delete()
-
-		obj = super().save(commit=False)
-	
-		data, extension = base64_to_image(base64image)				
-		filename = '%s.%s' % (str(uuid.uuid4()), extension)
-		obj.img.save(filename, data)
-
-		if commit:
-			obj.save()            
-		return obj
-
 
 class FinderForm(Form):
 	purpose = PurposeChoiceField(

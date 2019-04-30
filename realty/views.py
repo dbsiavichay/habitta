@@ -1,15 +1,17 @@
 from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy
 from django.views.generic import (
 	ListView, CreateView, UpdateView, DeleteView, DetailView, FormView,
 )
-from .models import Category, Property, PropertyImage
+from .models import Category, Property
 from .forms import (
-	PropertyForm, PropertyDetailsForm,
-	PropertyBase64ImageForm,
+	PropertyForm, PropertyDetailsForm,	
 	FinderForm
 )
+
+from multimedia.forms import Base64ImageForm
 from logs.models import Log
 from payments.models import PaypalPayment
 
@@ -142,7 +144,12 @@ class PropertyDetailView(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		self.object = self.get_object()		
-		image_form = PropertyBase64ImageForm(initial={'property':self.object})
+		image_form = Base64ImageForm(
+			initial = {
+				'object_id':self.object.id,
+				'content_type': ContentType.objects.get_for_model(self.object)
+			}
+		)
 		more_for_this_user = self.model.objects.filter(user=self.object.user).exclude(pk=self.object.pk)
 		
 		context.update({
@@ -151,56 +158,6 @@ class PropertyDetailView(DetailView):
 		})
 
 		return context
-
-class PropertyBase64ImageUploadView(CreateView):
-	model = PropertyImage	
-	form_class = PropertyBase64ImageForm
-
-	def form_valid(self, form, property):
-		if form.cleaned_data['is_cover']:
-			instance = property.get_cover_instance()
-			if instance: form.instance = instance				
-
-		self.object = form.save();					
-
-	def post(self, request, *args, **kwargs):
-		form = self.get_form()
-		if form.is_valid():
-			property = form.cleaned_data['property']
-			#Solo el propietario puede cambiar la foto de portada
-			if property.user != request.user:
-				return redirect(reverse_lazy('detail_property', args=[property.id]))
-			####
-			self.form_valid(form, property)
-
-			if request.is_ajax():
-				return JsonResponse({
-						'image_url': self.object.img.url,
-						'delete_image_url': reverse_lazy('delete_property_image', args=[self.object.id]),
-					}, 
-					status=200
-				)
-
-			return redirect(reverse_lazy('detail_property', args=[property.id]))
-
-		else:			
-			return self.form_invalid(form)
-
-	def get(self, request, *args, **kwargs):
-		raise Http404
-
-class PropertyImageDeleteView(DeleteView):
-	model = PropertyImage
-	http_method_names = ['post',]
-
-	def delete(self, request, *args, **kwargs):		
-		if not request.is_ajax():
-			raise Http404
-		self.object = self.get_object()	    
-		if self.object.property.user != request.user:
-			return JsonResponse({'message': 'No estas autorizado para realizar esta acción'}, status=403)
-		self.object.delete()
-		return JsonResponse({}, status=200)
 
 class PropertyFavoriteListView(ListView):
 	model = Property
