@@ -74,6 +74,11 @@
     text-align: left;
 }
 
+.item.title a {
+    font-size: 20px;
+    text-decoration: underline;
+}
+
 .item a {
     font-weight: 500;
     color: #666;
@@ -83,6 +88,7 @@
     padding-right: 10px;
     color: #4DB7FE;
 }
+
 
 .btn-default {
     color: #fff;

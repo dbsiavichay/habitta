@@ -1,4 +1,5 @@
 from django.contrib.gis.db import models
+from multimedia.mixins import ImageMixin
 
 class Activity(models.Model):
 	class Meta:
@@ -13,11 +14,7 @@ class Activity(models.Model):
 		return self.name
 
 
-class Service(models.Model):
-	class Meta:
-		verbose_name = 'servicio'
-		ordering = ['activity__name']
-
+class Service(ImageMixin, models.Model):
 	business_name = models.CharField(max_length=32, verbose_name='nombre de negocio')
 	description = models.TextField(verbose_name='descripción')	
 	address = models.CharField(max_length=64, verbose_name='dirección')
@@ -29,3 +26,7 @@ class Service(models.Model):
 
 	def __str__(self):
 		return '%s, %s' % (self.activity, self.user.username)
+		
+	class Meta:
+		verbose_name = 'servicio'
+		ordering = ['activity__name']

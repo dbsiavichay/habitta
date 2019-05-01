@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 from django.urls import reverse_lazy
-from multimedia.models import Image
+from multimedia.mixins import ImageMixin
 
 from .utils import get_category_icons
 
@@ -78,7 +78,7 @@ class Category(models.Model):
 	def __str__(self):
 		return self.name
 
-class Property(models.Model):
+class Property(ImageMixin, models.Model):
 	class Meta:
 		verbose_name = 'propiedad'
 		verbose_name_plural = 'propiedades'
@@ -137,22 +137,6 @@ class Property(models.Model):
 	def get_services(self):
 		services =	Service.objects.filter(pk__in=self.details['services'])		
 		return services
-
-	def get_cover_instance(self):
-		return Image.objects.get_cover(self)
-
-	def get_cover(self):
-		instance = self.get_cover_instance()
-
-		if instance and instance.img:
-			return instance.img.url
-
-		return settings.STATIC_URL + 'images/bg/1.png'
-
-	def get_gallery(self):
-		instances = Image.objects.get_gallery(self)
-		images = [i for i in instances if i.img]
-		return images
 
 	def get_absolute_url(self):		
 		return reverse_lazy('detail_property', args=[str(self.id)])

@@ -48,11 +48,11 @@
                                         {% for service in activity.list %}
                                         <div class="item-list">                                                                
                                             <div class="item-text">                                    
-                                                <div class="item">
-                                                    <i class="fa fa-check"></i><a  href="#">{{ service.business_name }}</a>
+                                                <div class="item title">
+                                                    <a href="{% url 'detail_service' service.id %}">{{ service.business_name }}</a>
                                                 </div>
                                                 
-                                                <p>{{ service.description }}</p>
+                                                <p>{{ service.description|linebreaks }}</p>
 
                                                 <div class="item">
                                                     <i class="fa fa-map-marker"></i><a  href="#">{{ service.address }}</a>

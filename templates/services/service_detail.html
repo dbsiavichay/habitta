@@ -1,0 +1,236 @@
+{% extends 'base/base_detail.html' %}
+{% load static %}
+{% load comments %}
+
+
+{% block header %}
+<!--  section  --> 
+<section class="parallax-section single-par list-single-section" data-scrollax-parent="true" id="sec1">
+
+    {% if object.user == user %}
+    <label class="cover-overlay">
+        <i class="fa fa-image"></i>
+        <div>Cambiar foto de portada</div>
+        <input type="file" class="sr-only" id="base64input" accept="image/*">
+    </label>
+    {% endif %}
+
+
+    <div class="bg par-elem" data-bg="{{ object.get_cover }}" data-scrollax="properties: { translateY: '30%' }"></div>
+    
+    <div class="overlay"></div>
+    <div class="bubble-bg"></div>
+    <div class="list-single-header absolute-header fl-wrap">
+        <div class="container">
+            <div class="list-single-header-item">
+                <div class="list-single-header-item-opt fl-wrap">
+                    <div class="list-single-header-cat fl-wrap">                        
+                        <a href="#">{{ object.activity }}</a>
+                        <span>  Promocionado <i class="fa fa-check"></i></span>
+                    </div>
+                </div>
+                <h2>{{ object.business_name }} <span> - Publicado por </span><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></h2>
+                <span class="section-separator"></span>
+                <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
+                    <span>({% comments_count object %} comentarios)</span>
+                </div>
+                <div class="list-post-counter single-list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="list-single-header-contacts fl-wrap">
+                            <ul>
+                                <li><i class="fa fa-phone"></i><a href="#">{{ object.user.profile.phone }}</a></li>
+                                <li><i class="fa fa-map-marker"></i><a href="#">{{ object.address }}</a></li>
+                                <li><i class="fa fa-envelope-o"></i><a href="#">{{ object.user.email }}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fl-wrap list-single-header-column">
+                            <div class="share-holder hid-share">
+                                <div class="showshare"><span>Compartir </span><i class="fa fa-share"></i></div>
+                                <div class="share-container  isShare"></div>
+                            </div>
+                            <span class="viewed-counter"><i class="fa fa-eye"></i> Vistas -  156 </span>
+                            <a class="custom-scroll-link" href="#sec5"><i class="fa fa-hand-o-right"></i>Comenta </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--  section end -->
+{% endblock %}
+
+{% block main_content %}
+<div class="list-single-main-wrapper fl-wrap" id="sec2">
+    <div class="breadcrumbs gradient-bg  fl-wrap"><a href="#">Inicio</a><a href="#">Servicios</a><span> {{ object.business_name }}</span></div>
+    <!-- <div class="list-single-main-media fl-wrap">
+        <img src="{% static 'images/all/1.jpg' %}" class="respimg" alt="">
+        <a href="https://vimeo.com/70851162" class="promo-link gradient-bg image-popup"><i class="fa fa-play"></i><span>Promo Video</span></a>
+    </div> -->
+
+    {% if object.user == user %}
+    <div class="box">
+        <a href="{% url 'update_service' object.id %}" class="btn btn-property">
+            <i class="fa fa-pencil"></i>
+            Editar
+        </a>   
+    </div>
+    {% endif %}
+    <div class="list-single-main-item fl-wrap">
+        <div class="list-single-main-item-title fl-wrap">
+            <h3>Acerca de </h3>
+        </div>
+        <p>{{ object.description|linebreaks }}</p>
+    </div>
+
+    <div class="list-single-main-item fl-wrap" id="sec3">
+        <div class="list-single-main-item-title fl-wrap">
+            <h3>Galería - Imagenes</h3>
+        </div>
+        <!-- gallery-items   -->
+        <div id="gallery" class="gallery-items grid-small-pad  list-single-gallery three-coulms lightgallery">
+            {% for image in object.get_gallery %}
+            <div class="gallery-item">
+                {% if object.user == user %}
+                <a href="{% url 'delete_image' image.id %}" class="gallery-item-del">
+                    <i class="fa fa-close"></i>
+                </a>
+                {% endif %}
+                <div class="grid-item-holder">
+                    <div class="box-item">
+                        <img  src="{{ image.img.url }}"   alt="">                        
+                        <a href="{{ image.img.url }}" class="gal-link popup-image">
+                            <i class="fa fa-search"></i>
+                        </a>                                                                            
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div id="item-gallery-template" class="gallery-item hidden">
+                <div class="grid-item-holder">
+                    <div class="box-item">
+                        <img  src="#"   alt="">
+                        <a href="#" class="gal-link popup-image"><i class="fa fa-search"  ></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}        
+        </div>
+
+        {% if object.user == user %}
+        <div class="add-list-media-wrap">                        
+            <div class="fuzone">                
+                <div class="fu-text">
+                    <span><i class="fa fa-picture-o"></i> Click aquí o arrastre sus imagenes para subir</span>
+                </div>
+                <input type="file" id="image_input" class="upload" accept="image/*">
+            </div>
+        </div>
+        {% endif %}
+        <!-- end gallery items -->                                 
+    </div>
+    <!-- list-single-main-item end -->   
+    {% load comments %}  
+    {% comment_list object %}
+    {% comment_form object %}
+</div>
+{% endblock %}
+
+{% block aside_content %}
+<div class="box-widget-wrap">                                             
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-map-marker"></i> Ubicación : </h3>
+        </div>
+        <div class="box-widget">            
+            <div class="map-container">
+                <div id="singleMap" data-longitude="{{ object.geopoint.x }}" data-latitude="{{ object.geopoint.y }}" data-mapTitle="Out Location"></div>
+            </div>            
+            <div class="box-widget-content">
+                <div class="list-author-widget-contacts list-item-widget-contacts">
+                    <ul>                        
+                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>                                            
+                    </ul>
+                </div>                
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->                            
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-user"></i> Publicado por : </h3>
+        </div>
+        <div class="box-widget list-author-widget">
+            <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
+                <span class="list-author-widget-link"><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></span>
+                <img src="{{ object.user.profile.get_avatar }}" alt="">                 
+            </div>
+            <div class="box-widget-content">
+                <div class="list-author-widget-text">
+                    <a href="{% url 'detail_profile' object.user.username %}" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
+                    <div class="list-author-widget-contacts">
+                        <ul>
+                            <li>
+                                <span><i class="fa fa-phone"></i> Teléfono :</span> <a href="#">{{ object.user.profile.phone }}</a>
+                            </li>
+                            <li>
+                                <span><i class="fa fa-envelope-o"></i> Correo :</span> <a href="#">{{ object.user.email }}</a>
+                            </li>                            
+                        </ul>
+                    </div>
+                    <div class="list-widget-social">
+                        <ul>
+                            {% for social in object.user.profile.socialnetworkprofile_set.all %}
+                            <li><a href="{{ social.url }}" target="_blank" ><i class="fa fa-{{ social.social_network.icon }}"></i></a></li>
+                            {% endfor %}                                        
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+    {% if more_for_this_user %}
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3>Más de este usuario : </h3>
+        </div>
+        <div class="box-widget widget-posts">
+            <div class="box-widget-content">
+                <ul>
+                    {% for obj in more_for_this_user %}
+                    <li class="clearfix">
+                        <a href="{{ obj.get_absolute_url }}"  class="widget-posts-img"><img src="{{ obj.get_cover }}"  alt=""></a>
+                        <div class="widget-posts-descr">
+                            <a href="{{ obj.get_absolute_url }}" title="">{{ obj.category }}</a>
+                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i>{{ obj.pub_date }}</span> 
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <a class="widget-posts-link" href="#">Todas las publicaciones<span><i class="fa fa-angle-right"></i></span></a>   
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+    {% endif %}     
+</div>
+{% endblock %}
+ 
+<!--  section end --> 
+{% block extracontent %}
+    {% if object.user == user %}
+    <form id="image_form" action="{% url 'add_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {{ image_form }}
+    </form>
+    {% include 'realty/property/detail/crop_cover_modal.html' %}
+    {% endif %}
+{% endblock %}

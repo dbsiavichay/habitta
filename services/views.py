@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from project.models import Settings
 from .models import Service
 from .forms import ServiceForm
@@ -45,3 +45,6 @@ class UserServiceUpdateView(UpdateView):
 class UserServiceDeleteView(DeleteView):
 	model = Service
 	success_url = reverse_lazy('user_services')
+
+class ServiceDetailView(DetailView):
+	model = Service
