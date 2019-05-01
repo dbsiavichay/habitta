@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Publicar</h2>
+                <div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dashboard</a><span>Publicar</span></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="fixed-bar fl-wrap">
+                        <div class="user-profile-menu-wrap fl-wrap">
+                            <!-- user-profile-menu-->
+                            <div class="user-profile-menu">
+                                <h3>Principal</h3>
+                                <ul>
+                                    <li><a {% if 'profile/update' in request.path %} class="user-profile-act" {% endif %} href="{% url 'update_profile' %}"><i class="fa fa-user-o"></i> Editar perfil</a></li>
+                                    <li><a {% if 'password' in request.path %} class="user-profile-act" {% endif %} href="{% url 'change_password' %}"><i class="fa fa-unlock-alt"></i>Cambiar contraseña</a></li>
+                                    <li><a href="dashboard-messages.html"><i class="fa fa-envelope-o"></i> Mensajes <span>3</span></a></li>
+                                </ul>
+                            </div>
+                            <!-- user-profile-menu end-->
+                            <!-- user-profile-menu-->
+                            <div class="user-profile-menu">
+                                <h3>Publicaciones</h3>
+                                <ul>
+                                    <li><a {% if 'realty/properties' in request.path %} class="user-profile-act" {% endif %} href="{% url 'properties' %}"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>
+                                    <li><a {% if 'property/downloads' in request.path %} class="user-profile-act" {% endif %} href="{% url 'list_download_property' %}"><i class="fa fa-download"></i> Descargas  </a></li>
+                                    <li><a {% if 'services/service' in request.path %} class="user-profile-act" {% endif %} href="{% url 'user_services' %}"><i class="fa fa-th-list"></i> Servicios  </a></li>
+                                    <li><a {% if 'favorite' in request.path %} class="user-profile-act" {% endif %} href="{% url 'favorite_properties' %}"><i class="fa fa-heart"></i> Favoritos </a></li>
+                                    <li><a href="{% url 'choose_category' %}" {% if 'property' in request.path %} class="user-profile-act" {% endif %}><i class="fa fa-plus-square-o"></i> Publicar</a></li>
+                                </ul>
+                            </div>
+                            <!-- user-profile-menu end-->                                        
+                            <a href="{% url 'logout' %}" class="log-out-btn">Cerrar sesión</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    {{ form.errors }}
+                    {{ details_form.errors }}
+                    <form id="mainform" action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container add-list-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Información básica</h4>
+                        </div>
+                        <div class="custom-form">
+                            {% block visible_fields %}{% endblock %}
+                        </div>
+                    </div>
+                    <!-- profile-edit-container end-->                                      
+                    
+                    {% block location_fields %}{% endblock %}
+                    
+                    {% block extra_fields %}{% endblock %}  
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+{% include 'base/questions.html' %}
+{% endblock %}
+
+{% block 'extrajs' %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/config.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/forms.js' %}"></script>
+{% endblock %}
