@@ -1,74 +1,26 @@
-{% extends 'base.html' %}
-
-{% load static %}
+{% extends 'base/base_form.html' %}
 {% load components %}
 
-{% block 'content' %}
-<!--section -->
-<section id="sec1">
-    <!-- container -->
-    <div class="container">
-        <!-- profile-edit-wrap -->
-        <div class="profile-edit-wrap">
-            <div class="profile-edit-page-header">
-                <h2>Editar perfil</h2>
-                <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Editar perfil</span></div>
-            </div>
-            <div class="row">                
-                {% include 'dashboard/menu_aside.html' %}
-                <div class="col-md-7">
-                    {{ form.errors }}                    
-                    <form action="" method="POST" enctype="multipart/form-data" novalidate>
-                    {% csrf_token %}
-                    <!-- profile-edit-container--> 
-                    <div class="profile-edit-container">
-                        <div class="profile-edit-header fl-wrap">
-                            <h4>Mi perfil</h4>
-                        </div>
-                        <div class="custom-form">
-                            {% render_field form.business_name icon='check' %}
-                            {% render_field form.activity class='chosen-select' %}
-                            {% render_field form.description %}
-
-                            {% render_component template='components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}                            
-
-                            {% render_field form.business_phone icon='phone' %}
-                            <button class="btn  big-btn  color-bg flat-btn">Publicar<i class="fa fa-angle-right"></i></button>
-                        </div>
-                    </div>                    
-                    </form>
-                    <!-- profile-edit-container end-->                                        
-                </div>                
-            </div>
-        </div>
-        <!--profile-edit-wrap end -->
-    </div>
-    <!--container end -->
-</section>
-<!-- section end -->    
-<div class="limit-box fl-wrap"></div>
-<!--section -->
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-    </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>¿Tienes preguntas o dudas?</h3>
-                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
-                </div>
-                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+{% block visible_fields %}
+{% render_field form.business_name icon='check' %}
+{% render_field form.activity class='chosen-select' %}
+{% render_field form.description %}
+{% render_field form.business_phone icon='phone' %}
 {% endblock %}
-{% block 'extrajs' %}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I&libraries=places"></script>
-    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/plugins/locationpicker/config.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/forms.js' %}"></script>
+
+{% block location_fields %}
+<!-- profile-edit-container--> 
+<div class="profile-edit-container add-list-container">
+    <div class="profile-edit-header fl-wrap">
+        <h4>Localización</h4>
+    </div>
+    <div class="custom-form">                            
+        {% render_component template='components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}
+
+        <button type="submit" class="btn big-btn color-bg flat-btn">Guardar
+            <i class="fa fa-angle-right"></i>
+        </button>                            
+    </div>
+</div>
+<!-- profile-edit-container end-->
 {% endblock %}
