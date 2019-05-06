@@ -1,163 +1,264 @@
-{% extends 'base.html' %}
+{% extends 'base/base_detail.html' %}
 
 {% load static %}
+{% load comments %}
+{% load payments %}
 {% load logs %}
 
-{% block opengraph %}
-<meta property="og:type" content="article" />
-<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
-<meta property="og:title" content="Soluciones inmobiliarias | Larbit Ecuador" />
-<meta property="og:description" content="{{ object.description }}" />
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ object.get_cover }}" />
-<meta property="fb:app_id" content="489725724801134" />
-{% endblock %}
 
-{% block 'content' %}
-{% include 'realty/property/detail/header.html' %}
-<div class="scroll-nav-wrapper fl-wrap">
-    <div class="container">
-        <nav class="scroll-nav scroll-init">
-            <ul>
-                <li><a class="act-scrlink" href="#sec1">Inicio</a></li>
-                <li><a href="#sec2">Detalles</a></li>
-                <li><a href="#sec3">Galeria</a></li>
-                <li><a href="#sec4">Comentarios</a></li>
-            </ul>
-        </nav>
-        {% like_log object user %}
-    </div>
-</div>
+{% block header %}
 <!--  section  --> 
-<section class="gray-section no-top-padding">      
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                {% include 'realty/property/detail/main.html' %}
-            </div>
-            <!--box-widget-wrap -->
-            <div class="col-md-4">
-                {% include 'realty/property/detail/aside.html' %}
-            </div>
-            <!--box-widget-wrap end -->
-        </div>
-    </div>
-</section>
-<!--  section end --> 
-<div class="limit-box fl-wrap"></div>
-<!--  section  --> 
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-    </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>Unete a nosotros.</h3>
-                    <p>Disfruta de grandes beneficios.</p>
+<section class="parallax-section single-par list-single-section" data-scrollax-parent="true" id="sec1">
+    <div class="bg par-elem" data-bg="{{ object.get_cover }}" data-scrollax="properties: { translateY: '30%' }"></div>
+        
+    <div class="bubble-bg"></div>
+    <div class="list-single-header absolute-header fl-wrap">
+        <div class="container">
+            <div class="list-single-header-item">
+                <div class="list-single-header-item-opt fl-wrap">
+                    <div class="list-single-header-cat fl-wrap">                        
+                        <a href="#">{{ object.get_purpose.activity }}</a>
+                        <span>  Promocionado <i class="fa fa-check"></i></span>
+                    </div>
                 </div>
-                <div class="col-md-4"><a href="{% url 'register' %}" class="join-wrap-btn">Regístrate <i class="fa fa-sign-in"></i></a></div>
+                <h2>{{ object.category.singular_name }} <span> - Publicado por </span><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></h2>
+                <span class="section-separator"></span>
+                <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
+                    <span>({% comments_count object %} comentarios)</span>
+                </div>
+                <div class="list-post-counter single-list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="list-single-header-contacts fl-wrap">
+                            <ul>
+                                <li><i class="fa fa-phone"></i><a href="#">{{ object.user.profile.phone }}</a></li>
+                                <li><i class="fa fa-map-marker"></i><a href="#">{{ object.address }}</a></li>
+                                <li><i class="fa fa-envelope-o"></i><a href="#">{{ object.user.email }}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fl-wrap list-single-header-column">
+                            <div class="share-holder hid-share">
+                                <div class="showshare"><span>Compartir </span><i class="fa fa-share"></i></div>
+                                <div class="share-container  isShare"></div>
+                            </div>
+                            <span class="viewed-counter"><i class="fa fa-eye"></i> Vistas -  156 </span>
+                            <a class="custom-scroll-link" href="#sec5"><i class="fa fa-hand-o-right"></i>Comenta </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>   
+    </div>
 </section>
-<!--  section  end-->
-{% if object.user == user %}
-<form id="image_form" action="{% url 'add_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
-    {% csrf_token %}
-    {{ image_form }}
-</form>
-{% include 'realty/property/detail/crop_cover_modal.html' %}
-{% endif %}
+<!--  section end -->
 {% endblock %}
+{% block reactions %}{% like_log object user %}{% endblock %}
 
-{% block 'extracss' %}
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/cropper/cropper.css' %}">
-<style type="text/css">
-    .cover-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        color: #fff;
-        z-index: 5;
-        height: 150px;
-        font-size: 1.2em;
-        font-weight: bold;
-        padding-top: 30px;
-    }
+{% block main_content %}
+<div class="list-single-main-wrapper fl-wrap" id="sec2">
+    <div class="breadcrumbs gradient-bg  fl-wrap"><a href="#">Inicio</a><a href="#">Propiedades</a><span> {{ object.category.singular_name }}</span></div>
+    <!-- <div class="list-single-main-media fl-wrap">
+        <img src="{% static 'images/all/1.jpg' %}" class="respimg" alt="">
+        <a href="https://vimeo.com/70851162" class="promo-link gradient-bg image-popup"><i class="fa fa-play"></i><span>Promo Video</span></a>
+    </div> -->
 
-    .cover-overlay > .fa {
-        font-size: 3em;
-    }
-
-    .cover-overlay:hover {
-        color: #4DB7FE;
-        cursor: pointer;
-    }
-
-    /*Para subastas*/
-    .banner {
-        background-color: rgba(200,33,33,0.8);
-        /*height: 190px;*/
-        left: 0;
-        padding: 10px 20px;
-        position: absolute;
-        text-align: left;
-        top: 0;
-        width: 100%;
-        z-index: 15;
-    }
-
-    .banner-title {
-        color: white;
-        font-size: 22px;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .banner-body {
-        height: 50px;
-    }
-
-    /*Opciones de propietario*/
-    .box {
-        border-radius: 6px;
-        float: left;
-        margin-bottom: 25px;
-        width: 100%;
-    }
-
-    .box a {
-        float: left;
-        width: 49%;
-        margin: 0 2px;                
-    }
-
-    .btn.btn-property {        
-        border: 1px solid rgba(0,0,0,0.20);
-        background-color: rgba(0,0,0,0.10);
-        font-size: 14px;        
-    }
-
-    .btn-property i {
-        font-size: 18px;
-    }
-</style>
-{% endblock %}
-
-{% block 'extrajs' %}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I"></script>
-    <script type="text/javascript" src="{% static 'js/realty/property/map.js' %}"></script>   
-    <script type="text/javascript" src="{% static 'js/realty/property/save.js' %}"></script>   
     {% if object.user == user %}
-    <script type="text/javascript" src="{% static 'js/csfrtoken.js' %}"></script>   
-    <script type="text/javascript" src="{% static 'plugins/cropper/cropper.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/realty/property/property-detail.js' %}"></script>    
+    <div class="box">
+        <a href="{% url 'update_property' object.id %}" class="btn btn-property">
+            <i class="fa fa-pencil"></i>
+            Editar
+        </span>
+        <a href="#" class="btn btn-property">
+            <i class="fa fa-pencil"></i>
+            Subastar
+        </a>
+    </div>
     {% endif %}
-    {% if not user.is_authenticated %}    
-    <script type="text/javascript" src="{% static 'js/plugins/facebook-sdk.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/authentication/social.js' %}"></script>
-    {% endif %}
+    <div class="list-single-main-item fl-wrap">
+        <div class="list-single-main-item-title fl-wrap">
+            <h3>Acerca de </h3>
+        </div>
+        <p>{{ object.description }}</p>      
+
+        <span class="fw-separator"></span>
+        <div class="list-single-main-item-title fl-wrap">
+            <h3>Servicios</h3>
+        </div>
+        <div class="listing-features fl-wrap">
+            <ul>
+                {% for service in object.get_services %}
+                <li><i class="fa fa-{{ service.icon }}"></i> {{ service.name }}</li>
+                {% endfor %}                                
+            </ul>
+        </div>        
+    </div>
+
+    <div class="list-single-main-item fl-wrap" id="sec3">
+        <div class="list-single-main-item-title fl-wrap">
+            <h3>Galería - Imagenes</h3>
+        </div>
+        <!-- gallery-items   -->
+        <div id="gallery" class="gallery-items grid-small-pad  list-single-gallery three-coulms lightgallery">
+            {% for image in object.get_gallery %}
+            <div class="gallery-item">
+                {% if object.user == user %}
+                <a href="{% url 'delete_image' image.id %}" class="gallery-item-del">
+                    <i class="fa fa-close"></i>
+                </a>
+                {% endif %}
+                <div class="grid-item-holder">
+                    <div class="box-item">
+                        <img  src="{{ image.img.url }}"   alt="">                        
+                        <a href="{{ image.img.url }}" class="gal-link popup-image">
+                            <i class="fa fa-search"></i>
+                        </a>                                                                            
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div id="item-gallery-template" class="gallery-item hidden">
+                <a href="#" class="gallery-item-del">
+                    <i class="fa fa-close"></i>
+                </a>
+                <div class="grid-item-holder">
+                    <div class="box-item">
+                        <img  src="#"   alt="">
+                        <a href="#" class="gal-link popup-image"><i class="fa fa-search"  ></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}        
+        </div>
+
+        {% if object.user == user %}
+        <div class="add-list-media-wrap">                        
+            <div class="fuzone">                
+                <div class="fu-text">
+                    <span><i class="fa fa-picture-o"></i> Click aquí o arrastre sus imagenes para subir</span>
+                </div>                
+                <form id="image_form" action="{% url 'add_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {{ image_form.img }}
+                    {{ image_form.object_id }}
+                    {{ image_form.content_type }}
+                </form>
+            </div>
+        </div>
+       
+        {% endif %}
+        <!-- end gallery items -->                                 
+    </div>
+    <!-- list-single-main-item end -->   
+    {% load comments %}  
+    {% comment_list object %}
+    {% comment_form object %}
+</div>
+{% endblock %}
+{% block aside_content %}
+<div class="box-widget-wrap">    
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-usd"></i> Precio : {{ object.price }}</h3>
+        </div>        
+    </div>
+    <!--box-widget-item end -->    
+                                         
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-leaf"></i> Especificaciones : </h3>
+        </div>
+        <div class="box-widget">
+            {% if object.category.require_location %}
+            <div class="map-container">
+                <div id="singleMap" data-longitude="{{ object.geopoint.x }}" data-latitude="{{ object.geopoint.y }}" data-mapTitle="Out Location"></div>
+            </div>
+            {% endif %}
+            <div class="box-widget-content">
+                <div class="list-author-widget-contacts list-item-widget-contacts">
+                    <ul>
+                        {% if object.category.require_location %}
+                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>
+                        {% endif %}
+                        {% for spc in object.get_specifications %}
+                        <li>
+                            <span class=""><i class="fa fa-{{ spc.icon }}"></i> {{ spc.key }}</span>
+                            {% if not spc.require_payment %}
+                            <a href="#">{{ spc.value }}</a>
+                            {% else %}
+                            {% check_payment object user %} 
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>                
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->                            
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-user"></i> Publicado por : </h3>
+        </div>
+        <div class="box-widget list-author-widget">
+            <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
+                <span class="list-author-widget-link"><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></span>
+                <img src="{{ object.user.profile.get_avatar }}" alt="">                 
+            </div>
+            <div class="box-widget-content">
+                <div class="list-author-widget-text">
+                    <a href="{% url 'detail_profile' object.user.username %}" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
+                    <div class="list-author-widget-contacts">
+                        <ul>
+                            <li>
+                                <span><i class="fa fa-phone"></i> Teléfono :</span> <a href="#">{{ object.user.profile.phone }}</a>
+                            </li>
+                            <li>
+                                <span><i class="fa fa-envelope-o"></i> Correo :</span> <a href="#">{{ object.user.email }}</a>
+                            </li>                            
+                        </ul>
+                    </div>
+                    <div class="list-widget-social">
+                        <ul>
+                            {% for social in object.user.profile.socialnetworkprofile_set.all %}
+                            <li><a href="{{ social.url }}" target="_blank" ><i class="fa fa-{{ social.social_network.icon }}"></i></a></li>
+                            {% endfor %}                                        
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+    {% if more_for_this_user %}
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3>Más de este usuario : </h3>
+        </div>
+        <div class="box-widget widget-posts">
+            <div class="box-widget-content">
+                <ul>
+                    {% for obj in more_for_this_user %}
+                    <li class="clearfix">
+                        <a href="{{ obj.get_absolute_url }}"  class="widget-posts-img"><img src="{{ obj.get_cover }}"  alt=""></a>
+                        <div class="widget-posts-descr">
+                            <a href="{{ obj.get_absolute_url }}" title="">{{ obj.category }}</a>
+                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i>{{ obj.pub_date }}</span> 
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <a class="widget-posts-link" href="#">Todas las publicaciones<span><i class="fa fa-angle-right"></i></span></a>   
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+    {% endif %}     
+</div>
 {% endblock %}

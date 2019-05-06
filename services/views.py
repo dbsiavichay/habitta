@@ -3,7 +3,10 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from project.models import Settings
 from .models import Service
-from .forms import ServiceForm
+from .mixins import ServiceViewMixin
+
+from django.contrib.contenttypes.models import ContentType
+from multimedia.forms import ImageForm
 
 class ServiceListView(ListView):
 	model = Service
@@ -24,23 +27,19 @@ class UserServiceListView(ServiceListView):
 		queryset = super().get_queryset()
 		return queryset.filter(user=self.request.user)
 
-class UserServiceCreateView(CreateView):
-	model = Service
-	form_class = ServiceForm
+class UserServiceCreateView(ServiceViewMixin, CreateView):
 	template_name = 'services/userservice_form.html'
-	success_url = reverse_lazy('user_services')
-
-	def form_valid(self, form):
-		self.object = form.save(commit=False)
-		self.object.user = self.request.user
-		self.object.save()
-		return redirect(self.success_url)
-
-class UserServiceUpdateView(UpdateView):
-	model = Service
-	form_class = ServiceForm
+	
+class UserServiceUpdateView(ServiceViewMixin, UpdateView):
 	template_name = 'services/userservice_form.html'
-	success_url = reverse_lazy('user_services')
+
+	def get_cover_form(self):
+		form = super().get_cover_form()
+		if self.request.method == 'POST':		
+			cover = self.get_object().get_cover_instance()			
+			if cover:
+				form.instance = cover
+		return form
 
 class UserServiceDeleteView(DeleteView):
 	model = Service
@@ -48,3 +47,17 @@ class UserServiceDeleteView(DeleteView):
 
 class ServiceDetailView(DetailView):
 	model = Service
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		self.object = self.get_object()	
+		image_form = ImageForm(initial = {
+			'object_id': self.object.id,
+			'content_type': ContentType.objects.get_for_model(self.object)
+		})		
+		
+		context.update({
+			'image_form': image_form,				
+		})
+
+		return context

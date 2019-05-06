@@ -1955,9 +1955,6 @@ section.gray-section .section-separator {
 .listsearch-input-item .nice-select .list li:hover , .listsearch-input-item .nice-select .list li.selected  {
 	color:#fff;
 }
-.filter-tags {
-	margin-top:30px;
-}
 .fh-col-list-wrap .filter-tags{
 	margin-bottom:20px;
 }
@@ -2706,7 +2703,7 @@ article .list-single-main-item {
 	margin:-20px 0 0 -20px;
 }
 .list-single-gallery .box-item {
-	border-radius:6px;
+	border-radius:6px;	
 }
 .list-single-gallery   .box-item:hover a.gal-link {
 	top:50%;
@@ -4283,6 +4280,7 @@ article .list-single-main-item {
 	height: auto;
 	position:relative;
 	z-index:1;
+	
 }
 /*------ Image collage------------------------------------------------*/
 .images-collage-item img {

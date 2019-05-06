@@ -3,15 +3,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy
 from django.views.generic import (
-	ListView, CreateView, UpdateView, DeleteView, DetailView, FormView,
-)
-from .models import Category, Property
-from .forms import (
-	PropertyForm, PropertyDetailsForm,	
-	FinderForm
+	ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
 )
 
-from multimedia.forms import Base64ImageForm
+from multimedia.forms import ImageForm
+
+
+from .models import Category, Property
+from .forms import FinderForm
+from .mixins import PropertyViewMixin
+
 from logs.models import Log
 from payments.models import PaypalPayment
 
@@ -31,125 +32,44 @@ class PropertyListView(ListView):
 		queryset = super().get_queryset()
 		return queryset.filter(user=self.request.user)
 
-class PropertyCreateView(CreateView):
-	model = Property
-	form_class = PropertyForm
-	success_url = reverse_lazy('properties')
 
-	def form_valid(self, form):
-		details_form = self.get_details_form()
-		if not details_form.is_valid():
-			return self.form_invalid(form)
-
-		details = {
-			'purpose': form.cleaned_data['purpose'].id,
-			'services': [service.id for service in form.cleaned_data['services']],
-			'specifications': details_form.get_not_empty_cleaned_data(),
-		}		
-
-		self.object = form.save(commit=False)
-		self.object.user = self.request.user
-		self.object.details = details
-		self.object.category = self.category
-		self.object.save()		
-
-		return redirect(self.object.get_absolute_url())
-
-	def get_category(self):
-		pk = self.request.GET.get('category') or self.kwargs.get('category') or None
-		category = get_object_or_404(Category, pk=pk)
-		return category
-
-	def get_form_kwargs(self):
-		self.category = self.get_category()	
-		kwargs = super().get_form_kwargs()	
-		kwargs.update({'category': self.category})
-		return kwargs
-
-	def get_details_form(self):
-		post_data = self.request.POST if self.request.method == 'POST' else None		
-		files_data = self.request.FILES if self.request.method == 'POST' else None		
-		form = PropertyDetailsForm(post_data, files_data, **{'category':self.category})
-		return form
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)		
-		context.update({
-			'details_form': self.get_details_form(),
-			'require_location': self.category.require_location,			
-		})
-		return context
-
+class PropertyCreateView(PropertyViewMixin, CreateView):
 	def get(self, request, *args, **kwargs):
 		category = self.get_category()
 		if not category.enabled:
 			raise Http404
 		return super().get(request, *args, **kwargs)
 
-class PropertyUpdateView(UpdateView):
-	model = Property
-	form_class = PropertyForm
-	success_url = reverse_lazy('properties')
-
-	def form_valid(self, form):
-		details_form = self.get_details_form()
-		if not details_form.is_valid():
-			return self.form_invalid(form)
-
-		details = {
-			'purpose': form.cleaned_data['purpose'].id,
-			'services': [service.id for service in form.cleaned_data['services']],
-			'specifications': details_form.get_not_empty_cleaned_data(),
-		}
-
-		self.object = form.save(commit=False)		
-		self.object.details = details		
-		self.object.save()
-		#form.save_m2m()
-
-		return redirect(self.success_url)
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)	
-		context.update({
-			'require_location': self.object.category.require_location,			
-			'details_form': self.get_details_form()
-		})			
-		return context
-
+class PropertyUpdateView(PropertyViewMixin, UpdateView):	
 	def get_details_form(self):
-		self.object = self.get_object()
-		post_data = self.request.POST if self.request.method == 'POST' else None
-		files_data = self.request.FILES if self.request.method == 'POST' else None
-		kwargs = {'category':self.object.category}
-
+		form = super().get_details_form()
 		if self.request.method == 'GET':
 			try:
-				initials = self.object.details['specifications']
-				kwargs.update({'initial': initials})
+				initials = self.object.details['specifications']				
+				form.initial = initials
 			except KeyError:
 				pass
 
-		form = PropertyDetailsForm(post_data, files_data,**kwargs)
 		return form
 
-	def get_form_kwargs(self):
-		kwargs = super().get_form_kwargs()		
-		kwargs.update({'category': self.get_object().category})
-		return kwargs
+	def get_cover_form(self):
+		form = super().get_cover_form()
+		if self.request.method == 'POST':		
+			cover = self.get_object().get_cover_instance()			
+			if cover:
+				form.instance = cover
+		return form
 
 class PropertyDetailView(DetailView):
 	model = Property
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		self.object = self.get_object()		
-		image_form = Base64ImageForm(
-			initial = {
-				'object_id':self.object.id,
-				'content_type': ContentType.objects.get_for_model(self.object)
-			}
-		)
+		self.object = self.get_object()	
+		image_form = ImageForm(initial = {
+			'object_id': self.object.id,
+			'content_type': ContentType.objects.get_for_model(self.object)
+		})
 		more_for_this_user = self.model.objects.filter(user=self.object.user).exclude(pk=self.object.pk)
 		
 		context.update({
@@ -158,6 +78,7 @@ class PropertyDetailView(DetailView):
 		})
 
 		return context
+
 
 class PropertyFavoriteListView(ListView):
 	model = Property

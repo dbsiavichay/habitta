@@ -201,3 +201,12 @@
     width: 30px;
     z-index: 20;
 }
+
+/*Light gallery img*/
+
+.gallery-item img, .grid-sizer img {
+    height: 150px;
+    object-fit: contain;
+    background-color: rgba(0,0,0,.7);    
+    
+}

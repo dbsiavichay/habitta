@@ -5,31 +5,38 @@ from django.forms.widgets import HiddenInput
 from .models import Image
 import uuid
 
-class Base64ImageForm(ModelForm):
+class ImageForm(ModelForm):
 	class Meta:
 		model = Image		
-		exclude = ('img',)
-		widgets = {				
-			'is_cover': HiddenInput,
+		exclude = ('is_cover',)
+		widgets = {
 			'object_id': HiddenInput,
 			'content_type': HiddenInput,
 		}
 
-	base64image = CharField(widget = HiddenInput,)	
+class CoverImageForm(ModelForm):
+	class Meta:
+		model = Image		
+		exclude = ('img', 'is_cover', 'object_id', 'content_type')		
 
+	base64image = CharField(widget = HiddenInput, required=False)
+
+	
 	def save(self, commit=True):		
 		from .utils import base64_to_image
 
-		base64image = self.cleaned_data['base64image']			
-
-		if self.instance.id is not None and self.instance.img:
+		base64image = self.cleaned_data['base64image']		
+		if not base64image:
+			return
+		if self.instance.id is not None and self.instance.img:			
 			self.instance.img.delete()
-
+		
 		obj = super().save(commit=False)
+		obj.is_cover=True
 	
 		data, extension = base64_to_image(base64image)				
 		filename = '%s.%s' % (str(uuid.uuid4()), extension)
-		obj.img.save(filename, data)
+		obj.img.save(filename, data, save=commit)
 
 		if commit:
 			obj.save()            
