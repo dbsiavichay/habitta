@@ -1,4 +1,4 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
 from .models import Property, Category
@@ -55,13 +55,21 @@ class PropertyViewMixin(object):
 		kwargs.update({'category': self.category})
 		return kwargs
 
-	def get_details_form(self):		
-		form = PropertyDetailsForm(**self.get_form_kwargs())
+	def get_details_form(self):	
+		form = PropertyDetailsForm(**self.get_kwargs(category=self.category))
 		return form
 
 	def get_cover_form(self):				
-		form = CoverImageForm(**super().get_form_kwargs())
+		form = CoverImageForm(**self.get_kwargs())
 		return form
+
+	def get_kwargs(self, **kwargs):
+		if self.request.method in ('POST', 'PUT'):
+			kwargs.update({
+				'data': self.request.POST,
+				'files': self.request.FILES,
+			})
+		return kwargs
 
 	def save_cover(self, form, obj):
 		cover = form.save(commit=False)
