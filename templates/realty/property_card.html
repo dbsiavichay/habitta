@@ -17,12 +17,17 @@
                 <div>{{ object.get_purpose.activity }}</div>
                 <span>{{ object.category.singular_name}}</span>
             </h3>
-            <p>{{ object.description|truncatewords:20 }}</p>
+            <p>{{ object.description|truncatechars:100 }}</p>
             <div class="geodir-category-options fl-wrap">
                 <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
-                    <span>({% comments_count object %} comentarios)</span>
+                    <span>({% comments_count object %} comentarios)</span>                    
                 </div>
-                <div class="geodir-category-location"><span><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address }}</span></div>
+                <div class="geodir-category-location">
+                    <span><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address }}</span>
+                </div>
+                <div class="geodir-category-location">
+                    <span><i class="fa fa-clock-o" aria-hidden="true"></i>Hace {{ object.pub_date|timesince }}</span>
+                </div>
             </div>
         </div>
     </article>
