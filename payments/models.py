@@ -15,6 +15,18 @@ class Bank(models.Model):
 	def __str__(self):
 		return self.name
 
+class Payment(models.Model):
+	amount = models.DecimalField(max_digits=10, decimal_places=2, default = Decimal('0.00'))
+	date = models.DateTimeField(auto_now_add=True)	
+	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+	object_id = models.IntegerField()
+	content_type = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE)
+
+
+class BankPayment(Payment):
+	bank = models.ForeignKey(Bank, on_delete=models.CASCADE)
+	com = models.ImageField(upload_to='bankpayments')
+
 class PaypalPayment(models.Model):
 	# Identificador de paypal para este pago
 	payment_id = models.CharField(max_length=64)
