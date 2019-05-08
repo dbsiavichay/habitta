@@ -4,6 +4,10 @@
 {% block visible_fields %}
 {% render_field form.purpose %}
 {% render_field form.price icon='usd' %}
+<div class="fl-wrap filter-tags">    
+    {{ form.negotiable }}
+    <label for="{{form.negotiable.id_for_label}}">{{ form.negotiable.label }}</label>                      
+</div>
 {% render_field form.description %}
 {% endblock %}
 

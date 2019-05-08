@@ -91,6 +91,7 @@ class Property(ImageMixin, models.Model):
 	)
 	
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
+	negotiable = models.BooleanField(default=False, verbose_name='negociable?')
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
 	address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')
 	geopoint = models.PointField(blank=True, null=True)	
@@ -140,6 +141,9 @@ class Property(ImageMixin, models.Model):
 
 	def get_absolute_url(self):		
 		return reverse_lazy('detail_property', args=[str(self.id)])
+
+
+
 
 
 #Eliminar despues de subir a producción
