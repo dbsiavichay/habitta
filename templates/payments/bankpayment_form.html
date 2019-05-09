@@ -1,0 +1,11 @@
+{% extends 'base/base_form.html' %}
+{% load components %}
+
+{% block visible_fields %}
+{% render_field form.amount icon='usd' %}
+{% render_field form.bank icon='bank' class='nice-select' %}
+{% render_field form.voucher %}
+<button type="submit" class="btn big-btn color-bg flat-btn">Guardar
+    <i class="fa fa-angle-right"></i>
+</button>
+{% endblock %}

@@ -1,14 +1,31 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseBadRequest, Http404
 from django.urls import reverse
-from django.views.generic import RedirectView, DetailView
+from django.views.generic import RedirectView, DetailView, ListView, CreateView
 
 
 from django.conf import settings
 import paypalrestsdk
 
 from realty.models import Property 
-from .models import PaypalPayment
+from .models import Bank, BankPayment, PaypalPayment
+from .forms import BankPaymentForm
+
+class SelectMethodPaymentView(ListView):
+	model = Bank
+	template_name = 'payments/select_method_payment.html'
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		object_id = self.kwargs.get('pk')
+		content_type = self.kwargs.get('ct')
+		context['object_id'] = object_id
+		context['content_type'] = content_type		
+		return context
+
+class BankPaymentCreateView(CreateView):
+	model = BankPayment
+	form_class = BankPaymentForm	
 
 class PaypalPaymentView(RedirectView): 
 	permanent = False

@@ -41,7 +41,7 @@ class Specification(models.Model):
 		ordering = ['name',]
 
 	FIELD_CHOICES = (		
-		('CharField', 'Texto'),('IntegerField', 'Número'),
+		('CharField', 'Texto'),('IntegerField', 'Número Entero'),
 		('ChoiceField', 'Selector'), ('ChoiceField:RadioSelect', 'RadioMultiple'), 
 		('FileField', 'Archivo'),
 	)	

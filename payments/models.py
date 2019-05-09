@@ -12,20 +12,33 @@ class Bank(models.Model):
 	recipient_name = models.CharField(max_length=128, verbose_name='nombre del beneficiario')
 	recipient_charter = models.CharField(max_length=16, verbose_name='identificación del beneficiario')
 
+	def get_account_type(self):
+		return dict(self.ACCOUNT_TYPE_CHOICES).get(self.account_type)
+
 	def __str__(self):
-		return self.name
+		return '%s, #%s, %s' % (self.name, self.account_number, self.get_account_type())
+
+	class Meta:
+		verbose_name = 'banco'
 
 class Payment(models.Model):
+	STATUS_CHOICES = (
+		(1, 'Registro'), (2, 'Confirmado'), (3, 'Rechazado')
+	)
 	amount = models.DecimalField(max_digits=10, decimal_places=2, default = Decimal('0.00'))
-	date = models.DateTimeField(auto_now_add=True)	
 	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
 	object_id = models.IntegerField()
 	content_type = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE)
-
+	status = models.PositiveSmallIntegerField(default=1, choices=STATUS_CHOICES)
+	date = models.DateTimeField(auto_now_add=True)	
 
 class BankPayment(Payment):
-	bank = models.ForeignKey(Bank, on_delete=models.CASCADE)
-	com = models.ImageField(upload_to='bankpayments')
+	bank = models.ForeignKey(Bank, on_delete=models.CASCADE, verbose_name='banco')
+	voucher = models.FileField(upload_to='payments/bankvouchers', verbose_name='comprobante')
+
+	class Meta:
+		verbose_name = 'pago bancario'
+		verbose_name_plural = 'pagos bancarios'
 
 class PaypalPayment(models.Model):
 	# Identificador de paypal para este pago
@@ -43,3 +56,5 @@ class PaypalPayment(models.Model):
 
 	class Meta:
 		unique_together = ('user', 'property')
+		verbose_name = 'pago paypal'
+		verbose_name_plural = 'pagos paypal'
