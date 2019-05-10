@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseBadRequest, Http404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import RedirectView, DetailView, ListView, CreateView
 
 
@@ -15,17 +15,32 @@ class SelectMethodPaymentView(ListView):
 	model = Bank
 	template_name = 'payments/select_method_payment.html'
 
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		object_id = self.kwargs.get('pk')
-		content_type = self.kwargs.get('ct')
-		context['object_id'] = object_id
-		context['content_type'] = content_type		
-		return context
+	def get(self, request, *args, **kwargs):		
+		request.session['object_id'] = self.kwargs.get('pk')
+		request.session['content_type'] =self.kwargs.get('ct')
+		return super().get(request, *args, **kwargs)
+
+class BankPaymentListView(ListView):
+	model = BankPayment
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		queryset = queryset.filter(user=self.request.user)
+		return queryset
 
 class BankPaymentCreateView(CreateView):
 	model = BankPayment
-	form_class = BankPaymentForm	
+	form_class = BankPaymentForm
+	success_url = reverse_lazy('list_bank_payment')
+
+	def form_valid(self, form):
+		object_id = self.request.session.pop('object_id', None)
+		content_type = self.request.session.pop('content_type', None)
+		self.object = form.save(commit=False)
+		self.object.user = self.request.user
+		self.object.object_id = object_id
+		self.object.content_type_id = content_type
+		self.object.save()	
 
 class PaypalPaymentView(RedirectView): 
 	permanent = False

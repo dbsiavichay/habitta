@@ -11,6 +11,18 @@
                 </ul>
             </div>
             <!-- user-profile-menu end-->
+
+            <!-- user-profile-menu-->
+            <div class="user-profile-menu">
+                <h3>Pagos</h3>
+                <ul>
+                    <li>
+                        <a {% if 'payment' in request.path %} class="user-profile-act" {% endif %} href="{% url 'list_bank_payment' %}"><i class="fa fa-th-list"></i> Mis pagos</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- user-profile-menu end-->
+
             <!-- user-profile-menu-->
             <div class="user-profile-menu">
                 <h3>Publicaciones</h3>

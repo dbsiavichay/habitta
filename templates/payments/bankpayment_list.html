@@ -1,0 +1,38 @@
+{% extends 'base/base_list.html' %}
+
+{% block breadcrumbs %}
+<h2>Mis pagos</h2>
+<div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Pagos</span></div>
+{% endblock %}
+
+{% block list %}
+{% for payment in object_list %}
+<!-- dashboard-list end-->    
+<div class="item-list">                            
+    <span class="item-badge">Bancario</span>                                
+    <div class="item-text">
+        <div class="item">
+            <i class="fa fa-bank"></i><a  href="#">{{ payment.bank }}</a>
+        </div>                                
+        <div class="item">
+            <i class="fa fa-usd"></i><a  href="#">{{ payment.amount }}</a>
+        </div>
+               
+        <p>{{ payment.get_object }}</p>
+
+       
+        <ul class="dashboard-listing-table-opt fl-wrap">
+            <li><a href="#"><i class="fa fa-pencil-square-o"></i></a></li>                                    
+            <li><a href="#" data-id="{{ payment.id }}" class="del-btn"><i class="fa fa-trash-o"></i></a></li>
+        </ul>
+    </div>
+    <div class="post-opt">
+        <ul>
+            <li><i class="fa fa-calendar-check-o"></i> <span>{{ payment.date }}</span></li>            
+            <li><i class="fa fa-eye"></i> <span>{{ payment.get_status }}</span></li>            
+        </ul>
+    </div>                            
+</div>                        
+<!-- dashboard-list end-->
+{% endfor %}
+{% endblock %}
