@@ -22,14 +22,14 @@ class Bank(models.Model):
 		verbose_name = 'banco'
 
 class Payment(models.Model):
-	STATUS_CHOICES = (
-		(1, 'Registro'), (2, 'Confirmado'), (3, 'Rechazado')
-	)
+	REGISTRY, CONFIRMED, REJECTED = (1,2,3)
+	STATUS_CHOICES = ((REGISTRY, 'Registro'), (CONFIRMED, 'Confirmado'), (REJECTED, 'Rechazado'))
+
 	amount = models.DecimalField(max_digits=10, decimal_places=2, default = Decimal('0.00'), verbose_name='monto')
-	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+	user = models.ForeignKey('auth.User', on_delete=models.CASCADE, verbose_name='usuario')
 	object_id = models.IntegerField()
 	content_type = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE)
-	status = models.PositiveSmallIntegerField(default=1, choices=STATUS_CHOICES)
+	status = models.PositiveSmallIntegerField(default=1, choices=STATUS_CHOICES, verbose_name='estado')
 	date = models.DateTimeField(auto_now_add=True)
 
 	def get_object(self):
@@ -37,6 +37,9 @@ class Payment(models.Model):
 
 	def get_status(self):
 		return dict(self.STATUS_CHOICES).get(self.status)
+
+	def is_confirmed(self):
+		return self.status == self.CONFIRMED
 
 class BankPayment(Payment):
 	bank = models.ForeignKey(Bank, on_delete=models.CASCADE, verbose_name='banco')
@@ -46,21 +49,14 @@ class BankPayment(Payment):
 		verbose_name = 'pago bancario'
 		verbose_name_plural = 'pagos bancarios'
 
-class PaypalPayment(models.Model):
+class PaypalPayment(Payment):
 	# Identificador de paypal para este pago
 	payment_id = models.CharField(max_length=64)
 	# Id unico asignado por paypal a cada usuario, no cambia aunque la dirección de email lo haga.
 	payer_id = models.CharField(max_length=128, blank=True)
 	# Dirección de email del cliente proporcionada por paypal.
-	payer_email = models.EmailField(blank=True)
-	# Guardamos una copia del precio, porque puede variar en el tiempo
-	amount = models.DecimalField(max_digits=10, decimal_places=2, default = Decimal('0.00'))
-	date = models.DateTimeField(auto_now_add=True)
-	is_paid = models.BooleanField(default=False)
-	user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-	property = models.ForeignKey('realty.Property', on_delete=models.CASCADE)
+	payer_email = models.EmailField(blank=True)	
 
-	class Meta:
-		unique_together = ('user', 'property')
+	class Meta:		
 		verbose_name = 'pago paypal'
 		verbose_name_plural = 'pagos paypal'

@@ -17,7 +17,10 @@
                 <h3>Pagos</h3>
                 <ul>
                     <li>
-                        <a {% if 'payment' in request.path %} class="user-profile-act" {% endif %} href="{% url 'list_bank_payment' %}"><i class="fa fa-th-list"></i> Mis pagos</a>
+                        <a {% if 'payments/bank' in request.path %} class="user-profile-act" {% endif %} href="{% url 'list_bank_payment' %}"><i class="fa fa-th-list"></i> Mis pagos</a>
+                    </li>
+                    <li>
+                        <a {% if 'payments/downloads' in request.path %} class="user-profile-act" {% endif %} href="{% url 'downloads' %}"><i class="fa fa-download"></i> Descargas  </a>
                     </li>
                 </ul>
             </div>
@@ -28,7 +31,7 @@
                 <h3>Publicaciones</h3>
                 <ul>
                     <li><a {% if 'realty/properties' in request.path %} class="user-profile-act" {% endif %} href="{% url 'properties' %}"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>
-                    <li><a {% if 'property/downloads' in request.path %} class="user-profile-act" {% endif %} href="{% url 'list_download_property' %}"><i class="fa fa-download"></i> Descargas  </a></li>
+                    
                     <li><a {% if 'services/service' in request.path %} class="user-profile-act" {% endif %} href="{% url 'user_services' %}"><i class="fa fa-th-list"></i> Servicios  </a></li>
                     <li><a {% if 'favorite' in request.path %} class="user-profile-act" {% endif %} href="{% url 'favorite_properties' %}"><i class="fa fa-heart"></i> Favoritos </a></li>
                     <li><a href="{% url 'choose_category' %}" {% if 'property' in request.path %} class="user-profile-act" {% endif %}><i class="fa fa-plus-square-o"></i> Publicar</a></li>

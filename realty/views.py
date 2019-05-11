@@ -14,11 +14,6 @@ from .forms import FinderForm
 from .mixins import PropertyViewMixin
 
 from logs.models import Log
-from payments.models import PaypalPayment
-
-import os
-import zipfile
-from io import BytesIO
 
 class ChooseCategoryListView(ListView):
 	model = Category
@@ -89,38 +84,6 @@ class PropertyFavoriteListView(ListView):
 		queryset = super().get_queryset()
 		return queryset.filter(id__in=properties)
 
-class PropertyDownloadListView(ListView):
-	model = PaypalPayment
-	template_name = 'realty/property_download_list.html'
-
-	def get_queryset(self):
-		queryset = super().get_queryset()
-		return queryset.filter(user=self.request.user)
-
-class PropertyDownloadView(DetailView):
-	model = Property
-
-	def render_to_response(self, context, **httpresponse_kwargs):		
-		dirname = u'property_files_{0}'.format(self.object.id)
-		filename = u'{0}.zip'.format(dirname)
-
-		buffer = BytesIO()
-		z = zipfile.ZipFile(buffer, 'w')
-
-		for path in self.object.get_path_files():						
-			z.write(path, os.path.join(dirname, os.path.basename(path)))
-		z.close()
-		buffer.seek(0)
-		response = HttpResponse(buffer.read())
-		response['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
-		response['Content-Type'] = 'application/x-zip'
-		return response
-
-	def get(self, request, *args, **kwargs):
-		self.object = self.get_object()
-		paypal = get_object_or_404(PaypalPayment, user=request.user, property=self.object)		
-		if not paypal.is_paid: raise Http404
-		return super().get(request, *args, **kwargs)
 
 class FinderListView(FormView) :	
 	template_name = 'realty/finder.html'

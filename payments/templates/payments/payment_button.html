@@ -1,9 +1,11 @@
-{% if is_paid %}
-<a href="{% url 'download_property' object.id %}" class="btn color-bg flat-btn">Descargar
+{% if not payment %}
+<a href="{% url 'select_method_payment' object_id content_type %}" class="btn color-bg flat-btn">
+    Comprar ${{ price }}
+</a>
+{% elif payment.is_confirmed %}
+<a href="{% url 'download' payment.id %}" class="btn color-bg flat-btn">Descargar
     <i class="fa fa-download"></i>
 </a>
 {% else %}
-<a href="{% url 'select_method_payment' object.id content_type.id %}" class="btn color-bg flat-btn">
-    Comprar ${{ object.price }}
-</a>
+<a href="{% url 'list_bank_payment' %}" class="btn color-bg flat-btn">Ver pago</a>
 {% endif %}

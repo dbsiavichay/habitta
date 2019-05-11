@@ -1,5 +1,5 @@
 from django import template
-from ..models import PaypalPayment
+from ..models import Payment
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -8,13 +8,12 @@ register = template.Library()
 @register.inclusion_tag('payments/payment_button.html')
 def check_payment(object, user):        
     context = {
-    	'object': object,
-    	'content_type': ContentType.objects.get_for_model(object)
+    	'object_id': object.id,
+    	'content_type': ContentType.objects.get_for_model(object).id,        
     }
     try:
-        paypal = PaypalPayment.objects.get(property=object, user=user)
-        paid = paypal.is_paid
+        payment = Payment.objects.filter(user=user).exclude(status=Payment.REJECTED).get(**context)        
+        context.update({'payment': payment})
     except:
-        paid = False
-    context.update({'is_paid': paid})
+        context.update({'price': object.price})    
     return context

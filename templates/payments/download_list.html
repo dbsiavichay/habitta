@@ -6,23 +6,23 @@
 {% endblock %}
 
 {% block list %}
-{% for paypal in object_list %}
-{% with paypal.property as property %}
+{% for payment in object_list %}
+{% with payment.get_object as object %}
 <!-- dashboard-list end-->    
 <div class="dashboard-list">
     <div class="dashboard-message">
-        <span class="new-dashboard-item">{{ property.category }}</span>
+        <span class="new-dashboard-item">{{ object.category }}</span>
         <div class="dashboard-listing-table-image">
-            <a href="{% url 'detail_property' property.id %}"><img src="{{ property.get_cover }}" alt=""></a>
+            <a href="{% url 'detail_property' object.id %}"><img src="{{ object.get_cover }}" alt=""></a>
         </div>
         <div class="dashboard-listing-table-text">
-            <h4><a href="listing-single.html">{{ property.title }}</a></h4>
-            <span class="dashboard-listing-table-address"><i class="fa fa-map-marker"></i><a  href="#">{{ property.address }}</a></span>
+            <h4><a href="listing-single.html">{{ object.title }}</a></h4>
+            <span class="dashboard-listing-table-address"><i class="fa fa-map-marker"></i><a  href="#">{{ object.address }}</a></span>
             <div class="listing-rating card-popup-rainingvis fl-wrap" data-starrating2="5">
                 <span>(2 comentarios)</span>
             </div>
             <ul class="dashboard-listing-table-opt fl-wrap">
-                <li><a href="{% url 'download_property' property.id %}"><i class="fa fa-download"></i></a></li>                                        
+                <li><a href="{% url 'download' payment.id %}"><i class="fa fa-download"></i></a></li>                                        
             </ul>
         </div>
     </div>
