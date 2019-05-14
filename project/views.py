@@ -11,11 +11,6 @@ class HomeView(ProjectMixin, TemplateView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		properties = Property.objects.all()[:10]
-		# try:
-		# 	settings = Settings.objects.get(is_active=True)
-		# 	context.update({'settings': settings})
-		# except Settings.DoesNotExist:
-		# 	pass
 		context.update({'properties':properties})
 		return context
 

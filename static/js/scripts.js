@@ -192,22 +192,25 @@ function initCitybook() {
         $(this).closest(".carousel").find('.single-carousel').slick('slickNext');
     });
     $('.listing-carousel').slick({
-        infinite: true,
+        infinite: false,
         slidesToShow: 5,
+        slidesToScroll: 5,
         dots: true,
         arrows: false,
-        centerMode: true,
+        centerMode: false,
         centerPadding: '0',
         responsive: [{
                 breakpoint: 1500,
                 settings: {
                     slidesToShow: 4,
+                    slidesToScroll: 4,
                 }
             },
             {
                 breakpoint: 1224,
                 settings: {
                     slidesToShow: 3,
+                    slidesToScroll: 3,
                 }
             },
 
@@ -215,12 +218,14 @@ function initCitybook() {
                 breakpoint: 1024,
                 settings: {
                     slidesToShow: 2,
+                    slidesToScroll: 2,
                 }
             },
             {
                 breakpoint: 800,
                 settings: {
                     slidesToShow: 1,
+                    slidesToScroll: 1,
                 }
             }
         ]
