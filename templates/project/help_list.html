@@ -5,15 +5,25 @@
 
 {% block 'content' %}
 <!--section -->
+<section class="parallax-section parallax-sm" data-scrollax-parent="true" id="sec1">
+    <div class="bg par-elem " data-bg="{% if project.help_cover %} {{ project.help_cover.url }} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="section-title center-align no-padding">
+            <h2><span>Ayuda</span></h2>
+            <div class="breadcrumbs fl-wrap"><a href="{% url 'home' %}">Inicio</a><span>Ayuda</span></div>
+            <span class="section-separator"></span>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+
+<!--section -->
 <section id="sec1">
     <!-- container -->
     <div class="container">
         <!-- profile-edit-wrap -->
-        <div class="profile-edit-wrap">
-            <div class="profile-edit-page-header">
-                <h2>Ayuda</h2>
-                <div class="breadcrumbs"><a href="#">Inicio</a><span>Ayuda</span></div>
-            </div>
+        <div class="profile-edit-wrap">            
             <div class="row">                
                 <div class="col-md-12">
                     <div class="dashboard-list-box fl-wrap">

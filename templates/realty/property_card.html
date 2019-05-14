@@ -7,7 +7,7 @@
             <div class="list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
         </div>
         <div class="geodir-category-content fl-wrap">
-            <span class="listing-geodir-category">
+            <span style="background: #efb810;" class="listing-geodir-category">
                 <i class="fa fa-usd"></i> {{ object.price }}
             </span>
             <div class="listing-avatar"><a href="{% url 'detail_profile' object.user.username %}"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>

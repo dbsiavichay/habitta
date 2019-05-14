@@ -5,20 +5,13 @@ from project.models import Settings
 from .models import Service
 from .mixins import ServiceViewMixin
 
+from project.mixins import ProjectMixin
+
 from django.contrib.contenttypes.models import ContentType
 from multimedia.forms import ImageForm
 
-class ServiceListView(ListView):
+class ServiceListView(ProjectMixin, ListView):
 	model = Service
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		try:
-			settings = Settings.objects.get(is_active=True)
-			context.update({'settings': settings})
-		except Settings.DoesNotExist:
-			pass
-		return context
 
 class UserServiceListView(ServiceListView):	
 	template_name = 'services/userservice_list.html'

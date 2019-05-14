@@ -7,8 +7,8 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
 <meta property="og:title" content="Soluciones inmobiliarias | Larbit Ecuador" />
-<meta property="og:description" content="{{ settings.subtitle }}" />
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ settings.cover.url }}" />
+<meta property="og:description" content="{{ project.subtitle }}" />
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ project.cover.url }}" />
 <meta property="fb:app_id" content="489725724801134" />
 {% endblock %}
 
@@ -20,13 +20,13 @@
 
 <!--section -->
 <section class="scroll-con-sec hero-section" data-scrollax-parent="true" id="sec1">
-    <div class="bg" data-bg="{% if settings.cover %} {{ settings.cover.url }} {% endif %}" data-scrollax="properties: { translateY: '200px' }"></div>
+    <div class="bg" data-bg="{% if project.cover %} {{ project.cover.url }} {% endif %}" data-scrollax="properties: { translateY: '200px' }"></div>
     <div class="overlay"></div>
     <div class="hero-section-wrap fl-wrap">
         <div class="container">
             <div class="intro-item fl-wrap">
-                <h2>{{ settings.title }}</h2>                
-                <h3>{{ settings.subtitle }}</h3>
+                <h2>{{ project.title }}</h2>                
+                <h3>{{ project.subtitle }}</h3>
             </div>
             <div class="main-search-wrap">
                 <div class="main-search fl-wrap">
@@ -155,7 +155,7 @@
     </div>
 </section>
 <section class="parallax-section" data-scrollax-parent="true">
-    <div class="bg"  data-bg="{% if settings.subcover %} {{ settings.subcover.url }} {% endif %}" data-scrollax="properties: { translateY: '100px' }"></div>
+    <div class="bg"  data-bg="{% if project.subcover %} {{ project.subcover.url }} {% endif %}" data-scrollax="properties: { translateY: '100px' }"></div>
     <div class="overlay co lor-overlay"></div>
     <!--container-->
     <div class="container">
