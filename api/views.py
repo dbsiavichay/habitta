@@ -15,11 +15,13 @@ class PropertyListAPIView(generics.ListAPIView):
 		if len(self.request.query_params) == 0:		
 			return queryset
 
+		purpose = self.request.query_params.get('purpose', None)
+
 		params = {
 			'category': self.request.query_params.get('category', None),
-			'details__purpose': self.request.query_params.get('purpose', None),
+			'details__purpose': int(purpose) if purpose else purpose,
 			'address__icontains': self.request.query_params.get('address', None)
-		}
+		}		
 		
 		args = [Q(**{key: params[key]}) for key in params.keys() if params[key] is not None]
 		queryset = queryset.filter(reduce(operator.__and__, args))

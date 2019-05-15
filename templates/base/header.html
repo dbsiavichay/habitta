@@ -6,7 +6,7 @@
         <div class="logo-holder">
             <a href="{% url 'home' %}"><img src="{% static 'images/logo.png' %}" alt=""></a>
         </div>
-        {% if request.path != '/' %}
+        {% if request.path != '/' and 'finder' not in request.path %}
         <div class="header-search vis-header-search">
             <form method="POST" action="{% url 'finder' %}">
                 {% csrf_token %}
