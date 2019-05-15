@@ -153,7 +153,7 @@ handleTweets(arrayTweets);inProgress=false;if(queue.length>0){twitterFetcher.fet
                     var $select = $(this);
                     var $dropdown = $(this).next('.nice-select');
                     var open = $dropdown.hasClass('open');
-
+                    
                     if ($dropdown.length) {
                         $dropdown.remove();
                         create_nice_select($select);
