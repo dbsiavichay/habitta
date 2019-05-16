@@ -10,8 +10,20 @@ from project.mixins import ProjectMixin
 from django.contrib.contenttypes.models import ContentType
 from multimedia.forms import ImageForm
 
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.geos import Point
+
 class ServiceListView(ProjectMixin, ListView):
 	model = Service
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		lng = self.request.GET.get('lng')
+		lat = self.request.GET.get('lat')
+		if lng and lat:
+			user_location = Point(float(lng), float(lat), srid=4326)
+			queryset = queryset.annotate(distance=Distance('geopoint', user_location))
+		return queryset
 
 class UserServiceListView(ServiceListView):	
 	template_name = 'services/userservice_list.html'
