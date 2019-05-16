@@ -1,3 +1,4 @@
+from django.core.validators import FileExtensionValidator
 from django.forms import ( 
 	ModelForm, Form, 
 	ModelChoiceField, ModelMultipleChoiceField, 
@@ -141,6 +142,7 @@ class PropertyDetailsForm(Form):
 			self.fields[key] = eval(form_field)(
 				label = specification.name,
 				required = specification.is_required,
+				validators = [FileExtensionValidator(allowed_extensions=['pdf', 'dwg'])] if form_field == 'FileField' else []
 			)
 						
 			if widget: self.fields[key].widget = eval(widget)()
