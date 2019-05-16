@@ -130,7 +130,7 @@ class PropertyDetailsForm(Form):
 		if self.category is None or not isinstance(self.category, Category): 
 			raise ValueError('Debe indicar una categoria')
 
-		for specification in self.category.specifications.all():
+		for specification in self.category.specifications.all().order_by('field_type'):
 			key = str(specification.id)
 			try:
 				form_field, widget = specification.field_type.split(':')

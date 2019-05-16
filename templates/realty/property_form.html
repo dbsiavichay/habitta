@@ -30,13 +30,21 @@
 <!-- profile-edit-container--> 
 <div class="profile-edit-container add-list-container">
     <div class="profile-edit-header fl-wrap">
-        <h4>Detalles </h4>
+        <h4>Servicios </h4>
     </div>
     <div class="custom-form">                                                    
         <!-- Checkboxes -->
         {% render_field form.services title='Servicios' %}
-        
+    </div>
+</div>
+<!-- profile-edit-container end-->
 
+<!-- profile-edit-container--> 
+<div class="profile-edit-container add-list-container">
+    <div class="profile-edit-header fl-wrap">
+        <h4>Especificaciones </h4>
+    </div>
+    <div class="custom-form">                                                    
         {% load realtytags %}
         {% for field in details_form %}
             {% if field|widget_type == 'select' %}

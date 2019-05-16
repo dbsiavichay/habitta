@@ -10,7 +10,7 @@ class HomeView(ProjectMixin, TemplateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		properties = Property.objects.all()[:10]
+		properties = Property.objects.all()[:20]
 		context.update({'properties':properties})
 		return context
 
