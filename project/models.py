@@ -20,6 +20,22 @@ class Settings(models.Model):
 	def __str__(self):
 		return self.title
 
+class Icons(models.Model):
+	name = models.CharField(max_length=64, verbose_name='nombre')
+	eot = models.FileField(upload_to='larbitfonts/fonts')
+	svg = models.FileField(upload_to='larbitfonts/fonts')
+	ttf = models.FileField(upload_to='larbitfonts/fonts')
+	woff = models.FileField(upload_to='larbitfonts/fonts')
+	css = models.FileField(upload_to='larbitfonts')
+	is_active = models.BooleanField(default=False, verbose_name='activo?')
+
+	def __str__(self):
+		return self.name
+
+	class Meta:
+		verbose_name = 'iconos'
+		verbose_name_plural = 'iconos'
+
 class Term(models.Model):
 	class Meta:
 		verbose_name = 'Término'
