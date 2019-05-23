@@ -4,7 +4,7 @@ from django.contrib.gis.db import models
 from django.urls import reverse_lazy
 from multimedia.mixins import ImageMixin
 
-from .utils import get_category_icons
+from .utils import get_category_icons, get_larbit_icons
 
 from fontawesome.fields import IconField
 
@@ -24,21 +24,20 @@ class Purpose(models.Model):
 		return self.for_owner
 
 class Service(models.Model):
-	class Meta:
-		verbose_name = 'servicio'
-		ordering = ('name',)
-		
+	ICON_CHOICES = get_larbit_icons()
+
 	name = models.CharField(max_length=32, verbose_name='nombre')
-	icon = IconField(verbose_name='ícono')
+	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='ícono')
 
 	def __str__(self):
 		return self.name
 
-class Specification(models.Model):
 	class Meta:
-		verbose_name = 'especificación'
-		verbose_name_plural = 'especificaciones'
-		ordering = ['name',]
+		verbose_name = 'servicio'
+		ordering = ('name',)
+
+class Specification(models.Model):
+	ICON_CHOICES = get_larbit_icons()
 
 	FIELD_CHOICES = (		
 		('CharField', 'Texto'),('IntegerField', 'Número Entero'),
@@ -51,12 +50,17 @@ class Specification(models.Model):
 	field_type = models.CharField(max_length=64, choices=FIELD_CHOICES, verbose_name='tipo de campo')
 	attributes = models.CharField(max_length=128, blank=True, null=True, verbose_name='atributos')
 	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')	
-	icon = IconField(verbose_name='ícono')
+	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='ícono')
 	is_required = models.BooleanField(default=False, verbose_name='requerido?')
 	order = models.PositiveSmallIntegerField(default=1, verbose_name='orden')	
 
 	def __str__(self):
 		return self.name
+		
+	class Meta:
+		verbose_name = 'especificación'
+		verbose_name_plural = 'especificaciones'
+		ordering = ['name',]
 
 class Category(models.Model):	
 	class Meta:

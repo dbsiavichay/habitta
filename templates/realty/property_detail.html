@@ -90,7 +90,7 @@
         <div class="listing-features fl-wrap">
             <ul>
                 {% for service in object.get_services %}
-                <li><i class="fa fa-{{ service.icon }}"></i> {{ service.name }}</li>
+                <li><i class="lb-{{ service.icon }}"></i> {{ service.name }}</li>
                 {% endfor %}                                
             </ul>
         </div>        
@@ -186,7 +186,7 @@
                         {% endif %}
                         {% for spc in object.get_specifications %}
                         <li>
-                            <span class=""><i class="fa fa-{{ spc.icon }}"></i> {{ spc.key }}</span>
+                            <span class=""><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</span>
                             {% if not spc.require_payment %}
                             <a href="#">{{ spc.value }}</a>
                             {% else %}
@@ -261,4 +261,8 @@
     <!--box-widget-item end -->
     {% endif %}     
 </div>
+{% endblock %}
+
+{% block 'extracss' %}
+<link rel="stylesheet" href="{% static 'plugins/larbitfonts/style.css' %}">
 {% endblock %}

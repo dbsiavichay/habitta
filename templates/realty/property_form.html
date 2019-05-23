@@ -108,3 +108,8 @@
 </div>
 <!--register form end -->
 {% endblock %}
+
+{% block 'extracss' %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'plugins/larbitfonts/style.css' %}">
+{% endblock %}
