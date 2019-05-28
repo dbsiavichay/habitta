@@ -24,7 +24,7 @@ def get_category_icons():
 
 def get_larbit_icons():
 	CHOICES = []
-	file = open('static/plugins/larbitfonts/style.css', 'r')
+	file = open('media/larbitfonts/style.css', 'r')
 	regex = regex = re.compile(r'lb-(?P<icon>[\w_-]+):before')
 	for line in file:
 	    match = regex.findall(line)    	    	    
