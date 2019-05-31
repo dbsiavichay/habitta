@@ -53,8 +53,7 @@
         <div class="container"><a href="#sec2" class="custom-scroll-link">Empecemos</a></div>
     </div>
 </section>
-<!-- section end -->
-        
+<!-- section end -->  
 <!--section -->
 <section class="gray-section" id="sec2">
     <div class="container">
@@ -84,6 +83,40 @@
     <!--  carousel end-->
 </section>
 <!-- section end -->
+
+
+{% for label, list in list_purposes %}
+<!--section -->
+<section class="gray-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Publicaciones {{ label|lower }}</h2>            
+            <span class="section-separator"></span>            
+        </div>
+    </div>
+    <!-- carousel -->
+    <div class="list-carousel fl-wrap card-listing">
+        <!--listing-carousel-->
+        <div class="listing-carousel fl-wrap ">
+            {% for object in list %}
+            <!--slick-slide-item-->
+            <div class="slick-slide-item">                
+                {% include 'realty/property_card.html' with object=object %}                
+            </div>
+            <!--slick-slide-item end-->
+            {% endfor %}
+        </div>
+        <!--listing-carousel end-->
+        <div class="swiper-button-prev sw-btn"><i class="fa fa-long-arrow-left"></i></div>
+        <div class="swiper-button-next sw-btn"><i class="fa fa-long-arrow-right"></i></div>
+    </div>
+    <!--  carousel end-->
+</section>
+<!-- section end -->
+{% endfor %}
+
+
+
 <!--section -->
 <section class="color-bg">
     <div class="shapes-bg-big"></div>
