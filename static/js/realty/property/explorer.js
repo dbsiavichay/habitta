@@ -273,6 +273,12 @@ var buildMap = function (center) {
 		}
 	);
 
+	var marker = new google.maps.Marker({
+	    position: center,
+	    map: map,
+	    title: 'Mi ubicación.'
+	});
+
 	buildControls(map);
 	getLocations(map, getSearchUrl());
 
