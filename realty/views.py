@@ -15,6 +15,8 @@ from .mixins import PropertyViewMixin, get_active_icons_url
 
 from logs.models import Log
 
+from .report import get_pdf
+
 class ChooseCategoryListView(ListView):
 	model = Category
 	queryset = Category.objects.filter(enabled=True)
@@ -85,6 +87,19 @@ class PropertyFavoriteListView(ListView):
 		queryset = super().get_queryset()
 		return queryset.filter(id__in=properties)
 
+class PropertyPrintView(DetailView):
+	model = Property
+
+	def get(self, request, *args, **kwargs):
+		response = HttpResponse(content_type='application/pdf')
+		# Para visualizar en el navegador
+		#response['Content-Disposition'] = 'inline; filename=report.pdf'
+		# Para descargar
+		response['Content-Disposition'] = 'attachment; filename="property.pdf"' 
+		pdf = get_pdf()
+		# Get the value of the StringIO buffer and write it to the response.
+		response.write(pdf)
+		return response
 
 class FinderListView(FormView) :	
 	template_name = 'realty/finder.html'

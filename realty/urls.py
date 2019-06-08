@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from authentication.decorators import owner_required
 from .views import (
 	ChooseCategoryListView, 
-	PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView,
+	PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView, PropertyPrintView,
 	PropertyFavoriteListView,
 	FinderListView,
 )
@@ -14,6 +14,7 @@ urlpatterns = [
 	path('property/add/category/<int:category>/', login_required(PropertyCreateView.as_view()), name='add_property'),    	
 	path('property/<int:pk>/update/', owner_required(PropertyUpdateView.as_view()), name='update_property'),	
 	path('property/<int:pk>/detail/', PropertyDetailView.as_view(), name='detail_property'),    	
+	path('property/<int:pk>/print/', PropertyPrintView.as_view(), name='print_property'),    	
 	path('favorite/properties/', login_required(PropertyFavoriteListView.as_view()), name='favorite_properties'),
 		
 	path('finder/', FinderListView.as_view(), name='finder'),
