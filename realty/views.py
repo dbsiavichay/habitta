@@ -101,6 +101,11 @@ class PropertyPrintView(DetailView):
 		response.write(pdf)
 		return response
 
+class PropertyDeleteView(DeleteView):
+	model = Property
+	success_url = reverse_lazy('properties')
+	http_method_names = ['post',]
+
 class FinderListView(FormView) :	
 	template_name = 'realty/finder.html'
 	form_class = FinderForm
