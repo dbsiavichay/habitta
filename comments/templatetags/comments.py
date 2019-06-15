@@ -7,8 +7,9 @@ from ..forms import CommentForm
 register = template.Library()
 
 class CommentListNode(template.Node):
-    def __init__(self, obj):    	
+    def __init__(self, obj, template_name):    	
         self.obj = template.Variable(obj)
+        self.template_name = template_name
 
     def render(self, context):
         obj = self.obj.resolve(context)        
@@ -17,12 +18,13 @@ class CommentListNode(template.Node):
 
         context_dict = context.flatten()        
         context_dict['comments'] = comments
-        liststr = render_to_string(['comments/comment_list.html'], context_dict)
+        liststr = render_to_string([self.template_name], context_dict)
         return liststr        
 
 class CommentFormNode(template.Node):
-    def __init__(self, obj):    	
+    def __init__(self, obj, template_name):    	
         self.obj = template.Variable(obj)
+        self.template_name = template_name
 
     def render(self, context):
         obj = self.obj.resolve(context)
@@ -31,34 +33,34 @@ class CommentFormNode(template.Node):
 
         context_dict = context.flatten()        
         context_dict['form'] = form
-        formstr = render_to_string(['comments/comment_form.html'], context_dict)
+        formstr = render_to_string([self.template_name], context_dict)
         return formstr        
 
 @register.tag(name='comment_list')
 def comment_list(parser, token):
 	"""
 	Syntax:
-		{% comment_list [object] %}
+		{% comment_list [object] template %}
 	"""
 	try:
-  		tag_name, obj = token.split_contents()
+		tag_name, obj, template_name = token.split_contents()		
 	except ValueError:
 		raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
 
-	return CommentListNode(obj)
+	return CommentListNode(obj, template_name[1:-1])
 
 @register.tag(name='comment_form')
 def comment_form(parser, token):
 	"""
 	Syntax:
-		{% comment_form [object] %}
+		{% comment_form [object] template %}
 	"""
 	try:
-  		tag_name, obj = token.split_contents()
+  		tag_name, obj, template_name = token.split_contents()
 	except ValueError:
 		raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
 
-	return CommentFormNode(obj)
+	return CommentFormNode(obj, template_name[1:-1])
 
 @register.simple_tag
 def comments_count(obj):

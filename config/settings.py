@@ -53,6 +53,7 @@ MY_APPS = [
     'project',
     'authentication',
     'comments',
+    'messenger',
     'realty',
     'services',
     'multimedia',
@@ -100,7 +101,7 @@ DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.environ['DB_LARBIT'],
+        'NAME': 'larbitprints',#os.environ['DB_LARBIT'],
         'USER': os.environ['DB_USER'],
         'PASSWORD': os.environ['DB_PASSWORD'],
         'HOST': os.environ['DB_HOST'],
@@ -133,7 +134,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-EC'
 
-TIME_ZONE = 'UTC'
+#TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Guayaquil'
 
 USE_I18N = True
 

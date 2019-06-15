@@ -1,0 +1,33 @@
+{% extends 'base/base_list.html' %}
+
+{% block breadcrumbs %}
+<h2>Conversación</h2>
+<div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Mensajes</span></div>
+{% endblock %}
+
+{% block list %}
+{% for message in object.messages.all|slice:":10" %}
+<!-- dashboard-list end-->    
+<div class="dashboard-list rtl" style="width: 100%">
+    <div class="dashboard-message rtl">
+        {% with message.sender as sender %}
+        <div class="dashboard-message-avatar">
+            <img src="{{ sender.profile.get_avatar }}" alt="">
+        </div>
+        <div class="dashboard-message-text">
+            <h4>{{ sender.first_name }} - <span>Hace {{ message.create_date|timesince }}</span></h4>
+            <p>{{ message.content }}</p>            
+        </div>
+        {% endwith %}
+    </div>
+</div>
+<!-- dashboard-list end-->
+{% endfor %}     
+{% endblock %}
+
+{% block extra_content %}
+{% load messenger %}
+{% url 'detail_conversation' object.pk as success_url %}
+{% get_conversation_user object as receiver %}
+{% message_form receiver 'messenger/reply_form.html' success_url %}
+{% endblock %}

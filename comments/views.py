@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import Http404
-from django.views.generic import CreateView, DeleteView
+from django.views.generic import ListView, CreateView, DeleteView
 from .models import Comment
 from .forms import CommentForm
 
@@ -8,7 +8,7 @@ class CommentCreateView(CreateView):
 	model = Comment
 	form_class = CommentForm
 
-	def form_valid(self, form):
+	def form_valid(self, form):		
 		self.object = form.save(commit=False)
 		self.object.user = self.request.user
 		self.object.save()
@@ -26,3 +26,4 @@ class CommentDeleteView(DeleteView):
 	    self.object.delete()
 
 	    return redirect(self.object.get_object_url())
+

@@ -1,0 +1,54 @@
+{% extends 'base/base_list.html' %}
+
+{% load messenger %}
+
+{% block breadcrumbs %}
+<h2>Mensajes</h2>
+<div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Mensajes</span></div>
+{% endblock %}
+
+{% block list %}
+{% for object in object_list %}
+<!-- dashboard-list end-->    
+<div class="dashboard-list" data-url="{% url 'detail_conversation' object.id %}">
+    <div class="dashboard-message">
+        {% get_conversation_user object as conversation_user %}
+        {% with object.last_message as last_message %}
+        <span class="new-dashboard-item">1</span>
+        <div class="dashboard-message-avatar">
+            <img src="{{ conversation_user.profile.get_avatar }}" alt="">
+        </div>
+        <div class="dashboard-message-text">
+            <h4>{{ conversation_user.first_name }} - <span>Hace {{ last_message.create_date|timesince }}</span></h4>
+            <p>{{ last_message.content }}</p>            
+        </div>
+        {% endwith %}
+    </div>
+</div>
+<!-- dashboard-list end-->
+{% endfor %}     
+{% endblock %}
+
+{% block 'extracss' %}
+<style>
+    .dashboard-list {
+        width: 100%;
+    }
+    .dashboard-list:hover {        
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block 'extrajs' %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    elements = document.querySelectorAll('.dashboard-list');
+    elements.forEach(function (elem, index) {
+        elem.addEventListener('click', function () {
+            window.location.href = this.dataset.url;
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -7,7 +7,7 @@
                 <ul>
                     <li><a {% if 'profile/update' in request.path %} class="user-profile-act" {% endif %} href="{% url 'update_profile' %}"><i class="fa fa-user-o"></i> Editar perfil</a></li>
                     <li><a {% if 'password' in request.path %} class="user-profile-act" {% endif %} href="{% url 'change_password' %}"><i class="fa fa-unlock-alt"></i>Cambiar contraseña</a></li>
-                    <li><a href="dashboard-messages.html"><i class="fa fa-envelope-o"></i> Mensajes <span>3</span></a></li>
+                    <li><a href="{% url 'conversations' %}"><i class="fa fa-envelope-o"></i> Mensajes <span>3</span></a></li>
                 </ul>
             </div>
             <!-- user-profile-menu end-->

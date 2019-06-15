@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load messenger %}
 
 {% block 'content' %}
 <!--section -->
@@ -89,29 +90,9 @@
                             </div>
                         </div>
                     </div>
-                    <!--box-widget-item end -->            
-                    <!--box-widget-item -->
-                    <div class="box-widget-item fl-wrap">
-                        <div class="box-widget-item-header">
-                            <h3>Deja un mensaje : </h3>
-                        </div>
-                        <div class="box-widget">
-                            <div class="box-widget-content">
-                                <form id="add-comment" class="add-comment custom-form">
-                                    <fieldset>
-                                        <label><i class="fa fa-user-o"></i></label>
-                                        <input type="text" placeholder="Tu nombre *" value=""/>
-                                        <div class="clearfix"></div>
-                                        <label><i class="fa fa-envelope-o"></i>  </label>
-                                        <input type="email" placeholder="Tu correo electrónico *" value=""/>
-                                        <textarea cols="40" rows="3" placeholder="Tu mensaje:"></textarea>
-                                    </fieldset>
-                                    <button class="btn  big-btn  color-bg flat-btn">Enviar<i class="fa fa-angle-right"></i></button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <!--box-widget-item end -->                                             
+                    <!--box-widget-item end --> 
+                    {% url 'conversations' as success_url %}                               
+                    {% message_form object.user 'messenger/message_form.html' success_url %}
                 </div>
             </div>
             <!--box-widget-wrap end-->
@@ -120,23 +101,5 @@
 </section>
 <!-- section end -->
 <div class="limit-box fl-wrap"></div>
-<!--section -->
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-    </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>¿Tienes preguntas o dudas?</h3>
-                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
-                </div>
-                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+{% include 'base/questions.html' %}
 {% endblock %}
-

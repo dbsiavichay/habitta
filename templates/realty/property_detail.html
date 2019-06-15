@@ -153,8 +153,8 @@
     </div>
     <!-- list-single-main-item end -->   
     {% load comments %}  
-    {% comment_list object %}
-    {% comment_form object %}
+    {% comment_list object 'comments/comment_list.html' %}
+    {% comment_form object 'comments/comment_form.html' %}
 </div>
 {% endblock %}
 {% block aside_content %}
