@@ -1,4 +1,4 @@
-qfrom django.conf import settings
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 from django.urls import reverse_lazy
