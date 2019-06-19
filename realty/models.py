@@ -1,4 +1,4 @@
-from django.conf import settings
+qfrom django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 from django.urls import reverse_lazy
@@ -100,7 +100,7 @@ class Property(ImageMixin, models.Model):
 	address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')
 	geopoint = models.PointField(blank=True, null=True)	
 	status = models.PositiveSmallIntegerField(default=DRAFT)
-	details = JSONField(blank=True, null=True, verbose_name='detalles')
+	details = JSONField(blank=True, null=True, verbose_name='detalles')	
 	pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación')	
 	category = models.ForeignKey(Category, verbose_name='categoría', on_delete=models.CASCADE)	
 	user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)

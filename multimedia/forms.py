@@ -8,7 +8,7 @@ import uuid
 class ImageForm(ModelForm):
 	class Meta:
 		model = Image		
-		exclude = ('is_cover',)
+		exclude = ('code', 'is_cover',)
 		widgets = {
 			'object_id': HiddenInput,
 			'content_type': HiddenInput,
@@ -17,7 +17,7 @@ class ImageForm(ModelForm):
 class CoverImageForm(ModelForm):
 	class Meta:
 		model = Image		
-		exclude = ('img', 'is_cover', 'object_id', 'content_type')		
+		exclude = ('code', 'img', 'is_cover', 'object_id', 'content_type')		
 
 	base64image = CharField(widget = HiddenInput, required=False)
 

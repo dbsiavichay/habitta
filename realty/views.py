@@ -91,12 +91,13 @@ class PropertyPrintView(DetailView):
 	model = Property
 
 	def get(self, request, *args, **kwargs):
+		self.object = self.get_object()
 		response = HttpResponse(content_type='application/pdf')
 		# Para visualizar en el navegador
 		#response['Content-Disposition'] = 'inline; filename=report.pdf'
 		# Para descargar
 		response['Content-Disposition'] = 'attachment; filename="property.pdf"' 
-		pdf = get_pdf()
+		pdf = get_pdf(self.object)
 		# Get the value of the StringIO buffer and write it to the response.
 		response.write(pdf)
 		return response

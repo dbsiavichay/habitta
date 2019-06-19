@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 
 class ImageManager(models.Manager):
+	def get_images_by_code(self, obj, code):
+		ct = ContentType.objects.get_for_model(obj)
+		return self.filter(object_id=obj.id, content_type=ct, code=code)
+		
 	def get_images(self, obj, is_cover=False):
 		ct = ContentType.objects.get_for_model(obj)
 		return self.filter(object_id=obj.id, content_type=ct, is_cover=is_cover)
