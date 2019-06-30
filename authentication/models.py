@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from multimedia.mixins import ImageMixin
 from fontawesome.fields import IconField
 
-class SocialNetwork(models.Model):
+class SocialNetwork(ImageMixin, models.Model):
 	class Meta:
 		verbose_name = 'red social'
 		verbose_name_plural = 'redes sociales'
@@ -30,6 +31,11 @@ class Profile(models.Model):
 			return self.image.url
 		return settings.STATIC_URL + 'images/avatar/avatar-bg.png'
 
+	def get_avatar_path(self):
+		if self.image:
+			return self.image.path
+		return settings.BASE_DIR + '/static/images/avatar/avatar-bg.png'
+
 	def get_absolute_url(self):
 		return reverse('detail_profile', args=[self.user.username])
 
@@ -50,3 +56,7 @@ class SocialNetworkProfile(models.Model):
 	social_network = models.ForeignKey(SocialNetwork, on_delete=models.CASCADE)
 	profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 	url = models.CharField(max_length=128)
+
+	def get_username(self):
+		r = self.url.split(self.social_network.url)
+		return r[-1]

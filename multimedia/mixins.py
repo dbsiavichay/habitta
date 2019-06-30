@@ -24,6 +24,14 @@ class ImageMixin(object):
 
 		return settings.STATIC_URL + 'images/bg/1.png'
 
+	def get_cover_path(self):
+		instance = self.get_cover_instance()
+
+		if instance and instance.img:
+			return instance.img.path
+
+		return settings.BASE_DIR + '/static/images/bg/1.png'
+
 	def get_gallery(self):
 		instances = Image.objects.get_gallery(self)
 		images = [i for i in instances if i.img]
@@ -34,7 +42,7 @@ class ImageMixin(object):
 		image.set_object(self)
 
 		buff = BytesIO()
-		img.save(buff)
+		img.save(buff, 'PNG')
 		filename = '%s.png' % (str(uuid.uuid4()),)
 		filebuffer = InMemoryUploadedFile(buff, None, filename, 'image/png', img.tell, None)
 		image.img.save(filename, filebuffer)

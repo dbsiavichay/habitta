@@ -16,7 +16,7 @@ class SocialProfileAdmin(admin.ModelAdmin):
 	list_display = ('identifier', 'provider', 'user',)
 
 class SocialNetworkAdmin(admin.ModelAdmin):
-	list_display = ('name', 'icon', 'url',)
+	list_display = ('id', 'name', 'icon', 'url',)
 
 
 admin.site.register(Profile, ProfileAdmin)

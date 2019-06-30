@@ -4,8 +4,11 @@ from reportlab.lib.units import cm
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle, Table, Image
+#Libs for map
+import requests
+from PIL import Image as PilImage
+#Qrcode
 from io import BytesIO
-
 import qrcode
 
 def get_template_page(canvas, doc):    
@@ -32,14 +35,51 @@ def set_template_page(canvas):
         template = Image(base_path + 'print_template.png', A4[0], A4[1])
         template.drawOn(canvas, 0, 0)
 
+def set_cover(canvas, obj):
+    cover_path = obj.get_cover_path()
+    img = Image(cover_path, 549.5, 350)
+    img.drawOn(canvas, 23, 352)
+
 def set_qrcode(canvas, obj):
     qr_image = obj.get_last_image_by_code('qrcode')
     if not qr_image or not qr_image.img:
         qr = qrcode.make(obj.get_absolute_url())
         qr_image = obj.add_image(qr, 'qrcode')
-    
-    img = Image(qr_image.img.path, 122, 112)
-    img.drawOn(canvas, 442, 208)
+    img = Image(qr_image.img.path, 120, 110)
+    img.drawOn(canvas, 449, 140)
+
+def set_map(canvas, obj):
+    if not obj.category.require_location: 
+        return
+    map_image = obj.get_last_image_by_code('map')
+    if not map_image or not map_image.img:
+        center = '%s,%s' % (obj.geopoint.y, obj.geopoint.x)
+        zoom = 17
+        size = '274x203'
+        key = 'AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ'
+        url = 'https://maps.googleapis.com/maps/api/staticmap?center=%s&zoom=%s&size=%s&maptype=hybrid&markers=%s&key=%s' % (center, zoom, size, center, key)    
+        result = requests.get(url)
+        image = PilImage.open(BytesIO(result.content))
+        map_image = obj.add_image(image, 'map')
+    img = Image(map_image.img.path, 274, 203)
+    img.drawOn(canvas, 23, 78)
+
+def set_avatar(canvas, obj):
+    avatar = obj.user.profile.get_avatar_path()
+    img = Image(avatar, 75, 75)
+    img.drawOn(canvas, 334.5, 217.5)
+
+def set_socialnetworks(canvas, obj):
+    canvas.setFillColorRGB(0,0,0)
+    networks = obj.user.profile.socialnetworkprofile_set.all()[:5]
+    y = 195
+    for network in networks:
+        icon = network.social_network.get_last_image_by_code('print')
+        if icon and icon.img:
+            img = Image(icon.img.path, 10, 10)
+            img.drawOn(canvas, 320, y)
+        set_text(canvas, network.get_username(), 340, y, 12)
+        y -= 20
 
 def set_text(canvas, text, x, y, size):
     canvas.setFontSize(size)
@@ -49,14 +89,30 @@ def set_bold_text(canvas, text, x, y, size):
     canvas.setFont('Helvetica-Bold', size)
     canvas.drawString(x, y, text)
 
+def set_points_grid(canvas):
+    canvas.setFontSize(5)
+    for x in range(0, int(A4[0]), 10):
+        for y in range(0, int(A4[1]), 5):
+            text = str(y) if x == 0 else str(x) if y == 0 else '.' 
+            canvas.drawString(x, y, text)
+
 def get_pdf(obj):    
     #Document settings
     buff = BytesIO()
     canvas = Canvas(buff,pagesize=A4)
     set_template_page(canvas)
-    set_bold_text(canvas, str(obj.price), 360, 693, 16)
-    set_bold_text(canvas, str(obj.get_purpose().activity), 455, 693, 16)
+    canvas.setFillColorRGB(1,1,1)
+
+    set_bold_text(canvas, str(obj.category.singular_name), 310, 790, 16)
+    set_bold_text(canvas, str(obj.get_purpose().activity), 450, 790, 16)
+    set_bold_text(canvas, 'Precio', 310, 750, 16)
+    set_bold_text(canvas, '$ ' + str(obj.price), 450, 750, 16)
+    set_cover(canvas, obj)
+    set_map(canvas, obj)
     set_qrcode(canvas, obj)
+    set_avatar(canvas, obj)
+    set_socialnetworks(canvas, obj)
+    #set_points_grid(canvas)
     canvas.save()
         
     return buff.getvalue()
