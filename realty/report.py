@@ -1,4 +1,5 @@
 from django.conf import settings
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.units import cm
 from reportlab.lib.pagesizes import A4
@@ -46,7 +47,19 @@ def set_qrcode(canvas, obj):
         qr = qrcode.make(obj.get_absolute_url())
         qr_image = obj.add_image(qr, 'qrcode')
     img = Image(qr_image.img.path, 120, 110)
-    img.drawOn(canvas, 449, 140)
+    img.drawOn(canvas, 449, 160)
+    set_text(canvas, 'Ver más', 480, 280, 14)
+
+    url = 'https://larbit.com%s' % obj.get_absolute_url()
+    canvas.setFontSize(12)
+    txt_obj = canvas.beginText()
+    txt_obj.setTextOrigin(450, 150)
+    for char in url:
+        txt_obj.textOut(char)
+        x = txt_obj.getX()
+        if x > 563:
+            txt_obj.moveCursor(0, 15)
+    canvas.drawText(txt_obj)
 
 def set_map(canvas, obj):
     if not obj.category.require_location: 
@@ -69,19 +82,36 @@ def set_avatar(canvas, obj):
     img = Image(avatar, 75, 75)
     img.drawOn(canvas, 334.5, 217.5)
 
-def set_socialnetworks(canvas, obj):
+def set_user(canvas, user):
     canvas.setFillColorRGB(0,0,0)
+    name = user.get_full_name() or user.username
+    width = 122
+    name_width = stringWidth(name, 'Helvetica-Bold', 12)
+    canvas.setFontSize(12)
+    center = (width - name_width)/2
+    set_bold_text(canvas, name, center + 310, 195, 12)
+    base_path = settings.BASE_DIR + '/static/images/print/'
+    cell = Image(base_path + 'cell.png', 10, 10)
+    cell.drawOn(canvas, 315, 175)
+    set_text(canvas, user.profile.phone, 330, 175, 8)
+
+    mail = Image(base_path + 'envelope.png', 10, 10)
+    set_text(canvas, user.email, 330, 160, 8)
+    mail.drawOn(canvas, 315, 160)
+
+def set_socialnetworks(canvas, obj):    
     networks = obj.user.profile.socialnetworkprofile_set.all()[:5]
-    y = 195
+    y = 145
     for network in networks:
         icon = network.social_network.get_last_image_by_code('print')
         if icon and icon.img:
             img = Image(icon.img.path, 10, 10)
-            img.drawOn(canvas, 320, y)
-        set_text(canvas, network.get_username(), 340, y, 12)
-        y -= 20
+            img.drawOn(canvas, 315, y)
+        set_text(canvas, network.get_username(), 330, y, 10)
+        y -= 15
 
 def set_text(canvas, text, x, y, size):
+    text = text or ''
     canvas.setFontSize(size)
     canvas.drawString(x, y, text)
 
@@ -109,9 +139,10 @@ def get_pdf(obj):
     set_bold_text(canvas, '$ ' + str(obj.price), 450, 750, 16)
     set_cover(canvas, obj)
     set_map(canvas, obj)
-    set_qrcode(canvas, obj)
     set_avatar(canvas, obj)
+    set_user(canvas, obj.user)
     set_socialnetworks(canvas, obj)
+    set_qrcode(canvas, obj)
     #set_points_grid(canvas)
     canvas.save()
         
