@@ -33,6 +33,7 @@ function setMap(lon, lat) {
             latitudeInput: $('#id_latitude'),
             locationNameInput: $('#id_address')
         },
+        addressFormat: "street_number",
         onchanged: function (currentLocation, radius, isMarkerDropped) {
             var addressComponents = $(this).locationpicker('map').location.addressComponents;            
             //console.log(currentLocation);  //latlon  
