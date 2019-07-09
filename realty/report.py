@@ -95,13 +95,27 @@ def set_user(canvas, user):
     cell.drawOn(canvas, 315, 175)
     set_text(canvas, user.profile.phone, 330, 175, 8)
 
+def set_socialnetworks(canvas, obj):
+    base_path = settings.BASE_DIR + '/static/images/print/'
+    y = 160
+    count=5
     mail = Image(base_path + 'envelope.png', 10, 10)
-    set_text(canvas, user.email, 330, 160, 8)
     mail.drawOn(canvas, 315, 160)
 
-def set_socialnetworks(canvas, obj):    
-    networks = obj.user.profile.socialnetworkprofile_set.all()[:5]
-    y = 145
+    canvas.setFontSize(10)
+    txt_obj = canvas.beginText()
+    txt_obj.setTextOrigin(330, y)
+    y -= 15
+    for char in obj.user.email:
+        txt_obj.textOut(char)
+        x = txt_obj.getX()
+        if x > 425:
+            txt_obj.moveCursor(0, 15)
+            y -= 15
+            count -= 1
+    canvas.drawText(txt_obj)
+    
+    networks = obj.user.profile.socialnetworkprofile_set.all()[:count]
     for network in networks:
         icon = network.social_network.get_last_image_by_code('print')
         if icon and icon.img:
