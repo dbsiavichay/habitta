@@ -210,3 +210,29 @@
     background-color: rgba(0,0,0,.7);    
     
 }
+
+/* Input prepend */
+.input-prepend {
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    width: 100%;
+    padding: 0px 0px 0px 45px;
+    border-radius: 6px;
+    color: #666;
+    font-size: 13px;
+    text-align: left;
+    display: flex;    
+}
+
+.input-prepend span {
+    padding: 15px 10px 15px 0;
+    white-space: nowrap;
+}
+
+.input-prepend input {
+    border:none!important;
+    background: white!important;
+    padding: 15px 5px!important;
+    margin-bottom: 0!important;
+
+}

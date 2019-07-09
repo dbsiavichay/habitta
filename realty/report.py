@@ -121,7 +121,7 @@ def set_socialnetworks(canvas, obj):
         if icon and icon.img:
             img = Image(icon.img.path, 10, 10)
             img.drawOn(canvas, 315, y)
-        set_text(canvas, network.get_username(), 330, y, 10)
+        set_text(canvas, network.username, 330, y, 10)
         y -= 15
 
 def set_text(canvas, text, x, y, size):

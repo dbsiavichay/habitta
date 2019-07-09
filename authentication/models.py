@@ -55,8 +55,7 @@ class SocialProfile(models.Model):
 class SocialNetworkProfile(models.Model):
 	social_network = models.ForeignKey(SocialNetwork, on_delete=models.CASCADE)
 	profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-	url = models.CharField(max_length=128)
+	username = models.CharField(max_length=128)
 
-	def get_username(self):
-		r = self.url.split(self.social_network.url)
-		return r[-1]
+	def get_url(self):
+		return '{}{}'.format(self.social_network.url, self.username)

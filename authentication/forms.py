@@ -102,7 +102,7 @@ class SocialNetworkProfileFormset(forms.BaseInlineFormSet):
         for form in self.forms:
             cleaned_data = form.clean()                     
             id = cleaned_data.get('id', None)
-            url = cleaned_data.get('url', None)
+            url = cleaned_data.get('username', None)
             if id and not url:
                 cleaned_data['DELETE'] = True
             
@@ -130,4 +130,4 @@ class SocialNetworkProfileForm(forms.ModelForm):
         else:
             social_network = social_networks.pop(0)
             self.fields['social_network'].initial = social_network
-            self.fields['url'].widget.attrs.update({'placeholder': social_network.url})
+            self.fields['username'].widget.attrs.update({'placeholder': 'Complete la url con su nombre de usuario unicamente.'})

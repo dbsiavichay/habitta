@@ -233,7 +233,7 @@
                     <div class="list-widget-social">
                         <ul>
                             {% for social in object.user.profile.socialnetworkprofile_set.all %}
-                            <li><a href="{{ social.url }}" target="_blank" ><i class="fa fa-{{ social.social_network.icon }}"></i></a></li>
+                            <li><a href="{{ social.get_url }}" target="_blank" ><i class="fa fa-{{ social.social_network.icon }}"></i></a></li>
                             {% endfor %}                                        
                         </ul>
                     </div>

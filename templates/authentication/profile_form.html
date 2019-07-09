@@ -58,8 +58,17 @@
                                     <i class="fa fa-{{ form.instance.social_network.icon }}"></i>
                                 </label>
                                 {% endif %}
+                                <div class="input-prepend"> 
+                                <span>
+                                    {% if form.instance.pk is None %}
+                                    {{ form.social_network.initial.url }}
+                                    {% else%}
+                                    {{ form.instance.social_network.url }}
+                                    {% endif %}
+                                </span>                               
+                                {{ form.username }}
+                                </div>
                                 {{ form.social_network }}
-                                {{ form.url }}
                             {% endfor %} 
 
                             <button class="btn  big-btn  color-bg flat-btn">Guardar<i class="fa fa-angle-right"></i></button>
