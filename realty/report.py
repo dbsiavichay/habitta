@@ -93,7 +93,7 @@ def set_user(canvas, user):
     base_path = settings.BASE_DIR + '/static/images/print/'
     cell = Image(base_path + 'cell.png', 10, 10)
     cell.drawOn(canvas, 315, 175)
-    set_text(canvas, user.profile.phone, 330, 175, 8)
+    set_text(canvas, user.profile.phone, 330, 175, 10)
 
 def set_socialnetworks(canvas, obj):
     base_path = settings.BASE_DIR + '/static/images/print/'
