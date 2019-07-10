@@ -62,6 +62,14 @@ class Specification(models.Model):
 		verbose_name_plural = 'especificaciones'
 		ordering = ['name',]
 
+class Group(models.Model):
+	name = models.CharField(max_length=64, verbose_name='nombre')
+	internal_name = models.CharField(max_length=64, verbose_name='nombre de uso interno')	
+	specifications = models.ManyToManyField(Specification, verbose_name='especifaciones para este grupo')
+
+	class Meta:
+		verbose_name = 'grupo'
+
 class Category(models.Model):	
 	class Meta:
 		verbose_name = 'categoría'
@@ -84,9 +92,19 @@ class Category(models.Model):
 	purposes = models.ManyToManyField(Purpose, blank=True, verbose_name='propósitos')
 	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
 	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
+	groups = models.ManyToManyField(Group, through='GroupCategory', blank=True, verbose_name='grupos de especificaciones')
 
 	def __str__(self):
 		return self.name
+
+class GroupCategory(models.Model):
+	group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name='grupo')
+	category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='categoría')
+	sequence = models.PositiveSmallIntegerField(verbose_name='secuencia')
+
+	class Meta:
+		verbose_name = 'grupo de categoría'
+		verbose_name_plural = 'grupos de categoría'
 
 class Property(ImageMixin, models.Model):
 	class Meta:
@@ -100,7 +118,7 @@ class Property(ImageMixin, models.Model):
 		(DRAFT, 'Borrador'), (PUBLISHED, 'Publicado'), (COMPLETE, 'Completado'),
 	)
 
-	title = models.CharField(max_length=32, verbose_name='título o nombre')
+	title = models.CharField(max_length=32, verbose_name='título, nombre, negocio, etc.')
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
 	negotiable = models.BooleanField(default=False, verbose_name='negociable?')
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
