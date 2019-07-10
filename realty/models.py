@@ -69,8 +69,14 @@ class Category(models.Model):
 
 	ICON_CHOICES = get_category_icons()
 
-	name = models.CharField(max_length=32, verbose_name='nombre')
-	singular_name = models.CharField(max_length=32, verbose_name='nombre singular')	
+	REAL_STATE, SERVICE = (1, 2)
+	KIND_CHOICES = (
+		(REAL_STATE, 'Inmobiliario'), (SERVICE, 'Servicio')
+	)
+	
+	kind = models.PositiveSmallIntegerField(choices=KIND_CHOICES, verbose_name='tipo')
+	name = models.CharField(max_length=64, verbose_name='nombre')
+	singular_name = models.CharField(max_length=64, verbose_name='nombre singular')	
 	enabled = models.BooleanField(default=True, verbose_name='habilitado?')
 	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	order = models.PositiveSmallIntegerField(verbose_name='orden')	
@@ -93,7 +99,8 @@ class Property(ImageMixin, models.Model):
 	STATUS_CHOICES = (
 		(DRAFT, 'Borrador'), (PUBLISHED, 'Publicado'), (COMPLETE, 'Completado'),
 	)
-	
+
+	title = models.CharField(max_length=32, verbose_name='título o nombre')
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
 	negotiable = models.BooleanField(default=False, verbose_name='negociable?')
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
