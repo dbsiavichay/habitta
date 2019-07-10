@@ -42,15 +42,15 @@ def set_cover(canvas, obj):
     img.drawOn(canvas, 23, 352)
 
 def set_qrcode(canvas, obj):
+    url = 'https://larbit.com%s' % obj.get_absolute_url()
     qr_image = obj.get_last_image_by_code('qrcode')
     if not qr_image or not qr_image.img:
-        qr = qrcode.make(obj.get_absolute_url())
+        qr = qrcode.make(url)
         qr_image = obj.add_image(qr, 'qrcode')
     img = Image(qr_image.img.path, 120, 110)
     img.drawOn(canvas, 449, 160)
     set_text(canvas, 'Ver más', 480, 280, 14)
 
-    url = 'https://larbit.com%s' % obj.get_absolute_url()
     canvas.setFontSize(12)
     txt_obj = canvas.beginText()
     txt_obj.setTextOrigin(450, 150)
