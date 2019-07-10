@@ -25,7 +25,8 @@ class PropertyViewMixin(object):
 
 		self.object = form.save(commit=False)
 		self.object.details = details
-		self.object.user = self.request.user
+		if not self.object.user:
+			self.object.user = self.request.user
 		self.object.category = self.category
 		self.object.save()
 
