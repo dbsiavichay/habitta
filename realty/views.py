@@ -19,7 +19,7 @@ from .report import get_pdf
 
 class ChooseCategoryListView(ListView):
 	model = Category
-	queryset = Category.objects.filter(enabled=True)
+	queryset = Category.objects.filter(enabled=True, kind=Category.REAL_STATE)
 	template_name = 'realty/choose_category.html'
 
 class PropertyListView(ListView):

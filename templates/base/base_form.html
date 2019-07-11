@@ -28,7 +28,17 @@
                             <h4>Información básica</h4>
                         </div>
                         <div class="custom-form">
-                            {% block visible_fields %}{% endblock %}
+                            {% block hidden_fields %}
+                            {% for field in form.hidden_fields %}
+                            {{ field }}
+                            {% endfor %}
+                            {% endblock %}
+
+                            {% block visible_fields %}
+                            {% for field in form.fields %}
+                            {% render_field field %}
+                            {% endfor %}
+                            {% endblock %}                            
                         </div>
                     </div>
                     <!-- profile-edit-container end-->                                      

@@ -19,6 +19,9 @@
                 <div class="breadcrumbs"><a href="{% url 'home' %}">Inicio</a><span>Selección de categoría</span></div>
             </div>
             <div class="box-cat-container">
+                <a href="{% url 'add_property' 1 %}?kind=2" class="box-cat">                    
+                    <h4 class="name">Servicio</h4>
+                </a>
                 {% for category in object_list %}
                 <!--box-cat-->
                 <a href="{% url 'add_property' category.pk %}" class="box-cat">

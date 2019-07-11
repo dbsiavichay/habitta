@@ -40,8 +40,8 @@ class Specification(models.Model):
 	ICON_CHOICES = get_larbit_icons()
 
 	FIELD_CHOICES = (		
-		('CharField', 'Texto'),('IntegerField', 'Número Entero'),
-		('ChoiceField', 'Selector'), ('ChoiceField:RadioSelect', 'RadioMultiple'), 
+		('CharField', 'Texto'),('IntegerField', 'Número Entero'), ('DecimalField', 'Número decimal'),
+		('BooleanField', 'Booleano'), ('ChoiceField', 'Selector'), ('ChoiceField:RadioSelect', 'RadioMultiple'), 
 		('FileField', 'Archivo'),
 	)	
 	
@@ -63,10 +63,13 @@ class Specification(models.Model):
 		ordering = ['name',]
 
 class Group(models.Model):
-	name = models.CharField(max_length=64, verbose_name='nombre')
+	name = models.CharField(max_length=32, verbose_name='nombre')
 	internal_name = models.CharField(max_length=64, verbose_name='nombre de uso interno')	
 	specifications = models.ManyToManyField(Specification, verbose_name='especifaciones para este grupo')
 
+	def __str__(self):
+		return self.name
+	
 	class Meta:
 		verbose_name = 'grupo'
 
@@ -119,8 +122,10 @@ class Property(ImageMixin, models.Model):
 	)
 
 	title = models.CharField(max_length=32, verbose_name='título, nombre, negocio, etc.')
+	### Esto borrar despues de ejecutar scritp en produccion
 	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
 	negotiable = models.BooleanField(default=False, verbose_name='negociable?')
+	#####
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
 	address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')
 	geopoint = models.PointField(blank=True, null=True)	
@@ -170,17 +175,3 @@ class Property(ImageMixin, models.Model):
 
 	def get_absolute_url(self):		
 		return reverse_lazy('detail_property', args=[str(self.id)])
-
-
-
-
-
-#Eliminar despues de subir a producción
-class PropertyImage(models.Model):
-	class Meta:
-		verbose_name = 'imagen'
-		verbose_name_plural = 'imagenes'
-
-	img = models.ImageField(upload_to='properties/images/', verbose_name='imagen')
-	is_cover = models.BooleanField(default=False, verbose_name='de portada?')
-	property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')

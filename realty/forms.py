@@ -2,7 +2,7 @@ from django.core.validators import FileExtensionValidator
 from django.forms import ( 
 	ModelForm, Form, 
 	ModelChoiceField, ModelMultipleChoiceField, 
-	CharField, IntegerField,FloatField, ChoiceField, BooleanField, FileField,
+	CharField, IntegerField, DecimalField, FloatField, ChoiceField, BooleanField, FileField,
 	ValidationError
 )
 from django.forms.widgets import (
@@ -82,7 +82,7 @@ class PropertyForm(ModelForm):
 
 	class Meta:
 		model = Property
-		exclude = ('user', 'geopoint', 'status', 'category')		
+		exclude = ('user', 'geopoint', 'status',)		
 
 	def __init__(self, *args, **kwargs):		
 		self.category = kwargs.pop('category', None)
@@ -154,11 +154,47 @@ class PropertyDetailsForm(Form):
 			attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
 			self.fields[key].widget.attrs.update(attrs)
 
+class PropertyDetailsForm2(Form):
+	def __init__(self, *args, **kwargs):
+		self.category = kwargs.pop('category', None)		
+		super().__init__(*args, **kwargs)
+
+		if self.category is None or not isinstance(self.category, Category): 
+			raise ValueError('Debe indicar una categoria')
+
+		for group in self.category.groups.all().order_by('groupcategory__sequence'):
+			self.generate_fields(group)
+
+	def generate_fields(self, group):
+		for specification in group.specifications.all():
+			key = str(specification.id)
+			try:
+				form_field, widget = specification.field_type.split(':')
+			except ValueError:
+				form_field = specification.field_type
+				widget = None			
+
+			self.fields[key] = eval(form_field)(
+				label = specification.name,
+				required = specification.is_required,
+				validators = [FileExtensionValidator(allowed_extensions=['pdf', 'dwg'])] if form_field == 'FileField' else []
+			)
+						
+			if widget: self.fields[key].widget = eval(widget)()
+			if specification.choices:
+				CHOICES = [(choice.strip(), choice.strip()) for choice in specification.choices.split(',')]
+				self.fields[key].choices = CHOICES
+			
+			pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None			
+			attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
+			self.fields[key].widget.attrs.update(attrs)
+			self[key].group = group.name
+
 	def get_not_empty_cleaned_data(self):
 		import time
 		if not self.cleaned_data:
 			return []
-		not_empty_cleaned_data = { key:self.cleaned_data[key] for key in self.cleaned_data if self.cleaned_data[key] }
+		not_empty_cleaned_data = { key:str(self.cleaned_data[key]) for key in self.cleaned_data if self.cleaned_data[key] }
 
 		for specification in self.category.specifications.all():
 			key = str(specification.id)

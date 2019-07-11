@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Specification, Service, Category, Purpose, Property, PropertyImage, Group, GroupCategory
+from .models import Specification, Service, Category, Purpose, Property, Group, GroupCategory
 from .forms import SpecificationForm, CategoryForm
 
 class SpecificationAdmin(admin.ModelAdmin):
@@ -7,7 +7,7 @@ class SpecificationAdmin(admin.ModelAdmin):
 	list_display = ['name', 'internal_name', 'is_required', 'order',]
 
 class GroupAdmin(admin.ModelAdmin):
-	pass
+	list_display = ['name', 'internal_name']
 	
 class ServiceAdmin(admin.ModelAdmin):
 	pass
@@ -25,14 +25,8 @@ class CategoryAdmin(admin.ModelAdmin):
 class PurposeAdmin(admin.ModelAdmin):
 	pass
 
-class PropertyImageInline(admin.TabularInline):
-    model = PropertyImage
-
 class PropertyAdmin(admin.ModelAdmin):
 	list_display = ('price', 'description', 'address', 'pub_date')
-	inlines = [
-		PropertyImageInline,
-	]
 
 admin.site.register(Specification, SpecificationAdmin)
 admin.site.register(Group, GroupAdmin)

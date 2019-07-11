@@ -2,7 +2,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
 from .models import Property, Category
-from .forms import PropertyForm, PropertyDetailsForm
+from .forms import PropertyForm, PropertyDetailsForm, PropertyDetailsForm2
 from multimedia.forms import CoverImageForm
 from project.models import Icons
 
@@ -21,11 +21,11 @@ class PropertyViewMixin(object):
 			'purpose': form.cleaned_data['purpose'].id,
 			'services': [service.id for service in form.cleaned_data['services']],
 			'specifications': details_form.get_not_empty_cleaned_data(),
-		}		
+		}	
 
 		self.object = form.save(commit=False)
 		self.object.details = details
-		if not self.object.user:
+		if not hasattr(self.object, 'user'):
 			self.object.user = self.request.user
 		self.object.category = self.category
 		self.object.save()
@@ -59,7 +59,7 @@ class PropertyViewMixin(object):
 		return kwargs
 
 	def get_details_form(self):	
-		form = PropertyDetailsForm(**self.get_kwargs(category=self.category))
+		form = PropertyDetailsForm2(**self.get_kwargs(category=self.category))
 		return form
 
 	def get_cover_form(self):				

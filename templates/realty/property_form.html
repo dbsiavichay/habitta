@@ -3,12 +3,7 @@
 
 {% block visible_fields %}
 {% render_field form.purpose %}
-{% render_field form.title icon='usd' %}
-{% render_field form.price icon='usd' %}
-<div class="fl-wrap filter-tags">    
-    {{ form.negotiable }}
-    <label for="{{form.negotiable.id_for_label}}">{{ form.negotiable.label }}</label>                      
-</div>
+{% render_field form.title %}
 {% render_field form.description %}
 {% endblock %}
 
@@ -40,14 +35,16 @@
 </div>
 <!-- profile-edit-container end-->
 
+{% load realtytags %}
+{% regroup details_form by group as group_list  %}
+{% for group in group_list %}
 <!-- profile-edit-container--> 
 <div class="profile-edit-container add-list-container">
     <div class="profile-edit-header fl-wrap">
-        <h4>Especificaciones </h4>
+        <h4>{{ group.grouper }} </h4>
     </div>
     <div class="custom-form">                                                    
-        {% load realtytags %}
-        {% for field in details_form %}
+        {% for field in group.list %}
             {% if field|widget_type == 'select' %}
                 {% render_field field class='chosen-select' %}
             {% else %}
@@ -57,6 +54,7 @@
     </div>
 </div>
 <!-- profile-edit-container end-->
+{% endfor %}
 
 <!-- profile-edit-container--> 
 <div class="profile-edit-container add-list-container">
