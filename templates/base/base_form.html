@@ -29,14 +29,18 @@
                         </div>
                         <div class="custom-form">
                             {% block hidden_fields %}
-                            {% for field in form.hidden_fields %}
-                            {{ field }}
+                            {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
                             {% endfor %}
                             {% endblock %}
 
                             {% block visible_fields %}
-                            {% for field in form.fields %}
-                            {% render_field field %}
+                            {% for field in form.visible_fields %}
+                            {% if field|widget_type == 'select' %}
+                                {% render_field field class='chosen-select' %}
+                            {% else %}
+                                {% render_field field %}
+                            {% endif %}
                             {% endfor %}
                             {% endblock %}                            
                         </div>

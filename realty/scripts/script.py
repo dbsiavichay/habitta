@@ -13,4 +13,4 @@ for a in acts:
 		'order':1,
 	}
 	c = Category.objects.create(**kwargs)
-	c.purposes.add(8)
+	c.purposes.add(3)

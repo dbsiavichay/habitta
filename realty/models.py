@@ -123,8 +123,8 @@ class Property(ImageMixin, models.Model):
 
 	title = models.CharField(max_length=32, verbose_name='título, nombre, negocio, etc.')
 	### Esto borrar despues de ejecutar scritp en produccion
-	price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='precio')
-	negotiable = models.BooleanField(default=False, verbose_name='negociable?')
+	price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name='precio')
+	negotiable = models.BooleanField(default=False, blank=True, null=True, verbose_name='negociable?')
 	#####
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
 	address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')

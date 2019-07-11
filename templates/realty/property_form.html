@@ -1,41 +1,21 @@
 {% extends 'base/base_form.html' %}
 {% load components %}
 
-{% block visible_fields %}
-{% render_field form.purpose %}
-{% render_field form.title %}
-{% render_field form.description %}
-{% endblock %}
 
-{% block location_fields %}
-{% if require_location %}
+{% block extra_fields %}
+{% if location_form %}
 <!-- profile-edit-container--> 
 <div class="profile-edit-container add-list-container">
     <div class="profile-edit-header fl-wrap">
         <h4>Localización</h4>
     </div>
     <div class="custom-form">                            
-        {% render_component template='components/map.html' address=form.address longitude=form.longitude latitude=form.latitude %}                            
+        {% render_component template='components/map.html' address=location_form.address longitude=location_form.longitude latitude=location_form.latitude %}                            
     </div>
 </div>
 <!-- profile-edit-container end-->
 {% endif %}
-{% endblock %}
 
-{% block extra_fields %}
-<!-- profile-edit-container--> 
-<div class="profile-edit-container add-list-container">
-    <div class="profile-edit-header fl-wrap">
-        <h4>Servicios </h4>
-    </div>
-    <div class="custom-form">                                                    
-        <!-- Checkboxes -->
-        {% render_field form.services title='Servicios' %}
-    </div>
-</div>
-<!-- profile-edit-container end-->
-
-{% load realtytags %}
 {% regroup details_form by group as group_list  %}
 {% for group in group_list %}
 <!-- profile-edit-container--> 
@@ -48,7 +28,7 @@
             {% if field|widget_type == 'select' %}
                 {% render_field field class='chosen-select' %}
             {% else %}
-                {% render_field field icon=field.name|icon %}
+                {% render_field field %}
             {% endif %}
         {% endfor %}
     </div>

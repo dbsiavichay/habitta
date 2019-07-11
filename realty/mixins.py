@@ -1,29 +1,39 @@
 from django.shortcuts import redirect, get_object_or_404
+from django.http import Http404
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
 from .models import Property, Category
-from .forms import PropertyForm, PropertyDetailsForm, PropertyDetailsForm2
+from .forms import PropertyForm, PropertyForm2, PropertyDetailsForm, PropertyDetailsForm2, LocationForm
 from multimedia.forms import CoverImageForm
 from project.models import Icons
 
 class PropertyViewMixin(object):
 	model = Property
-	form_class = PropertyForm
+	form_class = PropertyForm2
 	success_url = reverse_lazy('properties')
 
 	def form_valid(self, form):
 		details_form = self.get_details_form()
 		cover_form = self.get_cover_form()
-		if not details_form.is_valid() or not cover_form.is_valid():
+
+		location_valid = True
+		if self.category.require_location:
+			location_form = self.get_location_form()
+			location_valid = location_form.is_valid()
+
+		if not details_form.is_valid() or not cover_form.is_valid() or not location_valid:
 			return self.form_invalid(form)
 
 		details = {
 			'purpose': form.cleaned_data['purpose'].id,
-			'services': [service.id for service in form.cleaned_data['services']],
+			#'services': [service.id for service in form.cleaned_data['services']],
 			'specifications': details_form.get_not_empty_cleaned_data(),
 		}	
 
 		self.object = form.save(commit=False)
+		if self.category.require_location:
+			self.object.address = location_form.cleaned_data['address']
+			self.object.geopoint = location_form.get_geopoint()
 		self.object.details = details
 		if not hasattr(self.object, 'user'):
 			self.object.user = self.request.user
@@ -34,9 +44,11 @@ class PropertyViewMixin(object):
 		return redirect(self.object.get_absolute_url())
 
 	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)		
+		context = super().get_context_data(**kwargs)
+		if self.category.require_location:
+			context.update({'location_form': self.get_location_form(),})
+
 		context.update({
-			'require_location': self.category.require_location,			
 			'details_form': self.get_details_form(),
 			'cover_form': self.get_cover_form(),
 			'icons_url': get_active_icons_url()
@@ -52,14 +64,32 @@ class PropertyViewMixin(object):
 
 		return category
 
+	def get_kind(self):
+		pk = self.request.GET.get('kind')
+		if not pk:
+			return
+		try:
+			pk = int(pk)
+			if pk == Category.REAL_STATE or pk == Category.SERVICE:
+				return pk			
+		except:
+			pass
+
+		raise Http404
+
 	def get_form_kwargs(self):
+		self.kind = self.get_kind()
 		self.category = self.get_category()	
-		kwargs = super().get_form_kwargs()	
-		kwargs.update({'category': self.category})
+		kwargs = super().get_form_kwargs()			
+		kwargs.update({'category': self.category, 'kind': self.kind})
 		return kwargs
 
 	def get_details_form(self):	
 		form = PropertyDetailsForm2(**self.get_kwargs(category=self.category))
+		return form
+
+	def get_location_form(self):
+		form = LocationForm(**self.get_kwargs())
 		return form
 
 	def get_cover_form(self):				
