@@ -160,6 +160,22 @@ class Property(ImageMixin, models.Model):
 				})
 		return specifications
 
+	def get_specifications2(self):
+		specifications = []
+
+		for group in self.category.groups.all().order_by('groupcategory__sequence'):			
+			for spc in group.specifications.all():
+				key = str(spc.id)
+				if key in self.details['specifications']:
+					specifications.append({
+						'key': spc.name,
+						'value': self.details['specifications'][key],
+						'icon': spc.icon,
+						'require_payment': True if 'FileField' in spc.field_type else False,
+						'group': group.name
+					})
+		return specifications
+
 	def get_path_files(self):
 		files = []
 
@@ -169,9 +185,9 @@ class Property(ImageMixin, models.Model):
 				files.append(self.details['specifications'][key])
 		return files
 
-	def get_services(self):
-		services =	Service.objects.filter(pk__in=self.details['services'])		
-		return services
+	# def get_services(self):
+	# 	services =	Service.objects.filter(pk__in=self.details['services'])		
+	# 	return services
 
 	def get_absolute_url(self):		
 		return reverse_lazy('detail_property', args=[str(self.id)])

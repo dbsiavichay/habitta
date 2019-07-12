@@ -37,7 +37,7 @@ class PropertyViewMixin(object):
 		self.object.details = details
 		if not hasattr(self.object, 'user'):
 			self.object.user = self.request.user
-		self.object.category = self.category
+		#self.object.category = self.category
 		self.object.save()
 
 		self.save_cover(cover_form, self.object)

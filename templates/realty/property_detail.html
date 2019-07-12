@@ -84,7 +84,7 @@
         <p>{{ object.description|linebreaks }}</p>      
 
         <span class="fw-separator"></span>
-        <div class="list-single-main-item-title fl-wrap">
+        <!-- <div class="list-single-main-item-title fl-wrap">
             <h3>Servicios</h3>
         </div>
         <div class="listing-features fl-wrap">
@@ -93,7 +93,7 @@
                 <li><i class="lb-{{ service.icon }}"></i> {{ service.name }}</li>
                 {% endfor %}                                
             </ul>
-        </div>        
+        </div>  -->       
     </div>
 
     <div class="list-single-main-item fl-wrap" id="sec3">
@@ -159,39 +159,41 @@
 {% endblock %}
 {% block aside_content %}
 <div class="box-widget-wrap">    
+    {% if object.category.require_location %}
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
         <div class="box-widget-item-header">
-            <h3>
-                <i class="fa fa-usd"></i> Precio : {{ object.price }}
-                {% if object.negotiable %}
-                <div class="btn flat-btn" style="display: inline-block;padding: 0 10px;    background: #efb810;">
-                    Negociable
-                </div>
-                {% endif %}
-            </h3>
-        </div>        
-    </div>
-    <!--box-widget-item end -->    
-                                         
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3><i class="fa fa-leaf"></i> Especificaciones : </h3>
+            <h3><i class="fa fa-leaf"></i> Localización : </h3>
         </div>
         <div class="box-widget">
-            {% if object.category.require_location %}
+            
             <div class="map-container">
                 <div id="singleMap" data-longitude="{{ object.geopoint.x }}" data-latitude="{{ object.geopoint.y }}" data-mapTitle="Out Location"></div>
+            </div>            
+            <div class="box-widget-content">
+                <div class="list-author-widget-contacts list-item-widget-contacts">
+                    <ul>                        
+                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>
+                    </ul>
+                </div>                
             </div>
-            {% endif %}
+        </div>
+    </div>
+    <!--box-widget-item end -->  
+    {% endif %}
+               
+    {% regroup object.get_specifications2 by group as group_list  %}  
+    {% for group in group_list %}                        
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-leaf"></i> {{ group.grouper}} : </h3>
+        </div>
+        <div class="box-widget">
             <div class="box-widget-content">
                 <div class="list-author-widget-contacts list-item-widget-contacts">
                     <ul>
-                        {% if object.category.require_location %}
-                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>
-                        {% endif %}
-                        {% for spc in object.get_specifications %}
+                        {% for spc in group.list %}
                         <li>
                             <span class=""><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</span>
                             {% if not spc.require_payment %}
@@ -206,7 +208,9 @@
             </div>
         </div>
     </div>
-    <!--box-widget-item end -->                            
+    <!--box-widget-item end -->
+    {% endfor %}
+
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
         <div class="box-widget-item-header">
