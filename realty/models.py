@@ -63,8 +63,11 @@ class Specification(models.Model):
 		ordering = ['name',]
 
 class Group(models.Model):
+	COLUMNS_CHOICES = (('col-xs-12', '1'),('col-xs-6', '2'),('col-xs-4', '3'))
+
 	name = models.CharField(max_length=32, verbose_name='nombre')
 	internal_name = models.CharField(max_length=64, verbose_name='nombre de uso interno')	
+	columns = models.CharField(max_length=16, choices=COLUMNS_CHOICES, default='col-xs-12', verbose_name='número de columnas')
 	specifications = models.ManyToManyField(Specification, verbose_name='especifaciones para este grupo')
 
 	def __str__(self):
@@ -102,7 +105,7 @@ class Category(models.Model):
 
 class GroupCategory(models.Model):
 	group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name='grupo')
-	category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='categoría')
+	category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='categoría')	
 	sequence = models.PositiveSmallIntegerField(verbose_name='secuencia')
 
 	class Meta:

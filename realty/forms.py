@@ -246,6 +246,8 @@ class PropertyDetailsForm2(Form):
 			attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
 			self.fields[key].widget.attrs.update(attrs)
 			self[key].group = group.name
+			self[key].columns = group.columns
+
 
 	def get_not_empty_cleaned_data(self):
 		import time

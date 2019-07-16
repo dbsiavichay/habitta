@@ -23,14 +23,18 @@
     <div class="profile-edit-header fl-wrap">
         <h4>{{ group.grouper }} </h4>
     </div>
-    <div class="custom-form">                                                    
-        {% for field in group.list %}
-            {% if field|widget_type == 'select' %}
-                {% render_field field class='chosen-select' %}
-            {% else %}
-                {% render_field field %}
-            {% endif %}
-        {% endfor %}
+    <div class="custom-form"> 
+        <div class="row">
+            {% for field in group.list %}
+            <div class="{{ field.columns }}">                            
+                {% if field|widget_type == 'select' %}
+                    {% render_field field class='chosen-select' %}
+                {% else %}
+                    {% render_field field %}
+                {% endif %}
+            </div>           
+            {% endfor %} 
+        </div>                                                   
     </div>
 </div>
 <!-- profile-edit-container end-->
