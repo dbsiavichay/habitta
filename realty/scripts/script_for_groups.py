@@ -1,4 +1,4 @@
-from realty.models import Category, Group
+from realty.models import Category, Group, GroupCategory
 
 g = Group.objects.get(pk=1)
 
