@@ -10,7 +10,10 @@ from django.forms.widgets import (
 	Select, RadioSelect,
 	CheckboxSelectMultiple
 )
-from .models import Specification, Category, Purpose, Property, Service
+
+from .widgets import ColumnCheckboxSelectMultiple
+
+from .models import Specification, Group, Category, Purpose, Property, Service
 from django.contrib.gis.geos import Point
 
 from django.core.files.storage import FileSystemStorage
@@ -26,6 +29,14 @@ class SpecificationMultipleChoiceField(ModelMultipleChoiceField):
 	def label_from_instance(self, obj):
 		return obj.internal_name
 #####
+
+class GroupForm(ModelForm):
+	class Meta:
+		model = Group
+		fields = '__all__'
+		widgets = {
+			'specifications': ColumnCheckboxSelectMultiple(columns=4, css_class='col-md-3', wrapper_css_class='row',)			
+		}
 
 class CategoryForm(ModelForm):
 	specifications = SpecificationMultipleChoiceField(

@@ -79,7 +79,7 @@ class Group(models.Model):
 class Category(models.Model):	
 	class Meta:
 		verbose_name = 'categoría'
-		ordering = ('order',)
+		ordering = ('kind', 'name',)
 
 	ICON_CHOICES = get_category_icons()
 
