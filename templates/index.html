@@ -35,7 +35,7 @@
                         <div class="main-search-input">
                             {{ search_form.purpose|add_class:"custom-select" }}
                         </div>
-                        <div class="main-search-input">
+                        <div id="search-category" class="main-search-input">
                             {{ search_form.category|add_class:"custom-select" }}
                         </div>
                         <div class="main-search-input location" id="autocomplete-container">
@@ -458,7 +458,5 @@
             itemSelectText: '',
             shouldSort: false,                    
         });
-
-        
     </script>
 {% endblock %}

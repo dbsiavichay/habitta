@@ -9,7 +9,7 @@ from django.views.generic import (
 from multimedia.forms import ImageForm
 
 
-from .models import Category, Property
+from .models import Category, Property, Purpose
 from .forms import FinderForm
 from .mixins import PropertyViewMixin, get_active_icons_url
 
@@ -113,4 +113,12 @@ class FinderListView(FormView) :
 
 	def post(self, request, *args, **kwargs):
 		return self.get(request, *args, **kwargs)
+
+def filter_category_by_purpose(request, pk, klass):
+	from django.template.loader import render_to_string	
+	purpose = get_object_or_404(Purpose, pk=pk)
+	form = FinderForm(initial={'purpose': purpose})
+	r = render_to_string('components/realty/category_by_purpose.html', context={'form':form, 'klass':klass})
+	
+	return JsonResponse({'select': r}, status=200)
 

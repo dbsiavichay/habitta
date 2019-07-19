@@ -291,3 +291,10 @@ class FinderForm(Form):
 		required = False
 	)
 	address = CharField(required=False)
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		if 'purpose' in self.initial:
+			queryset = self.fields['category'].queryset
+			self.fields['category'].queryset = queryset.filter(purposes=self.initial['purpose'])
+

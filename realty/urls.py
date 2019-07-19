@@ -5,7 +5,7 @@ from .views import (
 	ChooseCategoryListView, 
 	PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView, PropertyPrintView, PropertyDeleteView,
 	PropertyFavoriteListView,
-	FinderListView,
+	FinderListView, filter_category_by_purpose
 )
 
 urlpatterns = [
@@ -19,4 +19,5 @@ urlpatterns = [
 	path('favorite/properties/', login_required(PropertyFavoriteListView.as_view()), name='favorite_properties'),
 		
 	path('finder/', FinderListView.as_view(), name='finder'),
+	path('finder/purpose/<int:pk>/<slug:klass>/', filter_category_by_purpose, name='finder_by_purpose'),
 ]

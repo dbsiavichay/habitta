@@ -304,7 +304,10 @@ handleTweets(arrayTweets);inProgress=false;if(queue.length>0){twitterFetcher.fet
                 $option.addClass('selected');
                 var text = $option.data('display') || $option.text();
                 $dropdown.find('.current').text(text);
-                $dropdown.prev('select').val($option.data('value')).trigger('change');
+                //$dropdown.prev('select').val($option.data('value'))
+                $dropdown.prev('select').val($option.data('value'));
+                var changeEvent = new Event('change');
+                $dropdown.prev('select')[0].dispatchEvent(changeEvent)
             }
         });
 
