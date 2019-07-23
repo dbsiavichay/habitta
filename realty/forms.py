@@ -13,7 +13,7 @@ from django.forms.widgets import (
 
 from .widgets import ColumnCheckboxSelectMultiple
 
-from .models import Specification, Group, Category, Purpose, Property, Service
+from .models import Specification, Group, Category, Purpose, Property
 from django.contrib.gis.geos import Point
 
 from django.core.files.storage import FileSystemStorage
@@ -39,19 +39,11 @@ class GroupForm(ModelForm):
 		}
 
 class CategoryForm(ModelForm):
-	specifications = SpecificationMultipleChoiceField(
-		queryset = Specification.objects.all(),
-		label = 'Especificaciones',
-		widget = CheckboxSelectMultiple,
-		required = False,
-	)
-
 	class Meta:
 		model = Category
 		fields = '__all__'
 		widgets = {
 			'purposes': CheckboxSelectMultiple,
-			'services': CheckboxSelectMultiple,			
 		}
 
 class SpecificationForm(ModelForm):
@@ -74,72 +66,7 @@ class SpecificationForm(ModelForm):
 
 		return self.cleaned_data
 
-class PropertyForm(ModelForm):
-	longitude = FloatField(widget=HiddenInput)
-	latitude = FloatField(widget=HiddenInput)
-	purpose = ModelChoiceField(
-		label = '¿Que desea hacer?',
-		empty_label = None,
-		widget = RadioSelect,
-		queryset = Purpose.objects.none(),
-		required = True,
-
-	)
-	services = ModelMultipleChoiceField(
-		widget = CheckboxSelectMultiple,
-		queryset = Service.objects.none(),
-		required = False
-	)
-
-	class Meta:
-		model = Property
-		exclude = ('user', 'geopoint', 'address', 'details', 'status',)		
-
-	def __init__(self, *args, **kwargs):		
-		self.category = kwargs.pop('category', None)
-		self.kind = kwargs.pop('kind', None)
-		super().__init__(*args, **kwargs)						
-		if self.kind and self.kind == Category.SERVICE:
-			queryset = self.fields['category'].queryset.filter(kind=self.kind)
-			self.fields['category'].queryset = queryset
-		else:
-			purposes = self.category.purposes
-			services = self.category.services
-			self.fields['purpose'].queryset = purposes		 
-			self.fields['services'].queryset = services		
-			self.fields['category'].initial = self.category
-			self.fields['category'].widget = HiddenInput()
-
-
-		if self.instance.pk:
-			try:
-				self.fields['purpose'].initial = self.instance.details['purpose']
-			except KeyError:
-				pass
-			try:
-				self.fields['services'].initial = self.instance.details['services']
-			except KeyError:
-				pass
-
-		if not self.category.require_location:
-			self.fields['longitude'].required = False
-			self.fields['latitude'].required = False
-
-		if self.instance.geopoint is not None:
-			self.fields['longitude'].initial = self.instance.geopoint.x
-			self.fields['latitude'].initial = self.instance.geopoint.y 
-
-		#self.fields['purpose'].choices = ((obj.id, obj) for obj in self.fields['purpose'].choices.queryset)		
-
-	def save(self, commit=True):
-		property = super().save(commit=False)
-		if self.category.require_location:		
-			property.geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])
-		if commit:
-			property.save()            
-		return property
-
-class PropertyForm2(ModelForm):	
+class PropertyForm(ModelForm):	
 	purpose = ModelChoiceField(
 		label = '¿Que desea hacer?',
 		empty_label = None,
@@ -151,7 +78,6 @@ class PropertyForm2(ModelForm):
 
 	class Meta:
 		model = Property
-		#exclude = ('user', 'geopoint', 'address', 'details', 'status', 'price', 'negotiable')
 		fields = ('category', 'purpose', 'title', 'description',)		
 
 	def __init__(self, *args, **kwargs):		
@@ -191,50 +117,19 @@ class LocationForm(Form):
 		geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])		
 		return geopoint	
 
-class PropertyDetailsForm(Form):
+
+class GroupDetailsForm(Form):
 	def __init__(self, *args, **kwargs):
-		self.category = kwargs.pop('category', None)		
+		self.group = kwargs.pop('group')		
 		super().__init__(*args, **kwargs)
 
-		if self.category is None or not isinstance(self.category, Category): 
-			raise ValueError('Debe indicar una categoria')
+		if not self.group or not isinstance(self.group, Group): 
+			raise ValueError('Debe indicar una grupo.')
 
-		for specification in self.category.specifications.all().order_by('field_type'):
-			key = str(specification.id)
-			try:
-				form_field, widget = specification.field_type.split(':')
-			except ValueError:
-				form_field = specification.field_type
-				widget = None			
+		self.generate_fields()
 
-			self.fields[key] = eval(form_field)(
-				label = specification.name,
-				required = specification.is_required,
-				validators = [FileExtensionValidator(allowed_extensions=['pdf', 'dwg'])] if form_field == 'FileField' else []
-			)
-						
-			if widget: self.fields[key].widget = eval(widget)()
-			if specification.choices:
-				CHOICES = [(choice, choice) for choice in specification.choices.split(',')]
-				self.fields[key].choices = CHOICES
-			
-			pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None			
-			attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
-			self.fields[key].widget.attrs.update(attrs)
-
-class PropertyDetailsForm2(Form):
-	def __init__(self, *args, **kwargs):
-		self.category = kwargs.pop('category', None)		
-		super().__init__(*args, **kwargs)
-
-		if self.category is None or not isinstance(self.category, Category): 
-			raise ValueError('Debe indicar una categoria')
-
-		for group in self.category.groups.all().order_by('groupcategory__sequence'):
-			self.generate_fields(group)
-
-	def generate_fields(self, group):
-		for specification in group.specifications.all():
+	def generate_fields(self):
+		for specification in self.group.specifications.all():
 			key = str(specification.id)
 			try:
 				form_field, widget = specification.field_type.split(':')
@@ -256,8 +151,8 @@ class PropertyDetailsForm2(Form):
 			pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None			
 			attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
 			self.fields[key].widget.attrs.update(attrs)
-			self[key].group = group.name
-			self[key].columns = group.columns
+			#self['form_name'] = self.group.name
+			self[key].columns = self.group.columns
 
 
 	def get_not_empty_cleaned_data(self):
@@ -266,7 +161,7 @@ class PropertyDetailsForm2(Form):
 			return []
 		not_empty_cleaned_data = { key:str(self.cleaned_data[key]) for key in self.cleaned_data if self.cleaned_data[key] }
 
-		for specification in self.category.specifications.all():
+		for specification in self.group.specifications.all():
 			key = str(specification.id)
 			if 'FileField' in specification.field_type:
 				uploaded_file = self.cleaned_data[key]
@@ -280,21 +175,21 @@ class PropertyDetailsForm2(Form):
 		return not_empty_cleaned_data
 
 class FinderForm(Form):
-	purpose = PurposeChoiceField(
+	search_purpose = PurposeChoiceField(
 		queryset = Purpose.objects.all(),
 		empty_label = '¿Que deseas hacer?',
 		required = False
 	)
-	category = ModelChoiceField(
+	search_category = ModelChoiceField(
 		queryset = Category.objects.all(),
 		empty_label = 'Todas las categorías',		
 		required = False
 	)
-	address = CharField(required=False)
+	search_address = CharField(required=False)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		if 'purpose' in self.initial:
-			queryset = self.fields['category'].queryset
-			self.fields['category'].queryset = queryset.filter(purposes=self.initial['purpose'])
+		if 'search_purpose' in self.initial:
+			queryset = self.fields['search_category'].queryset
+			self.fields['search_category'].queryset = queryset.filter(purposes=self.initial['search_purpose'])
 

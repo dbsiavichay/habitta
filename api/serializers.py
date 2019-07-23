@@ -3,7 +3,7 @@ from realty.models import Property
 
 class PropertySerializer(serializers.ModelSerializer):
 	url = serializers.URLField(source='get_absolute_url')
-	price = serializers.CharField()
+	price = serializers.CharField(default='0')
 	category = serializers.SlugRelatedField(slug_field='singular_name', read_only=True)
 	cover = serializers.URLField(source='get_cover')
 	purpose = serializers.CharField(source='get_purpose.activity')	

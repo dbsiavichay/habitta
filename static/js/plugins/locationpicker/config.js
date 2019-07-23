@@ -19,7 +19,7 @@ $('#id_address, #id_latitude, #id_longitude').keydown(function (e) {
     if (e.keyCode == 13) e.preventDefault();
 });
 
-function setMap(lon, lat) {    
+function setMap(lon, lat) {   
     var l = $('#inputMap').locationpicker({
         location: {
             latitude: lat,

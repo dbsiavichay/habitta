@@ -28,7 +28,6 @@ urlpatterns = [
     path('messenger/', include('messenger.urls')),
     path('realty/', include('realty.urls')),
     path('auctions/', include('auctions.urls')),
-    path('services/', include('services.urls')),
     path('multimedia/', include('multimedia.urls')),
     path('logs/', include('logs.urls')),    
     path('payments/', include('payments.urls')),    

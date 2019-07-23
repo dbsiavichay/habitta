@@ -3,17 +3,17 @@ from django.http import Http404
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
 from .models import Property, Category
-from .forms import PropertyForm, PropertyForm2, PropertyDetailsForm, PropertyDetailsForm2, LocationForm
+from .forms import PropertyForm, GroupDetailsForm, LocationForm
 from multimedia.forms import CoverImageForm
 from project.models import Icons
 
 class PropertyViewMixin(object):
 	model = Property
-	form_class = PropertyForm2
+	form_class = PropertyForm
 	success_url = reverse_lazy('properties')
 
 	def form_valid(self, form):
-		details_form = self.get_details_form()
+		details_forms = self.get_details_forms()
 		cover_form = self.get_cover_form()
 
 		location_valid = True
@@ -21,13 +21,15 @@ class PropertyViewMixin(object):
 			location_form = self.get_location_form()
 			location_valid = location_form.is_valid()
 
-		if not details_form.is_valid() or not cover_form.is_valid() or not location_valid:
+		for dform in details_forms:
+			if not dform.is_valid(): self.form_invalid(form)
+
+		if not cover_form.is_valid() or not location_valid:
 			return self.form_invalid(form)
 
 		details = {
 			'purpose': form.cleaned_data['purpose'].id,
-			#'services': [service.id for service in form.cleaned_data['services']],
-			'specifications': details_form.get_not_empty_cleaned_data(),
+			'specifications': self.get_form_specifications(details_forms),
 		}	
 
 		self.object = form.save(commit=False)
@@ -43,16 +45,27 @@ class PropertyViewMixin(object):
 		self.save_cover(cover_form, self.object)
 		return redirect(self.object.get_absolute_url())
 
+	def get_form_specifications(self, forms):
+		specifications = {}
+		for form in forms:
+			specifications.update(form.get_not_empty_cleaned_data())
+
+		return specifications
+
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		if self.category.require_location:
 			context.update({'location_form': self.get_location_form(),})
 
-		context.update({
-			'details_form': self.get_details_form(),
+		context.update({			
 			'cover_form': self.get_cover_form(),
 			'icons_url': get_active_icons_url()
-		})			
+		})
+
+		if not self.get_kind():
+			context.update({
+				'details_forms': self.get_details_forms(),				
+			})			
 		return context
 	
 	def get_category(self):
@@ -84,9 +97,12 @@ class PropertyViewMixin(object):
 		kwargs.update({'category': self.category, 'kind': self.kind})
 		return kwargs
 
-	def get_details_form(self):	
-		form = PropertyDetailsForm2(**self.get_kwargs(category=self.category))
-		return form
+	def get_details_forms(self):	
+		forms = []
+		for group in self.category.groups.all().order_by('groupcategory__sequence'):			
+			form = GroupDetailsForm(**self.get_kwargs(group=group))
+			forms.append(form)
+		return forms
 
 	def get_location_form(self):
 		form = LocationForm(**self.get_kwargs())

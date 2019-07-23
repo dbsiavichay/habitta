@@ -84,4 +84,16 @@
 
 <script type="text/javascript" src="{% static 'plugins/cropper/cropper.js' %}"></script>    
 <script type="text/javascript" src="{% static 'plugins/cropper/config.js' %}"></script>
+
+<script>
+    function render_details_form() {
+        $.get('/realty/render/details/' + this.value + '/category/', function (data) {
+            var container = document.getElementById('details-form');
+            container.innerHTML = '';
+            container.insertAdjacentHTML('afterbegin', data.form);
+        });
+    }
+
+    document.getElementById('id_category').addEventListener('change', render_details_form);
+</script>
 {% endblock %}

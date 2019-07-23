@@ -16,29 +16,9 @@
 <!-- profile-edit-container end-->
 {% endif %}
 
-{% regroup details_form by group as group_list  %}
-{% for group in group_list %}
-<!-- profile-edit-container--> 
-<div class="profile-edit-container add-list-container">
-    <div class="profile-edit-header fl-wrap">
-        <h4>{{ group.grouper }} </h4>
-    </div>
-    <div class="custom-form"> 
-        <div class="row">
-            {% for field in group.list %}
-            <div class="{{ field.columns }}">                            
-                {% if field|widget_type == 'select' %}
-                    {% render_field field class='chosen-select' %}
-                {% else %}
-                    {% render_field field %}
-                {% endif %}
-            </div>           
-            {% endfor %} 
-        </div>                                                   
-    </div>
+<div id="details-form">
+{% include 'components/realty/publication_details.html' with forms=details_forms %}   
 </div>
-<!-- profile-edit-container end-->
-{% endfor %}
 
 <!-- profile-edit-container--> 
 <div class="profile-edit-container add-list-container">

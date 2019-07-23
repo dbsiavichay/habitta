@@ -35,14 +35,14 @@
                     <input type="text" placeholder="Palabras clave?" value=""/>
                 </div> -->
                 <div class="listsearch-input-item">
-                    {{ form.purpose|add_class:"chosen-select" }}                    
+                    {{ form.search_purpose|add_class:"chosen-select" }}                    
                 </div>
                 <div id="search-category" class="listsearch-input-item">
-                    {{ form.category|add_class:"chosen-select" }}                    
+                    {{ form.search_category|add_class:"chosen-select" }}                    
                 </div>
                 <div class="listsearch-input-text" id="autocomplete-container">
                     <label><i class="mbri-map-pin"></i>Ingrese una dirección </label>
-                    {{ form.address|attr:"id:ac_address"|add_class:"qodef-archive-places-search"|append_attr:"placeholder:Destino, cuidad, área" }}                    
+                    {{ form.search_address|attr:"id:ac_address"|add_class:"qodef-archive-places-search"|append_attr:"placeholder:Destino, cuidad, área" }}                    
                     <a  href="#" class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
                 </div>
                 <!-- hidden-listing-filter -->

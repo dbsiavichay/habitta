@@ -15,7 +15,7 @@ gtag('js', new Date());
 gtag('config', 'AW-748511396');
 </script>
 <script>
-document.getElementById('id_purpose').addEventListener('change', function() {
+document.getElementById('id_search_purpose').addEventListener('change', function() {
     var pk = this.value;
     klass = this.getAttribute('class').split(' ')[0]
     $.get('/realty/finder/purpose/' + pk + '/' + klass + '/', function (data){
@@ -23,12 +23,12 @@ document.getElementById('id_purpose').addEventListener('change', function() {
         container.innerText = '';
         container.insertAdjacentHTML('afterbegin', data.select);
         if(window.hasOwnProperty('Choices')) {
-	        new Choices('#id_category', {
+	        new Choices('#id_search_category', {
 	            itemSelectText: '',
 	            shouldSort: false,                    
 	        });        	
         }
-        $('#id_category').niceSelect();
+        $('#id_search_category').niceSelect();
     })
 });
 </script>

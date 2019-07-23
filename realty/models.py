@@ -23,18 +23,18 @@ class Purpose(models.Model):
 	def __str__(self):
 		return self.for_owner
 
-class Service(models.Model):
-	ICON_CHOICES = get_larbit_icons()
+# class Service(models.Model):
+# 	ICON_CHOICES = get_larbit_icons()
 
-	name = models.CharField(max_length=32, verbose_name='nombre')
-	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='ícono')
+# 	name = models.CharField(max_length=32, verbose_name='nombre')
+# 	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='ícono')
 
-	def __str__(self):
-		return self.name
+# 	def __str__(self):
+# 		return self.name
 
-	class Meta:
-		verbose_name = 'servicio'
-		ordering = ('name',)
+# 	class Meta:
+# 		verbose_name = 'servicio'
+# 		ordering = ('name',)
 
 class Specification(models.Model):
 	ICON_CHOICES = get_larbit_icons()
@@ -77,10 +77,6 @@ class Group(models.Model):
 		verbose_name = 'grupo'
 
 class Category(models.Model):	
-	class Meta:
-		verbose_name = 'categoría'
-		ordering = ('kind', 'name',)
-
 	ICON_CHOICES = get_category_icons()
 
 	REAL_STATE, SERVICE = (1, 2)
@@ -89,19 +85,21 @@ class Category(models.Model):
 	)
 	
 	kind = models.PositiveSmallIntegerField(choices=KIND_CHOICES, verbose_name='tipo')
-	name = models.CharField(max_length=64, verbose_name='nombre')
+	name = models.CharField(max_length=64, verbose_name='nombre', unique=True)
 	singular_name = models.CharField(max_length=64, verbose_name='nombre singular')	
 	enabled = models.BooleanField(default=True, verbose_name='habilitado?')
 	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	order = models.PositiveSmallIntegerField(verbose_name='orden')	
 	require_location = models.BooleanField(default=True, verbose_name='requiere ubicación?')
 	purposes = models.ManyToManyField(Purpose, blank=True, verbose_name='propósitos')
-	services = models.ManyToManyField(Service, blank=True, verbose_name='servicios')
-	specifications = models.ManyToManyField(Specification, blank=True, verbose_name='especificaciones')
 	groups = models.ManyToManyField(Group, through='GroupCategory', blank=True, verbose_name='grupos de especificaciones')
 
 	def __str__(self):
 		return self.name
+
+	class Meta:
+		verbose_name = 'categoría'
+		ordering = ('kind', 'name',)
 
 class GroupCategory(models.Model):
 	group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name='grupo')
@@ -125,10 +123,6 @@ class Property(ImageMixin, models.Model):
 	)
 
 	title = models.CharField(max_length=32, verbose_name='título, nombre, negocio, etc.')
-	### Esto borrar despues de ejecutar scritp en produccion
-	price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name='precio')
-	negotiable = models.BooleanField(default=False, blank=True, null=True, verbose_name='negociable?')
-	#####
 	description = models.TextField(blank=True, null=True, verbose_name='descripción')
 	address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')
 	geopoint = models.PointField(blank=True, null=True)	

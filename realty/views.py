@@ -6,11 +6,13 @@ from django.views.generic import (
 	ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
 )
 
+from django.template.loader import render_to_string
+
 from multimedia.forms import ImageForm
 
 
 from .models import Category, Property, Purpose
-from .forms import FinderForm
+from .forms import FinderForm, GroupDetailsForm
 from .mixins import PropertyViewMixin, get_active_icons_url
 
 from logs.models import Log
@@ -38,16 +40,17 @@ class PropertyCreateView(PropertyViewMixin, CreateView):
 		return super().get(request, *args, **kwargs)
 
 class PropertyUpdateView(PropertyViewMixin, UpdateView):	
-	def get_details_form(self):
-		form = super().get_details_form()
+	def get_details_forms(self):
+		forms = super().get_details_forms()
 		if self.request.method == 'GET':
 			try:
-				initials = self.object.details['specifications']				
-				form.initial = initials
+				initials = self.object.details['specifications']
+				for form in forms:				
+					form.initial = initials
 			except KeyError:
 				pass
 
-		return form
+		return forms
 
 	def get_cover_form(self):
 		form = super().get_cover_form()
@@ -114,11 +117,39 @@ class FinderListView(FormView) :
 	def post(self, request, *args, **kwargs):
 		return self.get(request, *args, **kwargs)
 
-def filter_category_by_purpose(request, pk, klass):
-	from django.template.loader import render_to_string	
+
+##Ajax components
+def filter_category_by_purpose(request, pk, klass):	
 	purpose = get_object_or_404(Purpose, pk=pk)
-	form = FinderForm(initial={'purpose': purpose})
+	form = FinderForm(initial={'search_purpose': purpose})
 	r = render_to_string('components/realty/category_by_purpose.html', context={'form':form, 'klass':klass})
 	
 	return JsonResponse({'select': r}, status=200)
+
+class DetailsView(FormView):
+	form_class = GroupDetailsForm
+	http_method_names = ['get',]
+
+	def get(self, request, *args, **kwargs):
+		if not self.request.is_ajax(): raise Http404
+		forms = []
+		for group in self.get_groups():
+			forms.append(self.get_form(group))
+		r = render_to_string('components/realty/publication_details.html', context={'forms':forms})
+		return JsonResponse({'form': r}, status=200)
+
+	def get_groups(self):
+		pk = self.kwargs.get('category')		   	
+		category = get_object_or_404(Category, pk=pk)
+		groups = category.groups.all().order_by('groupcategory__sequence')
+		return groups
+
+	def get_form(self, group, form_class=None):
+		if form_class is None:
+			form_class = self.get_form_class()
+		kwargs = self.get_form_kwargs()
+		kwargs['group'] = group
+		return form_class(**kwargs)
+		
+
 

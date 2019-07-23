@@ -79,8 +79,8 @@ var infobox;
 
 var getSearchUrl = function () {
 	var url = '/api/properties/';
-	var category = document.getElementById('id_category').value;
-	var purpose = document.getElementById('id_purpose').value;
+	var category = document.getElementById('id_search_category').value;
+	var purpose = document.getElementById('id_search_purpose').value;
 	var address = document.getElementById('ac_address').value;
 
 	if (!category && !purpose && !address) return url;

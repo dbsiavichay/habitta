@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Specification, Category, Purpose, Property, Group, GroupCategory
+
 from .forms import SpecificationForm, GroupForm, CategoryForm
 
 class SpecificationAdmin(admin.ModelAdmin):
@@ -24,7 +25,7 @@ class PurposeAdmin(admin.ModelAdmin):
 	pass
 
 class PropertyAdmin(admin.ModelAdmin):
-	list_display = ('price', 'description', 'address', 'pub_date')
+	list_display = ('title', 'description', 'address', 'pub_date')
 
 admin.site.register(Specification, SpecificationAdmin)
 admin.site.register(Group, GroupAdmin)

@@ -11,10 +11,10 @@
             <form method="POST" action="{% url 'finder' %}">
                 {% csrf_token %}
                 <div class="header-search-select-item custom">
-                    {{ search_form.purpose|add_class:"chosen-select" }}
+                    {{ search_form.search_purpose|add_class:"chosen-select" }}
                 </div>
                 <div id="search-category" class="header-search-select-item">
-                    {{ search_form.category|add_class:"chosen-select" }}
+                    {{ search_form.search_category|add_class:"chosen-select" }}
                 </div>
                 <button type="submit" class="header-search-button">Buscar</button>
             </form>
@@ -34,8 +34,7 @@
             <ul>
                 <li><a href="{% url 'update_profile' %}"> Mi perfil</a></li>
                 <li><a href="{% url 'properties' %}"> Publicaciones</a></li>                
-                <li><a href="{% url 'downloads' %}"> Descargas</a></li>                
-                <li><a href="{% url 'user_services' %}"> Servicios</a></li>                
+                <li><a href="{% url 'downloads' %}"> Descargas</a></li>                                
                 <li><a href="{% url 'favorite_properties' %}"> Favoritos</a></li>                
                 <li><a href="{% url 'choose_category' %}"> Publicar</a></li>
                 <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
@@ -62,7 +61,7 @@
                         <a href="{% url 'finder' %}" {% if 'finder' in request.path %}class="act-link"{% endif %}>Mapa</a>
                     </li>
                     <li>
-                        <a href="{% url 'services' %}">Servicios</a>
+                        <a href="#">Servicios</a>
                     </li>                    
                     <li>
                         <a href="{% url 'help' %}">Ayuda</a>
