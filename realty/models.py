@@ -86,7 +86,8 @@ class Category(models.Model):
 	
 	kind = models.PositiveSmallIntegerField(choices=KIND_CHOICES, verbose_name='tipo')
 	name = models.CharField(max_length=64, verbose_name='nombre', unique=True)
-	singular_name = models.CharField(max_length=64, verbose_name='nombre singular')	
+	singular_name = models.CharField(max_length=64, verbose_name='nombre singular')
+	price_area = models.CharField(max_length=64, blank=True, null=True, verbose_name='área del precio')	
 	enabled = models.BooleanField(default=True, verbose_name='habilitado?')
 	icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
 	order = models.PositiveSmallIntegerField(verbose_name='orden')	
@@ -134,6 +135,16 @@ class Property(ImageMixin, models.Model):
 
 	def __str__(self):
 		return self.description
+
+	def get_price_area(self):
+		try:
+			specification = Specification.objects.get(internal_name=self.category.price_area)
+			key = str(specification.id)
+			r = self.details['specifications'][key] if key in self.details['specifications'] else self.category.price_area
+		except:
+			r = self.category.price_area
+
+		return r
 
 	def get_purpose(self):
 		try:
