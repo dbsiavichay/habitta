@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy
 from django.views.generic import (
-	ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
+	View, ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
 )
 
 from django.template.loader import render_to_string
@@ -151,5 +151,3 @@ class DetailsView(FormView):
 		kwargs['group'] = group
 		return form_class(**kwargs)
 		
-
-

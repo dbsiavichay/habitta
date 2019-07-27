@@ -24,5 +24,4 @@ urlpatterns = [
 	## Ajax components
 	path('finder/purpose/<int:pk>/<slug:klass>/', filter_category_by_purpose, name='finder_by_purpose'),
 	path('render/details/<int:category>/category/', DetailsView.as_view() , name='render_details'),
-
 ]
