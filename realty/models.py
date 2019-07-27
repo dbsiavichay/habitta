@@ -46,7 +46,7 @@ class Specification(models.Model):
 	)	
 	
 	name = models.CharField(max_length=128, verbose_name='nombre')
-	internal_name = models.CharField(max_length=128, verbose_name='nombre interno')
+	internal_name = models.CharField(max_length=128, unique=True, verbose_name='nombre interno')
 	field_type = models.CharField(max_length=64, choices=FIELD_CHOICES, verbose_name='tipo de campo')
 	attributes = models.CharField(max_length=128, blank=True, null=True, verbose_name='atributos')
 	choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')	
