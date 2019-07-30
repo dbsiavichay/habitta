@@ -163,7 +163,7 @@ class GroupDetailsForm(Form):
 
 		for specification in self.group.specifications.all():
 			key = str(specification.id)
-			if 'FileField' in specification.field_type:
+			if 'FileField' in specification.field_type and self.cleaned_data[key]:
 				uploaded_file = self.cleaned_data[key]
 				name, extension = os.path.splitext(uploaded_file.name)
 				fs = FileSystemStorage(location='media/files/%s/'% (time.strftime('%Y/%m/%d')))
