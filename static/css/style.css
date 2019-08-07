@@ -5908,19 +5908,7 @@ footer.main-footer.fixed-footer {
 	display:none;
 }
 
-.add-pub a {
-	color: white!important;
-    background: #4DB7FE;
-    border-radius: 18px;
-    padding: 8px 15px!important;
-    text-align: center!important;
-}
 /*------Responsive------------------------------------------------*/
-@media only screen and  (min-width: 541px) {
-	.add-pub {
-		display: none;
-	}
-}
 @media only screen and  (max-width: 1524px) {
 .cs-wrapper {
 	padding:120px 50px 100px;
@@ -6279,7 +6267,8 @@ section.list-single-section {
 	display:none;
 }
 .add-list {
-	display:none;
+	/*display:none;*/
+	margin-left: 10px;
 }
 header.main-header {
 	padding:0 10px;
