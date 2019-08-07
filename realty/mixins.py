@@ -12,8 +12,9 @@ class PropertyViewMixin(object):
 	form_class = PropertyForm
 	success_url = reverse_lazy('properties')
 
-	def form_valid(self, form):
-		details_forms = self.get_details_forms()
+	def form_valid(self, form):		
+		self.category = self.get_category(form.data.get('category'))		
+		details_forms = self.get_details_forms()		
 		cover_form = self.get_cover_form()
 
 		location_valid = True
@@ -68,8 +69,8 @@ class PropertyViewMixin(object):
 			})			
 		return context
 	
-	def get_category(self):
-		pk = self.kwargs.get('category')
+	def get_category(self, pk=None):
+		pk = pk or self.kwargs.get('category')
 		if pk is not None:    	
 			category = get_object_or_404(Category, pk=pk)
 		else:
