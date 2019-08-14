@@ -150,7 +150,7 @@ def get_pdf(obj):
     set_bold_text(canvas, str(obj.category.singular_name), 310, 790, 16)
     set_bold_text(canvas, str(obj.get_purpose().activity), 450, 790, 16)
     set_bold_text(canvas, 'Precio', 310, 750, 16)
-    set_bold_text(canvas, '$ ' + str(obj.price), 450, 750, 16)
+    set_bold_text(canvas, '$ ' + str(obj.get_price_area()), 450, 750, 16)
     set_cover(canvas, obj)
     set_map(canvas, obj)
     set_avatar(canvas, obj)
