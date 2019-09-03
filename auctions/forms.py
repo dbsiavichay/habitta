@@ -19,9 +19,7 @@ class AuctionForm(ModelForm):
 		model = Auction
 		fields = ('base_amount',)
 
-	start_date = DateField(label='Fecha de inicio')
-	start_time = TimeField(label='Hora de inicio')
-	ending_date = DateField(label='Fecha de finalización')
+	duration = DateField(label='Fecha de finalización')	
 	ending_time = TimeField(label='Hora de finalización')
 
 	def save(self, commit=True):
