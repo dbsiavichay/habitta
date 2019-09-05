@@ -1,0 +1,29 @@
+{% extends 'base/base_list.html' %}
+
+{% block breadcrumbs %}
+<h2>Subastas</h2>
+<div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Subastas</span></div>
+{% endblock %}
+
+{% block list %}
+{% for auction in object_list %}
+<!-- dashboard-list end-->    
+<div class="dashboard-list">
+    <div class="dashboard-message">
+        <span class="new-dashboard-item">{{ auction.get_stage_display }}</span>
+        <div class="dashboard-listing-table-image">
+            <a href="{% url 'detail_property' auction.property.id %}"><img src="{{ auction.property.get_cover }}" alt=""></a>
+        </div>
+        <div class="dashboard-listing-table-text">
+            <h4><a href="{% url 'detail_property' auction.property.id %}">{{ auction.property }}</a></h4>
+            <span class="dashboard-listing-table-address"><i class="fa fa-calendar"></i><a href="#">{{ auction.ending_date }}</a></span>
+            <span class="dashboard-listing-table-address"><i class="fa fa-usd"></i><a href="#">{{ auction.base_amount }}</a></span>
+            <ul class="dashboard-listing-table-opt  fl-wrap">
+                <li><a href="#" class="del-btn">Cancelar subasta <i class="fa fa-trash-o"></i></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- dashboard-list end-->
+{% endfor %}
+{% endblock %}

@@ -30,7 +30,8 @@
             <div class="user-profile-menu">
                 <h3>Publicaciones</h3>
                 <ul>
-                    <li><a {% if 'realty/properties' in request.path %} class="user-profile-act" {% endif %} href="{% url 'properties' %}"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>                    
+                    <li><a {% if 'realty/properties' in request.path %} class="user-profile-act" {% endif %} href="{% url 'properties' %}"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>
+                    <li><a {% if 'realty/properties' in request.path %} class="user-profile-act" {% endif %} href="{% url 'auctions' %}"><i class="fa fa-th-list"></i> Subastas  </a></li>                    
                     <li><a {% if 'favorite' in request.path %} class="user-profile-act" {% endif %} href="{% url 'favorite_properties' %}"><i class="fa fa-heart"></i> Favoritos </a></li>
                     <li><a href="{% url 'choose_category' %}" {% if 'property' in request.path %} class="user-profile-act" {% endif %}><i class="fa fa-plus-square-o"></i> Publicar</a></li>
                 </ul>

@@ -134,7 +134,7 @@ class Property(ImageMixin, models.Model):
 	user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)
 
 	def __str__(self):
-		return self.description
+		return self.title or self.description
 
 	def get_price_area(self):
 		try:

@@ -1,22 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import ListView, CreateView
 from .models import Auction
 from .forms import AuctionForm
 
 from realty.models import Property
 
+class AuctionListView(ListView):
+	model = Auction
+
 class AuctionCreateView(CreateView):
 	model = Auction
 	form_class = AuctionForm	
+	success_url = reverse_lazy('auctions')
 
-	def form_valid(self, form):
-		self.object = form.save(commit=False)
-		self.object.property = self.get_property()
-		self.object.save()
-		return redirect(reverse_lazy('detail_property', args=[self.object.property.id]))
-
-	def get_property(self):
-		pk = self.kwargs.get('pk') or self.request.GET.get('pk') or None
-		property = get_object_or_404(Property, pk=pk)
-		return property
+	def get_form_kwargs(self):
+		kwargs = super().get_form_kwargs()
+		kwargs.update({'user':self.request.user})		
+		return kwargs

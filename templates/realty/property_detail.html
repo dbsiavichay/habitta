@@ -4,6 +4,7 @@
 {% load comments %}
 {% load payments %}
 {% load logs %}
+{% load auctions %}
 
 
 {% block header %}
@@ -64,19 +65,6 @@
         <img src="{% static 'images/all/1.jpg' %}" class="respimg" alt="">
         <a href="https://vimeo.com/70851162" class="promo-link gradient-bg image-popup"><i class="fa fa-play"></i><span>Promo Video</span></a>
     </div> -->
-
-    {% if object.user == user %}
-    <div class="box">
-        <a href="{% url 'update_property' object.id %}" class="btn btn-property">
-            <i class="fa fa-pencil"></i>
-            Editar
-        </span>
-        <a href="#" class="btn btn-property">
-            <i class="fa fa-pencil"></i>
-            Subastar
-        </a>
-    </div>
-    {% endif %}
     <div class="list-single-main-item fl-wrap">
         <div class="list-single-main-item-title fl-wrap">
             <h3>Acerca de </h3>
@@ -152,13 +140,47 @@
         <!-- end gallery items -->                                 
     </div>
     <!-- list-single-main-item end -->   
-    {% load comments %}  
     {% comment_list object 'comments/comment_list.html' %}
     {% comment_form object 'comments/comment_form.html' %}
 </div>
 {% endblock %}
 {% block aside_content %}
-<div class="box-widget-wrap">    
+<div class="box-widget-wrap">
+    {% get_auction object as auction %}
+    {% if auction %}
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-hashtag"></i> Propiedad en subasta </h3>
+        </div>
+        <div class="box-widget list-author-widget">
+            <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
+                <span class="list-author-widget-link">
+                    <a href="#">Finaliza en {{ auction.ending_date|timeuntil }}</a>
+                </span>
+                <img src="{% static 'images/gavel.png' %}" alt="">
+            </div>
+            <div class="box-widget-content">
+                <div class="list-author-widget-text">
+                    <a href="{% url 'detail_profile' object.user.username %}" class="btn transparent-btn">Haz una oferta <i class="fa fa-usd"></i></a>
+                    <div class="list-author-widget-contacts">
+                        <ul>
+                            {% for offer in auction.offer_set.all %}
+                            <li>
+                                <span><i class="fa fa-user"></i> Denis :</span> <a href="#">$ 75000</a>
+                            </li>
+                            {% empty %}
+                            <li>"Esta subasta aún no tiene ofertas"</li>
+                            {% endfor %}                           
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+    {% endif %}
+
     {% if object.category.require_location %}
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
