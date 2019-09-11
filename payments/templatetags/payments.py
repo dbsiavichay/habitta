@@ -15,5 +15,5 @@ def check_payment(object, user):
         payment = Payment.objects.filter(user=user).exclude(status=Payment.REJECTED).get(**context)        
         context.update({'payment': payment})
     except:
-        context.update({'price': object.price})    
+        context.update({'price': object.get_price_area()})    
     return context

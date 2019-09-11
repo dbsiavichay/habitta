@@ -1,5 +1,6 @@
+from django.utils import timezone
 from django.db import models
-
+ 
 class Auction(models.Model):
 	OPEN, CLOSED, CANCELED = (1,2,3)
 	STAGE_CHOICES = ((OPEN, 'Abierto'),(CLOSED, 'Finalizado'),(CANCELED, 'Cancelado'))
@@ -10,13 +11,14 @@ class Auction(models.Model):
 	base_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='monto base')	
 	stage = models.PositiveSmallIntegerField(default=OPEN, choices=STAGE_CHOICES)
 
-	def _check_stage(self):
-		if self.stage == self.OPEN and self.ending_date > datetime.now():
+	def _check_stage(self):	
+		if self.stage == self.OPEN and self.ending_date <= timezone.now():
 			self.stage = self.CLOSED
 			self.save()
 
 	class Meta:
 		verbose_name = 'subasta'
+		ordering = ('-start_date',)
 
 class Offer(models.Model):
 	class Meta:

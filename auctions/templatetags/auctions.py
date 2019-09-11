@@ -11,6 +11,6 @@ def get_auction(obj):
 	    auction._check_stage()
 	except Auction.DoesNotExist:
 		return
-	finally:
+	else:
 		if auction.stage == Auction.OPEN:
 			return auction
