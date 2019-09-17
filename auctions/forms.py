@@ -12,7 +12,7 @@ from django.forms.widgets import (
 	CheckboxSelectMultiple
 )
 
-from .models import Auction
+from .models import Auction, Offer
 
 class AuctionForm(ModelForm):
 	duration = IntegerField(
@@ -40,3 +40,11 @@ class AuctionForm(ModelForm):
 	class Meta:
 		model = Auction
 		fields = ('property','base_amount','duration')
+
+class OfferForm(ModelForm):
+	class Meta:
+		model = Offer
+		fields = ('amount', 'auction')
+		widgets = {
+			'auction': HiddenInput,
+		}

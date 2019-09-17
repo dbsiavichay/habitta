@@ -2,13 +2,13 @@ from django.urls import path
 from django.contrib.auth.decorators import login_required
 from authentication.decorators import owner_required
 from .views import (
-	SelectMethodPaymentView, BankPaymentCreateView, BankPaymentListView,
+	SelectMethodPaymentView, MethodPaymentListView, BankPaymentCreateView, BankPaymentListView,
 	PaypalPaymentCreateView, PaypalPaymentExecuteView,
 	DownloadListView, DownloadView
 )
 
 urlpatterns = [	
-	path('select-method/<int:pk>/<int:ct>/', login_required(SelectMethodPaymentView.as_view()), name='select_method_payment'),
+	path('method/select/', login_required(MethodPaymentListView.as_view()), name='select_method_payment'),
 	path('bank/payment/list/', login_required(BankPaymentListView.as_view()), name='list_bank_payment'),	
 	path('bank/payment/add/', login_required(BankPaymentCreateView.as_view()), name='add_bank_payment'),	
 

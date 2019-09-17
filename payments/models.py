@@ -41,6 +41,9 @@ class Payment(models.Model):
 	def is_confirmed(self):
 		return self.status == self.CONFIRMED
 
+	def get_absolute_url(self):
+		return self.get_object().get_absolute_url()
+
 class BankPayment(Payment):
 	bank = models.ForeignKey(Bank, on_delete=models.CASCADE, verbose_name='banco')
 	voucher = models.FileField(upload_to='payments/bankvouchers', verbose_name='comprobante')

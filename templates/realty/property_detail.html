@@ -162,12 +162,44 @@
             </div>
             <div class="box-widget-content">
                 <div class="list-author-widget-text">
-                    <a href="{% url 'detail_profile' object.user.username %}" class="btn transparent-btn">Haz una oferta <i class="fa fa-usd"></i></a>
+                    {% if user.is_authenticated %}                        
+                        {% if auction|is_pay:user %}
+                        {% get_offer_form auction as offer_form %}
+                        <br>
+                        <form action="{% url 'add_offer' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="custom-form">                                   
+                                {{ offer_form.auction }}
+                                {{ offer_form.amount }}
+                            </div>  
+                            <button class="btn color-bg flat-btn">Ofertar <i class="fa fa-usd" aria-hidden="true"></i></button>
+                        </form>
+                        {% else %}
+                        <div class="soc-log fl-wrap">
+                            <p>Para ofertar debes pagar el enganche.</p>
+                            {% payment_form obj=auction amount=auction.get_payment_amount %}                        
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <div class="soc-log fl-wrap">
+                        <p>Ingresa para ofertar.</p>
+                        <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>
+                        <a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>
+                        <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" id="socialProvider" name="provider">
+                            <input type="hidden" id="socialToken" name="token">
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                        </form>
+                    </div>
+                    {% endif %}
+
                     <div class="list-author-widget-contacts">
                         <ul>
-                            {% for offer in auction.offer_set.all %}
+                            {% get_offers auction as offers %}
+                            {% for offer in offers %}
                             <li>
-                                <span><i class="fa fa-user"></i> Denis :</span> <a href="#">$ 75000</a>
+                                <span><i class="fa fa-user"></i> {{ offer.user.first_name }} :</span> <a href="#">$ {{ offer.amount }}</a>
                             </li>
                             {% empty %}
                             <li>"Esta subasta aún no tiene ofertas"</li>

@@ -9,7 +9,7 @@ import paypalrestsdk
 
 from realty.models import Property 
 from .models import Bank, Payment, BankPayment, PaypalPayment
-from .forms import BankPaymentForm
+from .forms import PaymentForm, BankPaymentForm
 
 #For download object
 import os
@@ -23,6 +23,18 @@ class SelectMethodPaymentView(ListView):
 	def get(self, request, *args, **kwargs):		
 		request.session['object_id'] = self.kwargs.get('pk')
 		request.session['content_type'] =self.kwargs.get('ct')
+		return super().get(request, *args, **kwargs)
+
+class MethodPaymentListView(ListView):
+	model = Bank
+	template_name = 'payments/select_method_payment.html'
+
+	def post(self, request, *args, **kwargs):
+		form = PaymentForm(self.request.POST)
+		if form.is_valid():			
+			request.session['amount'] = str(form.cleaned_data['amount'])
+			request.session['object_id'] = form.cleaned_data['object_id']
+			request.session['content_type'] = form.cleaned_data['content_type'].id
 		return super().get(request, *args, **kwargs)
 
 class BankPaymentListView(ListView):
@@ -46,102 +58,6 @@ class BankPaymentCreateView(CreateView):
 		self.object.object_id = object_id
 		self.object.content_type_id = content_type
 		self.object.save()	
-
-class PaypalPaymentCreateView(RedirectView): 
-	permanent = False
-
-	def get_items(self, object):	        
-		items = []
-		items.append({
-			'name': 'Pago por descarga',
-			'sku': str(object.id),
-			'price': ('%.2f' % object.price),
-			'currency': 'USD',
-			'quantity': 1,
-		})
-		return items
-
-	def get_paypal_kwargs(self, object):
-		format_base_url = '%s://%s'
-		base_url = format_base_url % ('https' if self.request.is_secure() else 'http', self.request.get_host())	
-		kwargs = {
-			'intent': 'sale',
-			'payer': {'payment_method': 'paypal'},
-			'redirect_urls': {
-				'return_url': base_url+reverse('execute_paypal_payment'),
-				'cancel_url': base_url},
-
-			# Transaction -
-			'transactions': [ {
-				# ItemList
-				'item_list':{
-					'items': self.get_items(object)
-				},
-
-				# Amount
-				'amount': {
-					'total': ('%.2f' % object.price),
-					'currency': 'USD'
-				},
-
-				#Description
-				'description': str(object),
-			}]
-		}
-		return kwargs
-
-	def generate_paypal_payment(self, object):
-		credentials = paypalrestsdk.Api({
-			'mode': settings.PAYPAL_MODE,
-			'client_id': settings.PAYPAL_CLIENT_ID,
-			'client_secret': settings.PAYPAL_CLIENT_SECRET,
-		})
-
-		paypal_payment = paypalrestsdk.Payment(self.get_paypal_kwargs(object), api=credentials)		
-
-		if paypal_payment.create():
-			for link in paypal_payment.links:
-				if link.method == "REDIRECT":
-					url_payment = link.href
-		else:
-			raise Exception(paypal_payment.error)
-
-		return url_payment, paypal_payment
-
-	def get_object_from_session(self):
-		object_id = self.request.session.pop('object_id', None)
-		content_type_id = self.request.session.pop('content_type', None)		
-		content_type =  ContentType.objects.get(pk=content_type_id)
-		object = content_type.get_object_for_this_type(pk=object_id)
-		return object, content_type
-
-	def get_redirect_url(self, *args, **kwargs):		
-		object, content_type = self.get_object_from_session()
-		user = self.request.user	
-		kwargs = {
-			'object_id': object.id, 
-			'content_type': content_type
-		}
-		try:
-			PaypalPayment.objects.filter(user=user).exclude(status=Payment.REJECTED).get(**kwargs)						
-			raise Http404
-		except PaypalPayment.DoesNotExist:
-			url_payment, paypal_payment = self.generate_paypal_payment(object)
-			kwargs.update({
-				'payment_id': paypal_payment.id,
-				'amount': object.price,
-				'user': user				
-			})
-
-		# Se añade el identificador del pago a la sesion para que PaypalExecuteView
-		# pueda identificar al ususuario posteriorment
-		#self.request.session['payment_id'] = paypal_payment.id
-
-		# Por ultimo salvar la informacion del pago para poder determinar que
-		# libro le corresponde, al terminar la transaccion.
-
-		PaypalPayment.objects.create(**kwargs)
-		return url_payment
 
 class PaypalPaymentExecuteView(DetailView):
 	model = PaypalPayment
@@ -182,9 +98,103 @@ class PaypalPaymentExecuteView(DetailView):
 		except:
 			raise HttpResponseBadRequest
 
+class PaypalPaymentCreateView(RedirectView):
+	permanent = False
 
+	def get_items(self, obj, amount):
+		items = []
+		items.append({
+			'name': str(obj),
+			'sku': str(obj.id),
+			'price': ('%.2f' % amount),
+			'currency': 'USD',
+			'quantity': 1,
+		})
+		return items
 
+	def get_paypal_kwargs(self, obj, amount):
+		format_base_url = '%s://%s'
+		base_url = format_base_url % ('https' if self.request.is_secure() else 'http', self.request.get_host())
+		kwargs = {
+			'intent': 'sale',
+			'payer': {'payment_method': 'paypal'},
+			'redirect_urls': {
+				'return_url': base_url+reverse('execute_paypal_payment'),
+				'cancel_url': base_url
+			},
 
+			# Transaction -
+			'transactions': [ {
+				# ItemList
+				'item_list':{
+					'items': self.get_items(obj, amount)
+				},
+
+				# Amount
+				'amount': {
+					'total': ('%.2f' % amount),
+					'currency': 'USD'
+				},
+
+				#Description
+				'description': str(obj),
+			}]
+		}
+		return kwargs
+
+	def generate_paypal_payment(self, obj, amount):
+		credentials = paypalrestsdk.Api({
+			'mode': settings.PAYPAL_MODE,
+			'client_id': settings.PAYPAL_CLIENT_ID,
+			'client_secret': settings.PAYPAL_CLIENT_SECRET,
+		})
+
+		paypal_payment = paypalrestsdk.Payment(self.get_paypal_kwargs(obj, amount), api=credentials)		
+
+		if paypal_payment.create():
+			for link in paypal_payment.links:
+				if link.method == "REDIRECT":
+					url_payment = link.href
+		else:
+			raise Exception(paypal_payment.error)
+
+		return url_payment, paypal_payment
+
+	def get_object_from_session(self):
+		object_id = self.request.session.pop('object_id', None)
+		content_type_id = self.request.session.pop('content_type', None)
+		amount = float(self.request.session.pop('amount'))
+		content_type =  ContentType.objects.get(pk=content_type_id)
+		obj = content_type.get_object_for_this_type(pk=object_id)
+		return amount, obj, content_type
+
+	def get_redirect_url(self, *args, **kwargs):
+		amount, obj, content_type= self.get_object_from_session()
+		user = self.request.user	
+		kwargs = {
+			'object_id': obj.id, 
+			'content_type': content_type
+		}
+		try:
+			PaypalPayment.objects.filter(user=user).exclude(status=Payment.REJECTED).get(**kwargs)						
+			raise Http404
+		except PaypalPayment.DoesNotExist:
+			url_payment, paypal_payment = self.generate_paypal_payment(obj, amount)
+			kwargs.update({
+				'payment_id': paypal_payment.id,
+				'amount': amount,
+				'user': user				
+			})
+
+		# Se añade el identificador del pago a la sesion para que PaypalExecuteView
+		# pueda identificar al ususuario posteriorment
+		#self.request.session['payment_id'] = paypal_payment.id
+
+		# Por ultimo salvar la informacion del pago para poder determinar que
+		# libro le corresponde, al terminar la transaccion.
+
+		PaypalPayment.objects.create(**kwargs)
+		return url_payment
 
 class DownloadListView(ListView):
 	model = Payment

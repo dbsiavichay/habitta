@@ -1,0 +1,9 @@
+<form action="{% url 'select_method_payment' %}" method="POST" enctype="multipart/form-data">
+ 	{% csrf_token %}
+    <div class="custom-form">                                   
+        {% for field in form %}
+        {{ field }}
+        {% endfor %}
+    </div>  
+	<button class="btn color-bg flat-btn">Pagar {{ form.amount.value }} <i class="fa fa-usd" aria-hidden="true"></i></button>
+</form>

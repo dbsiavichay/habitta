@@ -14,11 +14,11 @@
             <div class="container">
                 <div class="error-wrap">
                     <h2>Éxito</h2>
-                    <p>Tu pago ha sido procesado correctamente.</p>
-                    <p>Ahora puedes descargar tu archivo en el siguiente botón o en tu bandeja de descargas.</p>
+                    <p>Tu pago ha sido procesado correctamente.</p>                    
                     <div class="clearfix"></div> 
-                    <a href="{% url 'download' object.id %}" class="btn big-btn color-bg flat-btn">Descargar
-                        <i class="fa fa-download"></i>
+                    <a href="{{ object.get_absolute_url }}" class="btn big-btn color-bg flat-btn">
+                        Regresar
+                        <i class="fa fa-check"></i>
                     </a>                                                           
                 </div>
             </div>
