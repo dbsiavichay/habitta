@@ -1,6 +1,6 @@
 from rest_framework import generics
 from .serializers import PropertySerializer
-from realty.models import Property
+from apps.realty.models import Property
 from django.db.models import Q
 from functools import reduce
 import operator

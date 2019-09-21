@@ -21,14 +21,14 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('project.urls')),
     path('api/', include('api.urls')),
-    path('authentication/', include('authentication.urls')),
-    path('comments/', include('comments.urls')),
-    path('messenger/', include('messenger.urls')),
-    path('realty/', include('realty.urls')),
-    path('auctions/', include('auctions.urls')),
-    path('multimedia/', include('multimedia.urls')),
-    path('logs/', include('logs.urls')),    
-    path('payments/', include('payments.urls')),    
+    path('', include('apps.project.urls')),
+    path('authentication/', include('apps.authentication.urls')),
+    path('comments/', include('apps.comments.urls')),
+    path('messenger/', include('apps.messenger.urls')),
+    path('realty/', include('apps.realty.urls')),
+    path('auctions/', include('apps.auctions.urls')),
+    path('multimedia/', include('apps.multimedia.urls')),
+    path('logs/', include('apps.logs.urls')),    
+    path('payments/', include('apps.payments.urls')),    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

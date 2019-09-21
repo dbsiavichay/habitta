@@ -44,20 +44,19 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'fontawesome',
+    'components',
 ]
 
 MY_APPS = [    
-    'auctions',    
-    'components',
-    'payments',
-    'project',
-    'authentication',
-    'comments',
-    'messenger',
-    'realty',
-    'services',
-    'multimedia',
-    'logs',
+    'apps.auctions',    
+    'apps.payments',
+    'apps.project',
+    'apps.authentication',
+    'apps.comments',
+    'apps.messenger',
+    'apps.realty',
+    'apps.multimedia',
+    'apps.logs',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS
@@ -85,7 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'realty.context_processors.search_bar'
+                'apps.realty.context_processors.search_bar'
             ],
         },
     },

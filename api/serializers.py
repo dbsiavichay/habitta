@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from realty.models import Property
+from apps.realty.models import Property
 
 class PropertySerializer(serializers.ModelSerializer):
 	url = serializers.URLField(source='get_absolute_url')
