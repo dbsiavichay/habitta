@@ -55,42 +55,12 @@
 </section>
 <!-- section end -->  
 
-{% if auctions %}
-<!--section -->
-<section class="gray-section" id="sec2">
-    <div class="container">
-        <div class="section-title">
-            <h2>Publicaciones en subasta</h2>            
-            <span class="section-separator"></span>
-        </div>
-    </div>
-    <!-- carousel -->
-    <div class="list-carousel fl-wrap card-listing">
-        <!--listing-carousel-->
-        <div class="listing-carousel fl-wrap ">
-            {% for object in auctions %}
-            <!--slick-slide-item-->
-            <div class="slick-slide-item">                
-                {% include 'realty/property_card.html' with object=object %}                
-            </div>
-            <!--slick-slide-item end-->
-            {% endfor %}
-        </div>
-        <!--listing-carousel end-->
-        <div class="swiper-button-prev sw-btn"><i class="fa fa-long-arrow-left"></i></div>
-        <div class="swiper-button-next sw-btn"><i class="fa fa-long-arrow-right"></i></div>
-    </div>
-    <!--  carousel end-->
-</section>
-<!-- section end -->
-{% endif %}
-
 
 <!--section -->
 <section class="gray-section" id="sec2">
     <div class="container">
         <div class="section-title">
-            <h2>Publicaciones recientes</h2>
+            <h2>Recientes</h2>
             <div class="section-subtitle">Mejores publicaciones</div>
             <span class="section-separator"></span>
             <p>Aquí encontraras las mas recientes publicaciones.</p>
@@ -116,13 +86,43 @@
 </section>
 <!-- section end -->
 
+{% if auctions %}
+<!--section -->
+<section class="gray-section" id="sec2">
+    <div class="container">
+        <div class="section-title">
+            <h2>Subastas</h2>            
+            <span class="section-separator"></span>
+        </div>
+    </div>
+    <!-- carousel -->
+    <div class="list-carousel fl-wrap card-listing">
+        <!--listing-carousel-->
+        <div class="listing-carousel fl-wrap ">
+            {% for object in auctions %}
+            <!--slick-slide-item-->
+            <div class="slick-slide-item">                
+                {% include 'realty/property_card.html' with object=object %}                
+            </div>
+            <!--slick-slide-item end-->
+            {% endfor %}
+        </div>
+        <!--listing-carousel end-->
+        <div class="swiper-button-prev sw-btn"><i class="fa fa-long-arrow-left"></i></div>
+        <div class="swiper-button-next sw-btn"><i class="fa fa-long-arrow-right"></i></div>
+    </div>
+    <!--  carousel end-->
+</section>
+<!-- section end -->
+{% endif %}
+
 
 {% for label, list in list_purposes %}
 <!--section -->
 <section class="gray-section">
     <div class="container">
         <div class="section-title">
-            <h2>Publicaciones {{ label|lower }}</h2>            
+            <h2>{{ label|capfirst }}</h2>            
             <span class="section-separator"></span>            
         </div>
     </div>
