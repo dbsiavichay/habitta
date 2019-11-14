@@ -1,0 +1,56 @@
+{% load components %}
+<!--section -->
+<section class="scroll-con-sec hero-section" data-scrollax-parent="true" id="sec1">
+    <div class="bg"  data-bg="{% if project.cover %} {{ project.cover.url }} {% endif %}" data-scrollax="properties: { translateY: '200px' }"></div>
+    <div class="overlay"></div>
+    <div class="hero-section-wrap fl-wrap">
+        <div class="container">
+            <div class="intro-item fl-wrap">
+                <h2>{{ project.title }}</h2>
+                <h3>{{ project.subtitle }}</h3>
+            </div>
+            <div class="main-search-input-wrap">
+                <div class="main-search-input fl-wrap">
+                    <!-- <form method="POST" action="{% url 'finder' %}">
+                        {% csrf_token %}
+                        <div class="main-search-input">
+                            {{ search_form.search_purpose|add_class:"custom-select" }}
+                        </div>
+                        <div id="search-category" class="main-search-input">
+                            {{ search_form.search_category|add_class:"custom-select" }}
+                        </div>
+                        <div class="main-search-input location" id="autocomplete-container">
+                            {{ search_form.search_address|attr:"id:ac_address"|append_attr:"placeholder:Destino, cuidad, área" }}
+                            <a href="#"><i class="fa fa-dot-circle-o"></i></a>
+                        </div>
+                        <button type="submit" class="main-search-button">Buscar</button>
+                    </form> -->
+
+                    <div class="main-search-input-item">
+                        <input type="text" placeholder="What are you looking for?" value=""/>
+                    </div>
+                    <div class="main-search-input-item location" id="autocomplete-container">
+                        <input type="text" placeholder="Location" id="autocomplete-input" value=""/>
+                        <a href="#"><i class="fa fa-dot-circle-o"></i></a>
+                    </div>
+                    <div class="main-search-input-item">
+                        <select data-placeholder="All Categories" class="chosen-select" >
+                            <option>All Categories</option>
+                            <option>Shops</option>
+                            <option>Hotels</option>
+                            <option>Restaurants</option>
+                            <option>Fitness</option>
+                            <option>Events</option>
+                        </select>
+                    </div>
+                    <button class="main-search-button" onclick="window.location.href='listings-half-screen-map-list.html'">Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bubble-bg"> </div>
+    <div class="header-sec-link">
+        <div class="container"><a href="#sec2" class="custom-scroll-link">Ver más</a></div>
+    </div>
+</section>
+<!-- section end -->

@@ -1,0 +1,23 @@
+{% load hydra %}
+
+{% for field in form.hidden_fields %}
+{{ field }}
+{% endfor %}
+
+{% for field in form.visible_fields %}
+
+    {% if field|widget_type == 'select' %}
+        {% render_field field col=col class="form-control select2-single" %}
+    {% elif field|widget_type == 'timeinput' %}
+        {% render_field field col=col class="form-control timeinput" %}
+    {% elif field|widget_type == 'dateinput' %}
+        {% render_field field col=col class="form-control datepicker" %}
+    {% elif field|widget_type == 'checkboxinput' %}
+        {% render_field field col=col class="custom-control-input" %}
+    {% elif field|widget_type == 'clearablefileinput' %}
+        {% render_field field col=col attr=attr class="form-control" %}
+    {% else %}
+        {% render_field field col=col class="form-control" %}
+    {% endif %}
+
+{% endfor %}

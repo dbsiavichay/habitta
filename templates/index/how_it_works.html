@@ -1,0 +1,58 @@
+<!--section -->
+<section>
+    <div class="container">
+        <div class="section-title">
+            <h2>Como trabajamos</h2>
+            <div class="section-subtitle">Descubrir y conectar </div>
+            <span class="section-separator"></span>
+            <p>Explora y descubre los mejores lugares y precios.</p>
+        </div>
+        <!--process-wrap  -->
+        <div class="process-wrap fl-wrap">
+            <ul data-equalizer>
+                <li data-equalizer-watch>
+                    <div class="process-item">
+                        <span class="process-count">01 . </span>
+                        <div class="time-line-icon"><i class="fa fa-user-o"></i></div>
+                        <h4> Crea una cuenta gratuita</h4>
+                        <p>Tienes varias opciones, puede crear una cuenta usando tu correo electrónico o con tus redes sociales de facebook y twitter.</p>
+                    </div>
+                    <span class="pr-dec"></span>
+                </li>
+                <li data-equalizer-watch>
+                    <div class="process-item">
+                        <span class="process-count">02 .</span>
+                        <div class="time-line-icon"><i class="fa fa-search"></i></div>
+                        <h4> Busca propiedades</h4>
+                        <p>Explora y encuentra propiedades cerca de ti o donde tu quieras, puedes usar varios filtros que te ayudan a hacerlo.</p>
+                    </div>
+                    <span class="pr-dec"></span>
+                </li>
+                <li>
+                    <div class="process-item">
+                        <span class="process-count">03 .</span>
+                        <div class="time-line-icon"><i class="fa fa-handshake-o"></i></div>
+                        <h4> Contactate con su propietario</h4>
+                        <p>Puedes enviar mensajes directos mediante nuestra plataforma o usar los contactos del propietario.</p>
+                    </div>
+                </li>
+            </ul>
+            <div class="process-end"><i class="fa fa-check"></i></div>
+        </div>
+        <!--process-wrap   end-->
+    </div>
+</section>
+
+<section class="parallax-section" data-scrollax-parent="true">
+    <div class="bg"  data-bg="{% if project.subcover %} {{ project.subcover.url }} {% endif %}" data-scrollax="properties: { translateY: '100px' }"></div>
+    <div class="overlay co lor-overlay"></div>
+    <!--container-->
+    <div class="container">
+        <div class="intro-item fl-wrap">
+            <h2>Publica tu propiedades</h2>
+            <h3>Casas, departamentos, oficinas, fincas, etc.</h3>
+            <a class="trs-btn" href="{% url 'choose_category' %}">Publica + </a>
+        </div>
+    </div>
+</section>
+<!-- section end -->

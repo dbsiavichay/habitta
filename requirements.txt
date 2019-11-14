@@ -4,7 +4,6 @@ cffi==1.12.2
 chardet==3.0.4
 cryptography==2.6.1
 Django==2.2.4
-django-components==0.1
 django-fontawesome==1.0
 djangorestframework==3.8.2
 idna==2.7

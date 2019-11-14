@@ -11,7 +11,7 @@ class HomeView(ProjectMixin, TemplateView):
 
 	def get_context_data(self, **kwargs):		
 		context = super().get_context_data(**kwargs)
-		properties = Property.objects.all()[:20]
+		properties = Property.objects.all()[:10]
 		context.update({
 			'properties':properties,
 			'list_purposes': self.get_list_by_purposes(),
@@ -22,7 +22,7 @@ class HomeView(ProjectMixin, TemplateView):
 	def get_list_by_purposes(self):
 		result = []
 		for purpose in Purpose.objects.all():
-			properties = Property.objects.filter(details__purpose=purpose.id)
+			properties = Property.objects.filter(details__purpose=purpose.id)[:10]
 			if len(properties): result.append((purpose.activity, properties))
 		return result
 
