@@ -1,0 +1,11 @@
+{% if field|length %}
+<div class="fl-wrap filter-tags">
+    <h4>{{ title }}</h4>
+    {% for checkbox in field %}
+    <div class="col-xs-12 col-sm-4">
+        {{ checkbox.tag }}
+        <label for="{{checkbox.id_for_label}}">{{ checkbox.choice_label }}</label>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

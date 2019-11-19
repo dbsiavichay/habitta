@@ -6,10 +6,10 @@
         </div>
         <div class="header-search vis-header-search">
             <div class="header-search-input-item">
-                <input type="text" placeholder="Keywords" value=""/>
+                <input type="text" placeholder="Keywords" value="" />
             </div>
             <div class="header-search-select-item">
-                <select data-placeholder="All Categories" class="chosen-select" >
+                <select data-placeholder="All Categories" class="chosen-select">
                     <option>All Categories</option>
                     <option>Shops</option>
                     <option>Hotels</option>
@@ -21,7 +21,7 @@
             <button class="header-search-button" onclick="window.location.href='listing.html'">Search</button>
         </div>
         <div class="show-search-button"><i class="fa fa-search"></i> <span>Search</span></div>
-        <a href="dashboard-add-listing.html" class="add-list">Add Listing <span><i class="fa fa-plus"></i></span></a>
+        <a href="{% url 'choose_category' %}" class="add-list">Publica ¡GRATIS!</a>
         <div class="show-reg-form modal-open"><i class="fa fa-sign-in"></i>Sign In</div>
         <!-- nav-button-wrap-->
         <div class="nav-button-wrap color-bg">
@@ -43,7 +43,7 @@
                             <li><a href="index3.html">Map</a></li>
                             <li><a href="index4.html">Slideshow</a></li>
                             <li><a href="index5.html">Slider</a></li>
-							<li><a href="index6.html">Fullscreen Slider</a></li>
+                            <li><a href="index6.html">Fullscreen Slider</a></li>
                         </ul>
                         <!--second level end-->
                     </li>
@@ -64,7 +64,7 @@
                                     <li><a href="listing-single.html">Style 1</a></li>
                                     <li><a href="listing-single2.html">Style 2</a></li>
                                     <li><a href="listing-single3.html">Style 3</a></li>
-									<li><a href="listing-single4.html">Style 4</a></li>
+                                    <li><a href="listing-single4.html">Style 4</a></li>
                                 </ul>
                                 <!--third  level end-->
                             </li>
