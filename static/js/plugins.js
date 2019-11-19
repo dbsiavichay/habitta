@@ -258,8 +258,7 @@ handleTweets(arrayTweets);inProgress=false;if(queue.length>0){twitterFetcher.fet
 
         // Open/close
         $(document).on('click.nice_select', '.nice-select', function(event) {
-            var $dropdown = $(this);
-
+            var $dropdown = $(this);            
             $('.nice-select').not($dropdown).removeClass('open');
             $dropdown.toggleClass('open');
 
@@ -289,7 +288,7 @@ handleTweets(arrayTweets);inProgress=false;if(queue.length>0){twitterFetcher.fet
         });
 
         // Option click
-        $(document).on('click.nice_select', '.nice-select .option:not(.disabled)', function(event) {
+        $(document).on('click.nice_select', '.nice-select .option:not(.disabled)', function(event) {        	
             var $option = $(this);
             var $dropdown = $option.closest('.nice-select');
             if ($dropdown.hasClass('has-multiple')) {

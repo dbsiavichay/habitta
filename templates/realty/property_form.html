@@ -1,8 +1,7 @@
 {% extends 'base/base_form.html' %}
 {% load components %}
 
-
-{% block extra_fields %}
+{% block extra_forms %}
 {% if location_form %}
 <!-- profile-edit-container--> 
 <div class="profile-edit-container add-list-container">
@@ -16,9 +15,7 @@
 <!-- profile-edit-container end-->
 {% endif %}
 
-<div id="details-form">
-{% include 'components/realty/publication_details.html' with forms=details_forms %}   
-</div>
+<div id="details-form"></div>
 
 <!-- profile-edit-container--> 
 <div class="profile-edit-container add-list-container">
@@ -63,4 +60,19 @@
     </div>
 </div>
 <!--register form end -->
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    function render_details_form() {
+        $.get('/realty/render/detalles-de-categoria/' + this.value + '/', function (data) {
+            var container = document.getElementById('details-form');
+            container.innerHTML = '';
+            container.insertAdjacentHTML('afterbegin', data.form);
+            $('.chosen-select').niceSelect();
+        });
+    }
+
+    $('#id_category').on('change', render_details_form);
+</script>
 {% endblock %}

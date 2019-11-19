@@ -1,0 +1,14 @@
+{% load hydra %}
+
+{% for form in forms %}
+<!-- profile-edit-container--> 
+<div class="profile-edit-container add-list-container">
+    <div class="profile-edit-header fl-wrap">
+        <h4>{{ form.group.name }} </h4>
+    </div>
+    <div class="custom-form"> 
+        {% include 'hydra/form.html' with form=form %}
+    </div>
+</div>
+<!-- profile-edit-container end-->
+{% endfor %}  

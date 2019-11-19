@@ -5,14 +5,16 @@ from .views import (
 	ChooseCategoryListView, 
 	PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView, PropertyPrintView, PropertyDeleteView,
 	PropertyFavoriteListView,
-	FinderListView, filter_category_by_purpose, DetailsView
+	FinderListView, filter_category_by_purpose, DetailsView,
+	PropertyDetailsRenderer
 )
 
 urlpatterns = [
 	path('property/add/', login_required(ChooseCategoryListView.as_view()), name='choose_category'),
 	path('publications/', login_required(PropertyListView.as_view()), name='properties'),
 
-	path('property/add/category/<int:category>/', login_required(PropertyCreateView.as_view()), name='add_property'),
+	#path('property/add/category/<int:category>/', login_required(PropertyCreateView.as_view()), name='add_property'),
+	path('publicacion/crear/', login_required(PropertyCreateView.as_view()), name='add_property'),
 	
 	path('property/<int:pk>/update/', owner_required(PropertyUpdateView.as_view()), name='update_property'),	
 	path('property/<int:pk>/detail/', PropertyDetailView.as_view(), name='detail_property'),    	
@@ -23,5 +25,6 @@ urlpatterns = [
 	path('finder/', FinderListView.as_view(), name='finder'),
 	## Ajax components
 	path('finder/purpose/<int:pk>/<slug:klass>/', filter_category_by_purpose, name='finder_by_purpose'),
-	path('render/details/<int:category>/category/', DetailsView.as_view() , name='render_details'),
+	#path('render/details/<int:category>/category/', DetailsView.as_view() , name='render_details'),
+	path('render/detalles-de-categoria/<int:category>/', PropertyDetailsRenderer.as_view() , name='render_details'),
 ]
