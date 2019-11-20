@@ -1,0 +1,43 @@
+section {
+    padding: 40px 0;
+}
+
+/* Nice select */
+.nice-select:after {
+    border-bottom: 2px solid #90a1b5;
+    border-right: 2px solid #90a1b5;
+}
+
+.custom-form .nice-select {
+    background-color: #f9f9f9;
+    color: #666;
+}
+/* End nice select*/
+
+/* Forms */
+.profile-edit-header {    
+    padding-bottom: 10px;
+}
+
+.profile-edit-container.add-list-container {
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+.custom-form button {
+    margin-top: 0;
+}
+
+.custom-form textarea, .custom-form input[type="text"], .custom-form input[type="number"], .custom-form input[type=email], .custom-form input[type=password], .custom-form input[type=button] {
+    padding: 15px 20px;
+}
+
+.checkbox {
+    margin-top: 0;
+}
+
+.checkbox h4 {
+    font-size: 100%;
+    color: #666;
+}
+/* End forms */

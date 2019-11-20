@@ -156,8 +156,23 @@ class GroupDetailsForm(Form):
             pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None         
             attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
             self.fields[key].widget.attrs.update(attrs)
-            #self['form_name'] = self.group.name
-            self[key].columns = self.group.columns
+            self.calculate_columns()
+
+    def calculate_columns(self):
+        cols = 2
+        width = 12 // cols
+
+        min = 0
+        results = []
+        for i in range(len(self.visible_fields()) // cols):
+            results.append((f"{min}:{min+cols}", width))
+            min += cols
+        
+        if len(self.visible_fields()) % cols:
+            results.append((f"{min}:", width))
+        
+        self.columns = results
+
 
 
     def get_not_empty_cleaned_data(self):

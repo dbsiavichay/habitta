@@ -3,13 +3,13 @@
 
 {% block extra_forms %}
 {% if location_form %}
-<!-- profile-edit-container--> 
+<!-- profile-edit-container-->
 <div class="profile-edit-container add-list-container">
     <div class="profile-edit-header fl-wrap">
         <h4>Localización</h4>
     </div>
-    <div class="custom-form">                            
-        {% render_component template='components/map.html' address=location_form.address longitude=location_form.longitude latitude=location_form.latitude %}                            
+    <div class="custom-form">
+        {% render_component template='components/map.html' address=location_form.address longitude=location_form.longitude latitude=location_form.latitude %}
     </div>
 </div>
 <!-- profile-edit-container end-->
@@ -17,19 +17,19 @@
 
 <div id="details-form"></div>
 
-<!-- profile-edit-container--> 
+<!-- profile-edit-container-->
 <div class="profile-edit-container add-list-container">
     <div class="profile-edit-header fl-wrap">
         <h4>Multimedia </h4>
     </div>
-        
+
     <div class="custom-form">
         <div class="fl-wrap filter-tags">
-            <h4>Foto de portada</h4>            
-        </div> 
+            <h4>Foto de portada</h4>
+        </div>
         {{ cover_form }}
-        <label class="upload-image">            
-            <div class="btn flat-btn">                
+        <label class="upload-image">
+            <div class="btn flat-btn">
                 Seleccionar una imagen
             </div>
             <input type="file" class="sr-only" id="cover_image" accept="image/*">
@@ -49,13 +49,13 @@
             <div class="soc-log fl-wrap">
                 <div class="img-container">
                     <img id="cropper_image" style="max-width: 100%;" src="#">
-                </div>                            
+                </div>
             </div>
-                        
+
             <div class="modal-footer">
-            <button type="button" class="btn btn-default" id="cancel-crop">Cancelar</button>
-            <button type="button" class="btn btn-primary" id="crop">Aceptar</button>
-          </div>        
+                <button type="button" class="btn btn-default" id="cancel-crop">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="crop">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -69,7 +69,7 @@
             var container = document.getElementById('details-form');
             container.innerHTML = '';
             container.insertAdjacentHTML('afterbegin', data.form);
-            $('.chosen-select').niceSelect();
+            $(container).find('.chosen-select').niceSelect();
         });
     }
 

@@ -1,6 +1,6 @@
 {% if field|length %}
 <div class="fl-wrap filter-tags">
-    <h4>{{ title }}</h4>
+    <h4>{{ field.label }}</h4>
     {% for checkbox in field %}
     <div class="col-xs-12 col-sm-4">
         {{ checkbox.tag }}
