@@ -1,0 +1,58 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block og %}
+<meta property="og:type" content="article" />
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+<meta property="og:title" content="Soluciones inmobiliarias | Larbit Ecuador" />
+<meta property="og:description" content="{{ object.description }}" />
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ object.get_cover }}" />
+<meta property="fb:app_id" content="489725724801134" />
+{% endblock %}
+
+{% block content %}
+
+{% block pallarax %} {% endblock %}
+
+{% block nav %}
+<div class="scroll-nav-wrapper fl-wrap">
+    <div class="container">
+        <nav class="scroll-nav scroll-init">
+            <ul>
+                <li><a class="act-scrlink" href="#sec1">Inicio</a></li>
+                <li><a href="#sec2">Detalles</a></li>
+                <li><a href="#sec3">Galeria</a></li>
+                <li><a href="#sec4">Comentarios</a></li>
+            </ul>
+        </nav>
+        {% block reactions %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+<!--  section  --> 
+<section class="gray-section no-top-padding">      
+    <div class="container">
+        <div class="row">            
+            <div class="col-md-8">
+                {% block main_content %}{% endblock %}
+            </div>
+            <div class="col-md-4">
+                {% block aside_content %}{% endblock %}
+            </div>            
+        </div>
+    </div>
+</section>
+<!--  section end --> 
+
+<div class="limit-box fl-wrap"></div>
+{% include 'base/join_our.html' %}
+
+
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+{% include 'base/chat_widget.html' %}
+{% endblock %}

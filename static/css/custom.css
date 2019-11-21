@@ -41,3 +41,23 @@ section {
     color: #666;
 }
 /* End forms */
+
+/* Detail */
+.list-single-info {
+    text-align: left;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.list-single-info strong {
+    display: block;
+    color: #4DB7FE;
+
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.list-single-info span {
+    color: #999;
+}
+/* End detail */

@@ -1,17 +1,12 @@
 {% extends 'base/base_detail.html' %}
 
-{% load static %}
-{% load comments %}
-{% load payments %}
-{% load logs %}
-{% load auctions %}
+{% load static comments payments logs auctions %}
 
-
-{% block header %}
+{% block pallarax %}
 <!--  section  --> 
 <section class="parallax-section single-par list-single-section" data-scrollax-parent="true" id="sec1">
     <div class="bg par-elem" data-bg="{{ object.get_cover }}" data-scrollax="properties: { translateY: '30%' }"></div>
-        
+    <div class="overlay"></div>
     <div class="bubble-bg"></div>
     <div class="list-single-header absolute-header fl-wrap">
         <div class="container">
@@ -56,6 +51,7 @@
 </section>
 <!--  section end -->
 {% endblock %}
+
 {% block reactions %}{% like_log object user %}{% endblock %}
 
 {% block main_content %}
@@ -69,9 +65,9 @@
         <div class="list-single-main-item-title fl-wrap">
             <h3>Acerca de </h3>
         </div>
-        <p>{{ object.description|linebreaks }}</p>      
+        <p>{{ object.description|linebreaks }}</p> 
 
-        <span class="fw-separator"></span>
+        
         <!-- <div class="list-single-main-item-title fl-wrap">
             <h3>Servicios</h3>
         </div>
@@ -83,6 +79,63 @@
             </ul>
         </div>  -->       
     </div>
+
+    {% regroup object.get_specifications2 by group as group_list  %}  
+    {% for group in group_list %}
+    <div class="list-single-main-item fl-wrap">
+        <div class="list-single-main-item-title fl-wrap">
+            <h3>{{ group.grouper }}</h3>
+        </div>
+        <div class="list-author-widget-contacts list-item-widget-contacts">
+            <div class="row">
+                {% for spc in group.list %}
+                <div class="col-sm-4">
+                    <div class="list-single-info">
+                        <strong><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</strong>
+                        {% if not spc.require_payment %}
+                        <span>{{ spc.value }}</span>
+                        {% else %}
+                        {% check_payment object user %} 
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                    
+            </div>
+            <!-- <ul>
+                {% for spc in group.list %}
+                <li>
+                    <span class=""><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</span>
+                    {% if not spc.require_payment %}
+                    <a href="#">{{ spc.value }}</a>
+                    {% else %}
+                    {% check_payment object user %} 
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul> -->
+        </div> 
+    </div>
+    {% endfor %}
+
+    {% if object.category.require_location %}
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">        
+        <div class="box-widget">
+            <div class="map-container">
+                <div id="singleMap" data-longitude="{{ object.geopoint.x }}" data-latitude="{{ object.geopoint.y }}" data-mapTitle="Out Location"></div>
+            </div>            
+            <div class="box-widget-content">
+                <div class="list-author-widget-contacts list-item-widget-contacts">
+                    <ul>                        
+                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>
+                    </ul>
+                </div>                
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->  
+    {% endif %}
 
     <div class="list-single-main-item fl-wrap" id="sec3">
         <div class="list-single-main-item-title fl-wrap">
@@ -213,58 +266,6 @@
     <!--box-widget-item end -->
     {% endif %}
 
-    {% if object.category.require_location %}
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3><i class="fa fa-leaf"></i> Localización : </h3>
-        </div>
-        <div class="box-widget">
-            
-            <div class="map-container">
-                <div id="singleMap" data-longitude="{{ object.geopoint.x }}" data-latitude="{{ object.geopoint.y }}" data-mapTitle="Out Location"></div>
-            </div>            
-            <div class="box-widget-content">
-                <div class="list-author-widget-contacts list-item-widget-contacts">
-                    <ul>                        
-                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>
-                    </ul>
-                </div>                
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->  
-    {% endif %}
-               
-    {% regroup object.get_specifications2 by group as group_list  %}  
-    {% for group in group_list %}                        
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3><i class="fa fa-leaf"></i> {{ group.grouper}} : </h3>
-        </div>
-        <div class="box-widget">
-            <div class="box-widget-content">
-                <div class="list-author-widget-contacts list-item-widget-contacts">
-                    <ul>
-                        {% for spc in group.list %}
-                        <li>
-                            <span class=""><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</span>
-                            {% if not spc.require_payment %}
-                            <a href="#">{{ spc.value }}</a>
-                            {% else %}
-                            {% check_payment object user %} 
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>                
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->
-    {% endfor %}
-
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
         <div class="box-widget-item-header">
@@ -328,6 +329,7 @@
 </div>
 {% endblock %}
 
-{% block 'extracss' %}
+{% block css %}
+{{ block.super }}
 <link rel="stylesheet" href="{{ icons_url }}">
 {% endblock %}

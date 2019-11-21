@@ -4,9 +4,10 @@
 
 <head>
     {% include 'base/meta.html' %}
+    {% block css %}
     {% include 'base/css.html' %}
+    {% endblock %}
     {% include 'plugins/pixel.html' %}
-    {% block css %}{% endblock %}
     {% block og %}{% endblock %}
     <!--=============== favicons ===============-->
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -31,12 +32,15 @@
             <!-- Content end -->
         </div>
         <!-- wrapper end -->
+        {% block footer %}
         {% include 'base/footer.html' %}
         <a class="to-top"><i class="fa fa-angle-up"></i></a>
+        {% endblock %}
     </div>
     <!-- Main end -->
+    {% block js %}
     {% include 'base/js.html' %}
-    {% block js %}{% endblock %}
+    {% endblock %}
 </body>
 
 </html>
