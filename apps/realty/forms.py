@@ -66,52 +66,47 @@ class SpecificationForm(ModelForm):
 
         return self.cleaned_data
 
-class PropertyForm(ModelForm):  
-    class Meta:
-        model = Property
-        fields = ('category', 'title', 'description',)
+class PropertyForm(ModelForm):    
+  purpose = ModelChoiceField(
+      label = '¿Que desea hacer?',
+      empty_label = None,
+      widget = RadioSelect,
+      queryset = Purpose.objects.none(),
+      required = True,
 
-# class PropertyForm(ModelForm):    
-#   purpose = ModelChoiceField(
-#       label = '¿Que desea hacer?',
-#       empty_label = None,
-#       widget = RadioSelect,
-#       queryset = Purpose.objects.none(),
-#       required = True,
+  )
 
-#   )
+  class Meta:
+      model = Property
+      fields = ('category', 'purpose', 'title', 'description',)       
 
-#   class Meta:
-#       model = Property
-#       fields = ('category', 'purpose', 'title', 'description',)       
+  def __init__(self, *args, **kwargs):        
+      self.category = kwargs.pop('category', None)
+      self.kind = kwargs.pop('kind', None)
+      super().__init__(*args, **kwargs)                       
+      if self.kind and self.kind == Category.SERVICE:
+          queryset = self.fields['category'].queryset.filter(kind=self.kind)
+          self.fields['category'].queryset = queryset
+          purposes = Category.objects.filter(kind=self.kind).last().purposes.all()
+          self.fields['purpose'].widget = HiddenInput()
+          self.fields['purpose'].queryset = purposes
+          self.fields['purpose'].initial = purposes[0]
 
-#   def __init__(self, *args, **kwargs):        
-#       self.category = kwargs.pop('category', None)
-#       self.kind = kwargs.pop('kind', None)
-#       super().__init__(*args, **kwargs)                       
-#       if self.kind and self.kind == Category.SERVICE:
-#           queryset = self.fields['category'].queryset.filter(kind=self.kind)
-#           self.fields['category'].queryset = queryset
-#           purposes = Category.objects.filter(kind=self.kind).last().purposes.all()
-#           self.fields['purpose'].widget = HiddenInput()
-#           self.fields['purpose'].queryset = purposes
-#           self.fields['purpose'].initial = purposes[0]
-
-#       else:
-#           purposes = self.category.purposes.all()
-#           if len(purposes) == 1:
-#               self.fields['purpose'].widget = HiddenInput()
-#               self.fields['purpose'].initial = purposes[0]
-#           self.fields['purpose'].queryset = purposes          
-#           self.fields['category'].initial = self.category
-#           self.fields['category'].widget = HiddenInput()
+      else:
+          purposes = self.category.purposes.all()
+          if len(purposes) == 1:
+              self.fields['purpose'].widget = HiddenInput()
+              self.fields['purpose'].initial = purposes[0]
+          self.fields['purpose'].queryset = purposes          
+          self.fields['category'].initial = self.category
+          self.fields['category'].widget = HiddenInput()
 
 
-#       if self.instance.pk:
-#           try:
-#               self.fields['purpose'].initial = self.instance.details['purpose']
-#           except KeyError:
-#               pass
+      if self.instance.pk:
+          try:
+              self.fields['purpose'].initial = self.instance.details['purpose']
+          except KeyError:
+              pass
 
 class LocationForm(Form):
     longitude = FloatField(widget=HiddenInput)

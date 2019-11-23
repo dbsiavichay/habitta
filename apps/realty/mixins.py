@@ -56,10 +56,18 @@ class PropertyViewMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if self.category.require_location:
+            context.update({'location_form': self.get_location_form(),})
+
         context.update({            
             'cover_form': self.get_cover_form(),
             'icons_url': get_active_icons_url()
-        }) 
+        })
+
+        if not self.get_kind():
+            context.update({
+                'details_forms': self.get_details_forms(),              
+            })          
         return context
 
 
