@@ -13,8 +13,8 @@ urlpatterns = [
 	path('property/add/', login_required(ChooseCategoryListView.as_view()), name='choose_category'),
 	path('publications/', login_required(PropertyListView.as_view()), name='properties'),
 
-	#path('property/add/category/<int:category>/', login_required(PropertyCreateView.as_view()), name='add_property'),
-	path('publicacion/crear/', login_required(PropertyCreateView.as_view()), name='add_property'),
+	path('property/add/category/<int:category>/', login_required(PropertyCreateView.as_view()), name='add_property'),
+	#path('publicacion/crear/', login_required(PropertyCreateView.as_view()), name='add_property'),
 	
 	path('property/<int:pk>/update/', owner_required(PropertyUpdateView.as_view()), name='update_property'),	
 	path('property/<int:pk>/detail/', PropertyDetailView.as_view(), name='detail_property'),    	

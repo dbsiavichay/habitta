@@ -8,7 +8,7 @@ from apps.multimedia.forms import CoverImageForm
 from apps.project.models import Icons
 
 
-class PropertyViewMixin(object):
+class PropertyViewMixin:
     model = Property
     form_class = PropertyForm
     success_url = reverse_lazy('properties')

@@ -14,6 +14,20 @@ section {
 }
 /* End nice select*/
 
+/* Choose category */
+.box-cat{
+    display: block;
+    background-color: #4DB7FE;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.box-cat i {
+    font-size: 50px;
+}
+/* end choose category*/
+
 /* Forms */
 .profile-edit-header {    
     padding-bottom: 10px;

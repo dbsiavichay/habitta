@@ -63,7 +63,8 @@
 {% endblock %}
 
 {% block js %}
-<script type="text/javascript">
+{{ block.super }}
+<script type="text/javascript">    
     function render_details_form() {
         $.get('/realty/render/detalles-de-categoria/' + this.value + '/', function (data) {
             var container = document.getElementById('details-form');
