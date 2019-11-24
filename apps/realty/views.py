@@ -33,7 +33,10 @@ class PropertyListView(ListView):
 
 
 class PropertyCreateView(PropertyViewMixin, CreateView):
-    def get(self, request, *args, **kwargs):        
+    def get(self, request, *args, **kwargs):
+        category = self.get_category()
+        if not category.enabled:
+            raise Http404
         return super().get(request, *args, **kwargs)
 
 class PropertyUpdateView(PropertyViewMixin, UpdateView):    

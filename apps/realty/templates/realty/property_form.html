@@ -15,7 +15,9 @@
 <!-- profile-edit-container end-->
 {% endif %}
 
-<div id="details-form"></div>
+<div id="details-form">
+    {% include 'realty/publication_details.html' with forms=details_forms %}
+</div>
 
 <!-- profile-edit-container-->
 <div class="profile-edit-container add-list-container">
