@@ -492,12 +492,12 @@ function initCitybook() {
         $(".listing-item").addClass("list-layout");
         $(this).addClass("active");
     });
-    $(".listing-view-layout li a.grid").on("click", function (e) {
+    /*$(".listing-view-layout li a.grid").on("click", function (e) {
         e.preventDefault();
         $(".listing-view-layout li a").removeClass("active");
         $(".listing-item").removeClass("list-layout");
         $(this).addClass("active");
-    });
+    });*/
     // Forms ------------------
 	$(document).on('change', '.leave-rating input', function() {
         var $radio = $(this);

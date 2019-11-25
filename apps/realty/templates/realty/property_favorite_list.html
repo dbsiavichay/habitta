@@ -27,5 +27,13 @@
     </div>
 </div>
 <!-- dashboard-list end-->
+{% empty %}
+<div class="dashboard-list">
+    <div class="dashboard-message">        
+        <div class="dashboard-listing-table-text">
+            <h4><a href="#">Sin registros.</a></h4>            
+        </div>
+    </div>
+</div>
 {% endfor %}
 {% endblock %}

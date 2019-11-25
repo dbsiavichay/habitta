@@ -7,7 +7,6 @@
 
 {% if form.columns %}
 
-
 {% for range, width in form.columns %}
 <div class="row">
     {% for field in form.visible_fields|slice:range %}

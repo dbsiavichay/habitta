@@ -1,9 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
-{% load static %}
 {% load components %}
 
-{% block 'content' %}
+{% block content %}
 <!--section -->
 <section class="parallax-section parallax-sm" data-scrollax-parent="true" id="sec1">
     <div class="bg par-elem " data-bg="{% if project.help_cover %} {{ project.help_cover.url }} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
@@ -28,10 +27,10 @@
                 <div class="col-md-12">
                     <div class="dashboard-list-box fl-wrap">
                         <div class="dashboard-header fl-wrap">
-                            <h3>Listado</h3>                            
+                            <h3>Listado</h3>
                         </div>
                         <div class="accordion">
-                            {% for object in object_list %}                                            
+                            {% for object in object_list %}
                             <!-- dashboard-list end-->
                             <a class="toggle" href="#">
                                 {{ object.title }}
@@ -39,23 +38,14 @@
                             </a>
                             <div class="accordion-inner">
                                 <!-- dashboard-list end-->    
-                                <div class="item-list">                            
-                                    <div class="item-text">                                        
-                                        <p>{{ object.description|linebreaks }}</p>     
-                                    </div>                            
-                                </div> 
-                            </div>                         
+                                <div class="item-list">
+                                    <div class="item-text">
+                                        <p>{{ object.description|linebreaks }}</p>
+                                    </div>
+                                </div>
+                            </div>
                             {% endfor %}
                         </div>
-                    </div>
-                    <!-- pagination-->
-                    <div class="pagination">
-                        <a href="#" class="prevposts-link"><i class="fa fa-caret-left"></i></a>
-                        <a href="#">1</a>
-                        <a href="#" class="current-page">2</a>
-                        <a href="#">3</a>
-                        <a href="#">4</a>
-                        <a href="#" class="nextposts-link"><i class="fa fa-caret-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -66,23 +56,6 @@
 </section>
 <!-- section end -->    
 <div class="limit-box fl-wrap"></div>
-<!--section -->
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-    </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>Unete a nosotros.</h3>
-                    <p>Disfruta de grandes beneficios.</p>
-                </div>
-                <div class="col-md-4"><a href="{% url 'register' %}" class="join-wrap-btn">Regístrate <i class="fa fa-sign-in"></i></a></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+{% include 'base/join_our.html' %}
 {% endblock %}
 

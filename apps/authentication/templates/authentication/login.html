@@ -1,9 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
-{% load static %}
-{% load components %}
+{% load static hydra %}
 
-{% block 'content' %}
+{% block content %}
 <!--section -->
 <section>
     <!-- container -->
@@ -33,11 +32,7 @@
                             <form method="POST" class="main-register-form" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 
-                                {% render_field form.username %}
-
-                                {% render_field form.password %}
-
-                                <input type="hidden" name="next" value="{{ next }}">
+                                {% include 'hydra/form.html' with form=form %}
 
                                 <button type="submit" class="log-submit-btn"><span>Iniciar sesión</span></button>
                             </form>
@@ -73,7 +68,8 @@
 </section>
 <!-- section end -->
 {% endblock %}
-{% block 'extrajs' %}
+{% block js %}
+    {{ block.super }}
     <script type="text/javascript" src="{% static 'js/plugins/facebook-sdk.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/authentication/social.js' %}"></script>
 {% endblock %}

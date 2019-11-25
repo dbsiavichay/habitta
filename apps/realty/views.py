@@ -110,8 +110,15 @@ class PropertyDeleteView(DeleteView):
     success_url = reverse_lazy('properties')
     http_method_names = ['post',]
 
-class FinderListView(FormView) :    
+class FinderMapView(FormView) :    
     template_name = 'realty/finder.html'
+    form_class = FinderForm
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+class FinderListView(FinderMapView) :    
+    template_name = 'realty/finder_without_map.html'
     form_class = FinderForm
 
     def post(self, request, *args, **kwargs):

@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            {% block breadcumbs %}
+            <div class="profile-edit-page-header">
+                <h2>Mis publicaciones</h2>
+                <div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Publicaciones</span></div>
+            </div>
+            {% endblock %}
+            <div class="row">
+                <div class="col-md-3">
+                    {% include 'base/sidebar.html' %}
+                </div>
+                <div class="col-md-9">
+                    <div class="dashboard-list-box fl-wrap">
+                        <div class="dashboard-header fl-wrap">
+                            <h3>Listado</h3>
+                        </div>
+                        {% block list %}{% endblock %}
+                    </div>
+                    {% include 'base/pagination.html' %}
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+{% include 'base/have_a_questions.html' %}
+{# include 'base/delete_modal.html' #}
+{% endblock %}

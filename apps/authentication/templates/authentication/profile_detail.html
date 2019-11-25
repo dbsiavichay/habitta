@@ -1,9 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
-{% load static %}
-{% load messenger %}
+{% load static messenger %}
 
-{% block 'content' %}
+{% block content %}
 <!--section -->
 <section class="parallax-section small-par color-bg">
     <div class="shapes-bg-big"></div>
@@ -101,5 +100,5 @@
 </section>
 <!-- section end -->
 <div class="limit-box fl-wrap"></div>
-{% include 'base/questions.html' %}
+{% include 'base/have_a_questions.html' %}
 {% endblock %}

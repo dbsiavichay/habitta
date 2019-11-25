@@ -1,7 +1,6 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base/base.html' %}
 
-{% block 'content' %}
+{% block content %}
 <!--section -->
 <section class="parallax-section parallax-sm" data-scrollax-parent="true" id="sec1">
     <div class="bg par-elem " data-bg="{% if project.term_cover %} {{ project.term_cover.url }} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
