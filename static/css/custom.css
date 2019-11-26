@@ -46,17 +46,38 @@ section {
     padding: 15px 20px;
 }
 
-.checkbox {
+.checkbox, .radioselect {
     margin-top: 0;
 }
 
-.checkbox h4 {
+.checkbox h4, .radioselect h4 {
     font-size: 100%;
     color: #666;
+}
+
+.radioselect input[type=radio] {
+    border-radius: 50%;
+}
+
+.radioselect input[type=radio]:checked:after {
+    content: "\f111";
+    left: 3px;
+}
+
+.radioselect .clean {
+    float: left;
+    margin-top: 4px;
+    margin-left: 5px;
+    text-decoration: underline;
 }
 /* End forms */
 
 /* Detail */
+.list-post-counter.single-list-post-counter {
+    font-size: 24px;
+    margin-left: 0;
+}
+
 .list-single-info {
     text-align: left;
     font-size: 16px;
@@ -74,4 +95,18 @@ section {
 .list-single-info span {
     color: #999;
 }
+
 /* End detail */
+
+/*Property card*/
+.card-listing .geodir-category-content p {
+    font-size: 24px;
+    font-weight: 600;
+    color: #4DB7FE;
+}
+.card-listing .geodir-category-content p i {
+    font-size: 12px;
+    margin-right: 5px;
+    vertical-align: top;
+}
+/* End property card */

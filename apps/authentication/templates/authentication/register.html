@@ -1,9 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
-{% load static %}
-{% load components %}
+{% load static hydra %}
 
-{% block 'content' %}
+{% block content %}
 <!--section -->
 <section>
     <!-- container -->
@@ -51,26 +50,10 @@
 </section>
 <!-- section end -->    
 <div class="limit-box fl-wrap"></div>
-<!--section -->
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-    </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>¿Tienes preguntas o dudas?</h3>
-                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
-                </div>
-                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+{% include 'base/have_a_questions.html' %}
 {% endblock %}
-{% block 'extrajs' %}
+{% block js %}
+    {{ block.super }}
     <script type="text/javascript" src="{% static 'js/plugins/facebook-sdk.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/authentication/social.js' %}"></script>
 {% endblock %}

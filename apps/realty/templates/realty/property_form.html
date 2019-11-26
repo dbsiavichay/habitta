@@ -9,7 +9,8 @@
         <h4>Localización</h4>
     </div>
     <div class="custom-form">
-        {% render_component template='components/map.html' address=location_form.address longitude=location_form.longitude latitude=location_form.latitude %}
+        {% include 'hydra/form.html' with form=location_form %}
+        <div id="inputMap"></div>
     </div>
 </div>
 <!-- profile-edit-container end-->

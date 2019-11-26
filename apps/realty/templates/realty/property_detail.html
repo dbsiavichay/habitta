@@ -18,19 +18,14 @@
                     </div>
                 </div>
                 <h2>{{ object.category.singular_name }} <span> - Publicado por </span><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></h2>
-                <span class="section-separator"></span>
-                <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
-                    <span>({% comments_count object %} comentarios)</span>
-                </div>
-                <div class="list-post-counter single-list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
+                <span class="section-separator"></span>                
+                <div class="list-post-counter single-list-post-counter"><span>{{ object.get_price_area }}</span><i class="fa fa-usd"></i></div>
                 <div class="clearfix"></div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="list-single-header-contacts fl-wrap">
-                            <ul>
-                                <li><i class="fa fa-phone"></i><a href="#">{{ object.user.profile.phone }}</a></li>
+                            <ul>                                
                                 <li><i class="fa fa-map-marker"></i><a href="#">{{ object.address }}</a></li>
-                                <li><i class="fa fa-envelope-o"></i><a href="#">{{ object.user.email }}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -39,9 +34,8 @@
                             <div class="share-holder hid-share">
                                 <div class="showshare"><span>Compartir </span><i class="fa fa-share"></i></div>
                                 <div class="share-container  isShare"></div>
-                            </div>
-                            <span class="viewed-counter"><i class="fa fa-eye"></i> Vistas -  156 </span>
-                            <a class="custom-scroll-link" href="#sec5"><i class="fa fa-hand-o-right"></i>Comenta </a>
+                            </div>                            
+                            <a class="custom-scroll-link" href="#"><i class="fa fa-print"></i>Imprimir</a>
                         </div>
                     </div>
                 </div>
@@ -61,23 +55,75 @@
         <img src="{% static 'images/all/1.jpg' %}" class="respimg" alt="">
         <a href="https://vimeo.com/70851162" class="promo-link gradient-bg image-popup"><i class="fa fa-play"></i><span>Promo Video</span></a>
     </div> -->
+
+    {% get_auction object as auction %}
+    {% if auction %}
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget">
+            <div class="banner-wdget fl-wrap">
+                <div class="overlay"></div>
+                <div class="bg"  data-bg="images/bg/1.jpg"></div>
+                <div class="banner-wdget-content fl-wrap">                    
+                    <h4>Esta publicación esta en subasta, paga el enganche para ofertar.</h4>
+                    <a href="#" class="color-bg">Pagar</a>
+                </div>  
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3>Finaliza en: </h3>
+        </div>
+        <div class="box-widget counter-widget gradient-bg" data-countDate="09/12/2019">
+            <div class="countdown fl-wrap">
+                <div class="countdown-item">
+                    <span class="days rot">00</span>
+                    <p>días</p>
+                </div>
+                <div class="countdown-item">
+                    <span class="hours rot">00</span>
+                    <p>horas</p>
+                </div>
+                <div class="countdown-item no-dec">
+                    <span class="minutes rot2">00</span>
+                    <p>minutos</p>
+                </div>
+                <div class="countdown-item-seconds">
+                    <span class="seconds rot2">00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+
+    {% get_offers auction as offers %}
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget opening-hours">
+            <div class="box-widget-content">
+                <span class="current-status"><i class="fa fa-usd"></i>Mejores ofertas</span>
+                <ul>
+                    {% for offer in offers %}
+                    <li><span class="opening-hours-day">{{ offer.user.first_name }}</span><span class="opening-hours-time">{{ offer.amount }}</span></li>
+                    {% empty %}
+                    <li><span class="opening-hours-day">Sin ofertas aún.</span></li>
+                    {% endfor %}                    
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
+    {% endif %}
+
     <div class="list-single-main-item fl-wrap">
         <div class="list-single-main-item-title fl-wrap">
             <h3>Acerca de </h3>
         </div>
         <p>{{ object.description|linebreaks }}</p> 
-
-        
-        <!-- <div class="list-single-main-item-title fl-wrap">
-            <h3>Servicios</h3>
-        </div>
-        <div class="listing-features fl-wrap">
-            <ul>
-                {% for service in object.get_services %}
-                <li><i class="lb-{{ service.icon }}"></i> {{ service.name }}</li>
-                {% endfor %}                                
-            </ul>
-        </div>  -->       
     </div>
 
     {% regroup object.get_specifications2 by group as group_list  %}  
@@ -192,80 +238,11 @@
         {% endif %}
         <!-- end gallery items -->                                 
     </div>
-    <!-- list-single-main-item end -->   
-    {% comment_list object 'comments/comment_list.html' %}
-    {% comment_form object 'comments/comment_form.html' %}
+    <!-- list-single-main-item end -->       
 </div>
 {% endblock %}
 {% block aside_content %}
 <div class="box-widget-wrap">
-    {% get_auction object as auction %}
-    {% if auction %}
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3><i class="fa fa-hashtag"></i> Propiedad en subasta </h3>
-        </div>
-        <div class="box-widget list-author-widget">
-            <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
-                <span class="list-author-widget-link">
-                    <a href="#">Finaliza en {{ auction.ending_date|timeuntil }}</a>
-                </span>
-                <img src="{% static 'images/gavel.png' %}" alt="">
-            </div>
-            <div class="box-widget-content">
-                <div class="list-author-widget-text">
-                    {% if user.is_authenticated %}                        
-                        {% if auction|is_pay:user %}
-                        {% get_offer_form auction as offer_form %}
-                        <br>
-                        <form action="{% url 'add_offer' %}" method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="custom-form">                                   
-                                {{ offer_form.auction }}
-                                {{ offer_form.amount }}
-                            </div>  
-                            <button class="btn color-bg flat-btn">Ofertar <i class="fa fa-usd" aria-hidden="true"></i></button>
-                        </form>
-                        {% else %}
-                        <div class="soc-log fl-wrap">
-                            <p>Para ofertar debes pagar el enganche.</p>
-                            {% payment_form obj=auction amount=auction.get_payment_amount %}                        
-                        </div>
-                        {% endif %}
-                    {% else %}
-                    <div class="soc-log fl-wrap">
-                        <p>Ingresa para ofertar.</p>
-                        <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>
-                        <a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>
-                        <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <input type="hidden" id="socialProvider" name="provider">
-                            <input type="hidden" id="socialToken" name="token">
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                        </form>
-                    </div>
-                    {% endif %}
-
-                    <div class="list-author-widget-contacts">
-                        <ul>
-                            {% get_offers auction as offers %}
-                            {% for offer in offers %}
-                            <li>
-                                <span><i class="fa fa-user"></i> {{ offer.user.first_name }} :</span> <a href="#">$ {{ offer.amount }}</a>
-                            </li>
-                            {% empty %}
-                            <li>"Esta subasta aún no tiene ofertas"</li>
-                            {% endfor %}                           
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->
-    {% endif %}
-
     <!--box-widget-item -->
     <div class="box-widget-item fl-wrap">
         <div class="box-widget-item-header">

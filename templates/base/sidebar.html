@@ -2,26 +2,53 @@
     <div class="user-profile-menu-wrap fl-wrap">
         <!-- user-profile-menu-->
         <div class="user-profile-menu">
-            <h3>Main</h3>
+            <h3>Principal</h3>
             <ul>
-                <li><a href="dashboard.html"><i class="fa fa-gears"></i>Dashboard</a></li>
-                <li><a href="dashboard-myprofile.html"><i class="fa fa-user-o"></i> Edit profile</a></li>
-                <li><a href="dashboard-messages.html"><i class="fa fa-envelope-o"></i> Messages <span>3</span></a></li>
-                <li><a href="dashboard-password.html"><i class="fa fa-unlock-alt"></i>Change Password</a></li>
+                <li><a {% if 'profile/update' in request.path %} class="user-profile-act" {% endif %} href="{% url 'update_profile' %}"><i class="fa fa-user-o"></i> Editar perfil</a></li>
+                <li><a {% if 'password' in request.path %} class="user-profile-act" {% endif %} href="{% url 'change_password' %}"><i class="fa fa-unlock-alt"></i>Cambiar contraseña</a></li>
+                <li><a href="{% url 'conversations' %}"><i class="fa fa-envelope-o"></i> Mensajes <span>3</span></a></li>
             </ul>
         </div>
         <!-- user-profile-menu end-->
+
         <!-- user-profile-menu-->
         <div class="user-profile-menu">
-            <h3>Listings</h3>
+            <h3>Pagos</h3>
             <ul>
-                <li><a href="dashboard-listing-table.html"><i class="fa fa-th-list"></i> My listigs  </a></li>
-                <li><a href="dashboard-bookings.html"> <i class="fa fa-calendar-check-o"></i> Bookings <span>2</span></a></li>
-                <li><a href="dashboard-review.html"><i class="fa fa-comments-o"></i> Reviews </a></li>
-                <li><a href="dashboard-add-listing.html" class="user-profile-act"><i class="fa fa-plus-square-o"></i> Add New</a></li>
+                <li>
+                    <a {% if 'payments/bank' in request.path %} class="user-profile-act" {% endif %} href="{% url 'list_bank_payment' %}"><i class="fa fa-th-list"></i> Mis pagos</a>
+                </li>
+                <li>
+                    <a {% if 'payments/downloads' in request.path %} class="user-profile-act" {% endif %} href="{% url 'downloads' %}"><i class="fa fa-download"></i> Descargas  </a>
+                </li>
             </ul>
         </div>
         <!-- user-profile-menu end-->
-        <a href="#" class="log-out-btn">Log Out</a>
+
+        <!-- user-profile-menu-->
+        <div class="user-profile-menu">
+            <h3>Subastas</h3>
+            <ul>
+                <li>
+                    <a {% if 'auction/add' in request.path %} class="user-profile-act" {% endif %} href="{% url 'add_auction' %}"><i class="fa fa-th-list"></i> Crear subasta </a>
+                </li>
+                <li>
+                    <a {% if 'auctions' in request.path %} class="user-profile-act" {% endif %} href="{% url 'auctions' %}"><i class="fa fa-th-list"></i> Subastas  </a>
+                </li>
+            </ul>
+        </div>
+        <!-- user-profile-menu end-->
+
+        <!-- user-profile-menu-->
+        <div class="user-profile-menu">
+            <h3>Publicaciones</h3>
+            <ul>
+                <li><a {% if 'realty/properties' in request.path %} class="user-profile-act" {% endif %} href="{% url 'properties' %}"><i class="fa fa-th-list"></i> Mis publicaciones  </a></li>                                
+                <li><a {% if 'favorite' in request.path %} class="user-profile-act" {% endif %} href="{% url 'favorite_properties' %}"><i class="fa fa-heart"></i> Favoritos </a></li>
+                <li><a href="{% url 'choose_category' %}" {% if 'property' in request.path %} class="user-profile-act" {% endif %}><i class="fa fa-plus-square-o"></i> Publicar</a></li>
+            </ul>
+        </div>
+        <!-- user-profile-menu end-->                                        
+        <a href="{% url 'logout' %}" class="log-out-btn">Cerrar sesión</a>
     </div>
 </div>

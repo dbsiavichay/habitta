@@ -14,10 +14,10 @@
                     <!-- <form method="POST" action="{% url 'finder' %}">
                         {% csrf_token %}
                         <div class="main-search-input">
-                            {{ search_form.search_purpose|add_class:"custom-select" }}
+                            {{ search_form.search_purpose|add_class:"chosen-select" }}
                         </div>
                         <div id="search-category" class="main-search-input">
-                            {{ search_form.search_category|add_class:"custom-select" }}
+                            {{ search_form.search_category|add_class:"chosen-select" }}
                         </div>
                         <div class="main-search-input location" id="autocomplete-container">
                             {{ search_form.search_address|attr:"id:ac_address"|append_attr:"placeholder:Destino, cuidad, área" }}
