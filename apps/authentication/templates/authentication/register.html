@@ -1,0 +1,59 @@
+{% extends 'base/base.html' %}
+
+{% load static hydra %}
+
+{% block content %}
+<!--section -->
+<section>
+    <!-- container -->
+    <div class="container">        
+        <!--register form -->
+        <div class="main-register register">
+            <h3>Regístrate en <span>LAR<strong>BIT</strong></span></h3>    
+            <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
+            <div class="soc-log fl-wrap half">
+                <p>Facilmente puedes registrarte usando tus redes sociales.</p>
+                <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Regístrate con Facebook</a>
+                <a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Regístrate con Twitter</a>
+                <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="socialProvider" name="provider">
+                    <input type="hidden" id="socialToken" name="token">                    
+                </form>
+            </div>
+            <div class="half" id="tabs-container" style="border-left: 3px solid #2F3B59">
+                <ul class="tabs-menu">
+                    <li class="current"><a href="#tab-1">Regístrate con tu email</a></li>            
+                </ul>
+                <div class="tab">
+                    <div id="tab-1" class="tab-content">
+                        <div class="custom-form">
+                            {{form.errors}}
+                            <form method="POST" class="main-register-form" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {% render_field form.email %}
+
+                                {% render_field form.username %}
+
+                                {% render_field form.password %}
+
+                                <button type="submit" class="log-submit-btn"><span>Registrarse</span></button>
+                            </form>
+                        </div>
+                    </div>            
+                </div>
+            </div>
+        </div>
+        <!--register form end --> 
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+{% include 'base/have_a_questions.html' %}
+{% endblock %}
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'js/plugins/facebook-sdk.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/authentication/social.js' %}"></script>
+{% endblock %}

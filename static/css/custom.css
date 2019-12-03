@@ -1,0 +1,159 @@
+section {
+    padding: 40px 0;
+}
+
+/* Nice select */
+.nice-select:after {
+    border-bottom: 2px solid #90a1b5;
+    border-right: 2px solid #90a1b5;
+}
+
+.custom-form .nice-select {
+    background-color: #f9f9f9;
+    color: #666;
+}
+/* End nice select*/
+
+/* Choose category */
+.box-cat{
+    display: block;
+    background-color: #4DB7FE;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.box-cat i {
+    font-size: 50px;
+}
+/* end choose category*/
+
+/* Forms */
+.profile-edit-header {    
+    padding-bottom: 10px;
+}
+
+.profile-edit-container.add-list-container {
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+.custom-form button {
+    margin-top: 0;
+}
+
+.custom-form textarea, .custom-form input[type="text"], .custom-form input[type="number"], .custom-form input[type=email], .custom-form input[type=password], .custom-form input[type=button] {
+    padding: 15px 20px;
+}
+
+.checkbox, .radioselect {
+    margin-top: 0;
+}
+
+.checkbox h4, .radioselect h4 {
+    font-size: 100%;
+    color: #666;
+}
+
+.radioselect input[type=radio] {
+    border-radius: 50%;
+}
+
+.radioselect input[type=radio]:checked:after {
+    content: "\f111";
+    left: 3px;
+}
+
+.radioselect .clean {
+    float: left;
+    margin-top: 4px;
+    margin-left: 5px;
+    text-decoration: underline;
+}
+/* End forms */
+
+/* Detail */
+.list-post-counter.single-list-post-counter {
+    font-size: 24px;
+    margin-left: 0;
+}
+
+.list-single-info {
+    text-align: left;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.list-single-info strong {
+    display: block;
+    color: #4DB7FE;
+
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.list-single-info span {
+    color: #999;
+}
+
+.gallery-item-del {
+    background-color: #FF2400;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    height: 30px;
+    line-height: 29px;
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    width: 30px;
+    z-index: 20;
+}
+
+.gallery-item img, .grid-sizer img {
+    height: 150px;
+    object-fit: contain;
+    background-color: rgba(0,0,0,.7);
+}
+
+.auction h4 {
+    font-size: 36px;
+}
+
+.auction p {
+    font-size: 18px;
+    color: grey;
+    font-weight: 600;
+}
+
+/* End detail */
+
+/*Property card*/
+.card-listing .geodir-category-content p {
+    font-size: 24px;
+    font-weight: 600;
+    color: #4DB7FE;
+    margin-bottom: 12px;
+}
+.card-listing .geodir-category-content p i {
+    font-size: 12px;
+    margin-right: 5px;
+    vertical-align: top;
+}
+.card-specification {
+    color: #797d8a;
+    font-size: 16px;
+    text-align: left;
+}
+.card-specification i {
+    margin-right: 7px;
+    font-size: 18px;
+}
+/* End property card */
+
+/*Maps*/
+#inputMap {
+    height: 300px;
+    width: 100%;
+}
+/*End Maps*/

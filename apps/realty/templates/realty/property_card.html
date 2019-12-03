@@ -1,0 +1,27 @@
+<div class="listing-item" data-url="{{ object.get_absolute_url }}">
+    <article class="geodir-category-listing fl-wrap">
+        <div class="geodir-category-img">
+            <img src="{{ object.get_cover }}" alt="">
+            <div class="overlay"></div>
+            <div class="list-post-counter"><span>{{ object.get_purpose.activity }}</span><i class="fa fa-bullhorn"></i></div>
+        </div>
+        <div class="geodir-category-content fl-wrap">
+            <a class="listing-geodir-category" href="{{ object.get_absolute_url }}">{{ object.category.singular_name }}</a>
+            <div class="listing-avatar"><a href="{% url 'detail_profile' object.user.username %}"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>
+                <span class="avatar-tooltip">Publicado por  <strong>{{ object.user.get_full_name }}</strong></span>
+            </div>
+            <h3><a href="{{ object.get_absolute_url }}">{{ object.title|lower|capfirst|truncatechars:"30"|default:object.category.singular_name }}</a></h3>
+            <p><i class="fa fa-usd"></i>{{ object.get_price_area }}</p>
+            <div class="geodir-category-options fl-wrap">
+                <div class="row">
+                    {% for item in object.get_specifications_for_card %}
+                    <div class="col-xs-6 card-specification">
+                        <i class="lb-{{ item.icon }}"></i>{{ item.value }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address|truncatechars:"40" }}</a></div>
+            </div>
+        </div>
+    </article>
+</div>

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load components %}
+
+{% block 'content' %}
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">
+            <div class="profile-edit-page-header">
+                <h2>Publicar</h2>
+                <div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dashboard</a><span>Publicar</span></div>
+            </div>
+            <div class="row">
+                {% include 'dashboard/menu_aside.html' %}
+                <div class="col-md-9">
+                    {{ form.errors }}
+                    {{ details_form.errors }}
+                    {{ cover_form.errors }}
+                    <form id="mainform" action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- profile-edit-container--> 
+                    <div class="profile-edit-container add-list-container">
+                        <div class="profile-edit-header fl-wrap">
+                            <h4>Información básica</h4>
+                        </div>
+                        <div class="custom-form">
+                            {% block hidden_fields %}
+                            {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                            {% endfor %}
+                            {% endblock %}
+
+                            {% block visible_fields %}
+                            {% for field in form.visible_fields %}
+                            {% if field|widget_type == 'select' %}
+                                {% render_field field class='chosen-select' %}
+                            {% else %}
+                                {% render_field field %}
+                            {% endif %}
+                            {% endfor %}
+                            {% endblock %}                            
+                        </div>
+                    </div>
+                    <!-- profile-edit-container end-->                                      
+                    
+                    {% block location_fields %}{% endblock %}
+                    
+                    {% block extra_fields %}{% endblock %}
+                      
+                    <div class="custom-form">                            
+                        <button type="submit" class="btn big-btn color-bg flat-btn">Guardar
+                            <i class="fa fa-angle-right"></i>
+                        </button>
+                    </div>           
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+{% include 'base/questions.html' %}
+{% endblock %}
+
+{% block 'extracss' %}
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/cropper/cropper.css' %}">
+<style>
+    .upload-image {
+        width: initial!important;
+    }
+    .upload-image:hover {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block 'extrajs' %}
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places"></script>
+<script type="text/javascript" src="{% static 'js/plugins/locationpicker/locationpicker.jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plugins/locationpicker/config.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'js/forms.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'plugins/cropper/cropper.js' %}"></script>    
+<script type="text/javascript" src="{% static 'plugins/cropper/config.js' %}"></script>
+
+<script>
+    function render_details_form() {
+        $.get('/realty/render/details/' + this.value + '/category/', function (data) {
+            var container = document.getElementById('details-form');
+            container.innerHTML = '';
+            container.insertAdjacentHTML('afterbegin', data.form);
+        });
+    }
+
+    document.getElementById('id_category').addEventListener('change', render_details_form);
+</script>
+{% endblock %}

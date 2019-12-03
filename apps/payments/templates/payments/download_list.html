@@ -1,0 +1,42 @@
+{% extends 'base/base_list.html' %}
+
+{% block breadcrumbs %}
+<h2>Descargas</h2>
+<div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Descargas</span></div>
+{% endblock %}
+
+{% block list %}
+{% for payment in object_list %}
+{% with payment.get_object as object %}
+<!-- dashboard-list end-->    
+<div class="dashboard-list">
+    <div class="dashboard-message">
+        <span class="new-dashboard-item">{{ object.category }}</span>
+        <div class="dashboard-listing-table-image">
+            <a href="{% url 'detail_property' object.id %}"><img src="{{ object.get_cover }}" alt=""></a>
+        </div>
+        <div class="dashboard-listing-table-text">
+            <h4><a href="listing-single.html">{{ object.title }}</a></h4>
+            <span class="dashboard-listing-table-address"><i class="fa fa-map-marker"></i><a  href="#">{{ object.address }}</a></span>
+            <div class="listing-rating card-popup-rainingvis fl-wrap" data-starrating2="5">
+                <span>(2 comentarios)</span>
+            </div>
+            <ul class="dashboard-listing-table-opt fl-wrap">
+                <li><a href="{% url 'download' payment.id %}"><i class="fa fa-download"></i></a></li>                                        
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- dashboard-list end-->
+{% endwith %}
+{% empty %}
+<div class="dashboard-list">
+    <div class="dashboard-message">      
+        <div class="dashboard-listing-table-text">
+            <h4><a href="#">Sin registros.</a></h4>
+            
+        </div>
+    </div>
+</div>
+{% endfor %} 
+{% endblock %}

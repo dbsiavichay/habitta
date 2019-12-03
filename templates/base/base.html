@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    {% include 'base/meta.html' %}
+    {% block css %}
+    {% include 'base/css.html' %}
+    {% endblock %}
+    {% include 'plugins/pixel.html' %}
+    {% block og %}{% endblock %}
+    <!--=============== favicons ===============-->
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+</head>
+
+<body>
+    <!--loader-->
+    <div class="loader-wrap">
+        <div class="pin"></div>
+        <div class="pulse"></div>
+    </div>
+    <!--loader end-->
+    <!-- Main  -->
+    <div id="main">
+        {% include 'base/navbar.html' %}
+        <!--  wrapper  -->
+        <div id="wrapper">
+            <!-- Content-->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+            <!-- Content end -->
+        </div>
+        <!-- wrapper end -->
+        {% block footer %}
+        {% include 'base/footer.html' %}
+        <a class="to-top"><i class="fa fa-angle-up"></i></a>
+        {% endblock %}
+    </div>
+    <!-- Main end -->
+    {% block js %}
+    {% include 'base/js.html' %}
+    {% endblock %}
+</body>
+
+</html>

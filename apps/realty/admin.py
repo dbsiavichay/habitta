@@ -4,28 +4,28 @@ from .models import Specification, Category, Purpose, Property, Group, GroupCate
 from .forms import SpecificationForm, GroupForm, CategoryForm
 
 class SpecificationAdmin(admin.ModelAdmin):
-	form = SpecificationForm
-	list_display = ['name', 'internal_name', 'is_required', 'order',]
+    form = SpecificationForm
+    list_display = ['name', 'internal_name', 'is_required', 'for_card',]
 
 class GroupAdmin(admin.ModelAdmin):
-	form = GroupForm
-	list_display = ['name', 'internal_name']
+    form = GroupForm
+    list_display = ['name', 'internal_name']
 
 class GroupCategoryInline(admin.TabularInline):
-	model = GroupCategory
+    model = GroupCategory
 
 class CategoryAdmin(admin.ModelAdmin):
-	form = CategoryForm
-	list_display = ['name', 'singular_name', 'kind']
-	inlines = [
-		GroupCategoryInline,
-	]
+    form = CategoryForm
+    list_display = ['name', 'singular_name', 'kind']
+    inlines = [
+        GroupCategoryInline,
+    ]
 
 class PurposeAdmin(admin.ModelAdmin):
-	pass
+    pass
 
 class PropertyAdmin(admin.ModelAdmin):
-	list_display = ('title', 'description', 'address', 'pub_date')
+    list_display = ('title', 'description', 'address', 'pub_date')
 
 admin.site.register(Specification, SpecificationAdmin)
 admin.site.register(Group, GroupAdmin)

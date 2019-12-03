@@ -45,6 +45,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'fontawesome',
     'components',
+    'hydra',
 ]
 
 MY_APPS = [    

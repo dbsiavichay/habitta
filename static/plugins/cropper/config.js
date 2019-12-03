@@ -68,14 +68,17 @@ $(function () {
         $modal.fadeIn();
     }
 
-    document.getElementById('crop').addEventListener('click', function () {           
-        data = getBase64Image(1600, 900);
-        if (data) {
-            document.getElementById('id_base64image').value = data;
-            document.getElementById('cover').src = data;
-        }
-        $modal.fadeOut(destroyCropper);            
-    });
+    var cropElement = document.getElementById('crop');
+    if (cropElement) {
+        document.getElementById('crop').addEventListener('click', function () {
+            data = getBase64Image(1600, 900);
+            if (data) {
+                document.getElementById('id_base64image').value = data;
+                document.getElementById('cover').src = data;
+            }
+            $modal.fadeOut(destroyCropper);            
+        });
+    }
 
     //Cancel crop
     document.querySelectorAll('.close-reg,#cancel-crop').forEach(function (item) {
@@ -83,12 +86,14 @@ $(function () {
     })
 
     //Events
-    coverInput.addEventListener('change', function (e) {        
-        getDataFile(e.target.files)
-        .then(function () {
-            createCropper(cropperImage);
-            modalShow();            
+    if(coverInput){
+        coverInput.addEventListener('change', function (e) {        
+            getDataFile(e.target.files)
+            .then(function () {
+                createCropper(cropperImage);
+                modalShow();            
+            });
         });
-    });
+    }
    
 });

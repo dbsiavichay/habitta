@@ -1,17 +1,22 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
-{% block 'content' %}
+{% block content %}
 <!--section -->
 <section id="sec1">
     <!-- container -->
     <div class="container">
         <!-- profile-edit-wrap -->
         <div class="profile-edit-wrap">
+            {% block breadcumbs %}
             <div class="profile-edit-page-header">
-                {% block breadcrumbs %}{% endblock %}
+                <h2>Mis publicaciones</h2>
+                <div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Publicaciones</span></div>
             </div>
+            {% endblock %}
             <div class="row">
-                {% include 'dashboard/menu_aside.html' %}
+                <div class="col-md-3">
+                    {% include 'base/sidebar.html' %}
+                </div>
                 <div class="col-md-9">
                     <div class="dashboard-list-box fl-wrap">
                         <div class="dashboard-header fl-wrap">
@@ -19,16 +24,7 @@
                         </div>
                         {% block list %}{% endblock %}
                     </div>
-                    {% block extra_content %}{% endblock %}    
-                    <!-- pagination-->
-                    <div class="pagination">
-                        <a href="#" class="prevposts-link"><i class="fa fa-caret-left"></i></a>
-                        <a href="#">1</a>
-                        <a href="#" class="current-page">2</a>
-                        <a href="#">3</a>
-                        <a href="#">4</a>
-                        <a href="#" class="nextposts-link"><i class="fa fa-caret-right"></i></a>
-                    </div>
+                    {% include 'base/pagination.html' %}
                 </div>
             </div>
         </div>
@@ -38,5 +34,6 @@
 </section>
 <!-- section end -->    
 <div class="limit-box fl-wrap"></div>
-{% include 'base/questions.html' %}
+{% include 'base/have_a_questions.html' %}
+{# include 'base/delete_modal.html' #}
 {% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base/base.html' %}
+
+{% load static messenger %}
+
+{% block content %}
+<!--section -->
+<section class="parallax-section small-par color-bg">
+    <div class="shapes-bg-big"></div>
+    <div class="container">
+        <div class="section-title center-align">
+            <div class="breadcrumbs fl-wrap"><a href="{% url 'home' %}">Inicio</a><a href="#">Perfiles</a><span>{{ object.user.username }}</span></div>
+            <h2><span>{{ object.user.get_full_name }}</span></h2>
+            <div class="user-profile-avatar"><img src="{{ object.get_avatar }}" alt=""></div>
+            <div class="user-profile-rating clearfix">
+                <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
+                    <span>(37 comentarios)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header-sec-link">
+        <div class="container"><a href="#sec1" class="custom-scroll-link">Acerca del usuario</a></div>
+    </div>
+</section>
+<!-- section end -->
+<!--section -->
+<section class="gray-bg" id="sec1">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <!-- <div class="list-single-main-item fl-wrap">
+                    <div class="list-single-main-item-title fl-wrap">
+                        <h3>About <span> Alisa Noory</span></h3>
+                    </div>
+                    <p>Ut euismod ultricies sollicitudin. Curabitur sed dapibus nulla. Nulla eget iaculis lectus. Mauris ac maximus neque. Nam in mauris quis libero sodales eleifend. Morbi varius, nulla sit amet rutrum elementum, est elit finibus tellus, ut tristique elit risus at metus.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas in pulvinar neque. Nulla finibus lobortis pulvinar. Donec a consectetur nulla. Nulla posuere sapien vitae lectus suscipit, et pulvinar nisi tincidunt. Aliquam erat volutpat. Curabitur convallis fringilla diam sed aliquam. Sed tempor iaculis massa faucibus feugiat. In fermentum facilisis massa, a consequat purus viverra.</p>
+                    <a href="#" class="btn transparent-btn float-btn">Visit Website <i class="fa fa-angle-right"></i></a>
+                </div> -->
+                <div class="listsearch-header fl-wrap">
+                    <h3>Publicaciones de {{ object.user.get_full_name }}</h3>
+                    
+                </div>
+                <!-- list-main-wrap-->
+                <div class="list-main-wrap fl-wrap card-listing ">
+                    {% for property in object.user.property_set.all %}
+                    {% include 'realty/property_card.html' with object=property %}
+                    {% if forloop.counter|divisibleby:2 %}<div class="clearfix"></div>{% endif %}                           
+                    {% endfor %}
+                                                     
+                    {% include 'base/pagination.html' %}
+                </div>
+                <!-- list-main-wrap end-->                           
+            </div>
+            <!--box-widget-wrap -->
+            <div class="col-md-4">
+                <div class="fl-wrap">
+                    <!--box-widget-item -->
+                    <div class="box-widget-item fl-wrap">
+                        <div class="box-widget-item-header">
+                            <h3>Información de usuario : </h3>
+                        </div>
+                        <div class="box-widget">
+                            <div class="box-widget-content">
+                                <div class="list-author-widget-contacts list-item-widget-contacts">
+                                    <ul>                                        
+                                        <li><span><i class="fa fa-phone"></i>Teléfono :</span> <a href="#">{{ object.phone }}</a></li>
+                                        <li><span><i class="fa fa-envelope-o"></i>Email :</span> <a href="#">{{ object.user.email }}</a></li>                                        
+                                    </ul>
+                                </div>
+                                <div class="list-widget-social">
+                                    <ul>
+                                        {% for social in object.socialnetworkprofile_set.all %}
+                                        <li><a href="{{ social.get_url }}" target="_blank" ><i class="fa fa-{{ social.social_network.icon }}"></i></a></li>
+                                        {% endfor %}                                         
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--box-widget-item end --> 
+                    {% url 'conversations' as success_url %}                               
+                    {% message_form object.user 'messenger/message_form.html' success_url %}
+                </div>
+            </div>
+            <!--box-widget-wrap end-->
+        </div>
+    </div>
+</section>
+<!-- section end -->
+<div class="limit-box fl-wrap"></div>
+{% include 'base/have_a_questions.html' %}
+{% endblock %}

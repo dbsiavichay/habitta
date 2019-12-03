@@ -1,0 +1,54 @@
+{% extends 'base/base_list.html' %}
+
+{% block list %}
+{% for property in object_list %}
+<!-- dashboard-list--> 
+<div class="dashboard-list">
+    <div class="dashboard-message">
+        <span class="new-dashboard-item">{{ property.category }}</span>
+        <div class="dashboard-listing-table-image">
+            <a href="{% url 'detail_property' property.id %}"><img src="{{ property.get_cover }}" alt=""></a>
+        </div>
+        <div class="dashboard-listing-table-text">
+            <h4><a href="listing-single.html">{{ property.title }}</a></h4>
+            <span class="dashboard-listing-table-address"><i class="fa fa-map-marker"></i><a  href="#">{{ property.address }}</a></span>
+            <div class="listing-rating card-popup-rainingvis fl-wrap" data-starrating2="5">
+                <span>(2 comentarios)</span>
+            </div>
+            <ul class="dashboard-listing-table-opt fl-wrap">
+                <li><a href="{% url 'update_property' property.id %}"><i class="fa fa-pencil-square-o"></i></a></li>
+                <li><a href="{% url 'print_property' property.id %}"><i class="fa fa-print"></i></a></li>
+                <li>
+                    <a href="#" data-pk="{{ property.id }}" class="del-btn"><i class="fa fa-trash-o"></i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- dashboard-list end-->
+{% empty %}
+<div class="dashboard-list">
+    <div class="dashboard-message">        
+        <div class="dashboard-listing-table-text">
+            <h4><a href="#">Sin registros.</a></h4>            
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block 'extrajs' %}
+<script>
+    $('.del-btn').on('click', function (e) {
+        e.preventDefault()
+        var base_url = '/realty/property/';
+        var pk = this.dataset.pk
+        $('#del-form').attr('action', base_url+pk+'/delete/')
+        $('#delete-modal').fadeIn();
+    });
+
+    $('.close-reg').on('click', function () {
+        $(this).parents('.modal').fadeOut();
+    });
+</script>
+{% endblock %}

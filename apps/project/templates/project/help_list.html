@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+
+{% load components %}
+
+{% block content %}
+<!--section -->
+<section class="parallax-section parallax-sm" data-scrollax-parent="true" id="sec1">
+    <div class="bg par-elem " data-bg="{% if project.help_cover %} {{ project.help_cover.url }} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="section-title center-align no-padding">
+            <h2><span>Ayuda</span></h2>
+            <div class="breadcrumbs fl-wrap"><a href="{% url 'home' %}">Inicio</a><span>Ayuda</span></div>
+            <span class="section-separator"></span>
+        </div>
+    </div>
+</section>
+<!-- section end -->
+
+<!--section -->
+<section id="sec1">
+    <!-- container -->
+    <div class="container">
+        <!-- profile-edit-wrap -->
+        <div class="profile-edit-wrap">            
+            <div class="row">                
+                <div class="col-md-12">
+                    <div class="dashboard-list-box fl-wrap">
+                        <div class="dashboard-header fl-wrap">
+                            <h3>Listado</h3>
+                        </div>
+                        <div class="accordion">
+                            {% for object in object_list %}
+                            <!-- dashboard-list end-->
+                            <a class="toggle" href="#">
+                                {{ object.title }}
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <div class="accordion-inner">
+                                <!-- dashboard-list end-->    
+                                <div class="item-list">
+                                    <div class="item-text">
+                                        <p>{{ object.description|linebreaks }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--profile-edit-wrap end -->
+    </div>
+    <!--container end -->
+</section>
+<!-- section end -->    
+<div class="limit-box fl-wrap"></div>
+{% include 'base/join_our.html' %}
+{% endblock %}
+

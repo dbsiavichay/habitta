@@ -1,0 +1,39 @@
+{% load hydra %}
+
+{% for field in form.hidden_fields %}
+{{ field }}
+{% endfor %}
+
+
+{% if form.columns %}
+
+{% for range, width in form.columns %}
+<div class="row">
+    {% for field in form.visible_fields|slice:range %}
+    <div class="col-md-{{ width }}">
+        {% if field|widget_type == 'select' %}
+        {% render_field field class="chosen-select" %}
+        {% else %}
+        {% render_field field %}
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+
+
+{% else %}
+
+
+{% for field in form.visible_fields %}
+
+{% if field|widget_type == 'select' %}
+{% render_field field class="chosen-select" %}
+{% else %}
+{% render_field field %}
+{% endif %}
+
+{% endfor %}
+
+
+{% endif %}
