@@ -1,0 +1,44 @@
+{% load static %}
+<!--=============== scripts  ===============-->
+<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plugins.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/scripts.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places&callback=initAutocomplete"></script>
+<script type="text/javascript" src="{% static 'js/single-map.js' %}"></script>
+
+
+
+<!-- Forms -->
+<script type="text/javascript" src="{% static 'js/csfrtoken.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/locationpicker/locationpicker.jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/locationpicker/config.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/forms.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/cropper/cropper.min.js' %}"></script>    
+<script type="text/javascript" src="{% static 'plugins/cropper/config.js' %}"></script>
+<script type="text/javascript">
+    $(function () {
+        /*Cards*/
+        $('.listing-item').on('click', function () {
+            window.location.href = $(this).data('url');
+        });
+        /* Forms */
+        function render_details_form() {
+            $.get('/realty/render/detalles-de-categoria/' + this.value + '/', function (data) {
+                var container = document.getElementById('details-form');
+                container.innerHTML = '';
+                container.insertAdjacentHTML('afterbegin', data.form);
+                $(container).find('.chosen-select').niceSelect();
+            });
+        }
+
+        $('#id_category').on('change', render_details_form);
+    });
+</script>
+
+<!-- Detail -->
+<script type="text/javascript" src="{% static 'js/gallery-upload-image.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/reactions.js' %}"></script>
+
+<!-- Facebook -->
+<script type="text/javascript" src="{% static 'plugins/facebook/facebook-sdk.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/facebook/social.js' %}"></script>

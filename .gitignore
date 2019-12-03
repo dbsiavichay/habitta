@@ -3,4 +3,4 @@
 *.pyc
 .python-version
 media/
-*/migrations/
+migrations/
