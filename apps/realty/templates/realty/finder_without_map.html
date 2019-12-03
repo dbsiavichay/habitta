@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 
-{% load static components comments %}
+{% load static components %}
 
 {% block content %}
 <!--  section  --> 
@@ -10,7 +10,7 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="listsearch-header fl-wrap">
-                        <h3>Results For : <span>All Listings</span></h3>
+                        <h3>Resultados de búsqueda</h3>
                         <div class="listing-view-layout">
                             <ul>
                                 <li><a class="grid active" href="{% url 'finder' %}"><i class="fa fa-map-marker"></i></a></li>
@@ -20,29 +20,7 @@
                     <!-- list-main-wrap-->
                     <div class="list-main-wrap fl-wrap card-listing">
                         <!-- listing-item -->
-                        <div class="listing-item">
-                            <article class="geodir-category-listing fl-wrap">
-                                <div class="geodir-category-img">
-                                    <img src="images/all/1.jpg" alt="">
-                                    <div class="overlay"></div>
-                                    <div class="list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
-                                </div>
-                                <div class="geodir-category-content fl-wrap">
-                                    <a class="listing-geodir-category" href="listing.html">Restourants</a>
-                                    <div class="listing-avatar"><a href="author-single.html"><img src="images/avatar/1.jpg" alt=""></a>
-                                        <span class="avatar-tooltip">Added By  <strong>Lisa Smith</strong></span>
-                                    </div>
-                                    <h3><a href="listing-single.html">Luxury Restourant</a></h3>
-                                    <p>Sed interdum metus at nisi tempor laoreet. Integer gravida orci a justo sodales, sed lobortis est placerat.</p>
-                                    <div class="geodir-category-options fl-wrap">
-                                        <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
-                                            <span>(7 reviews)</span>
-                                        </div>
-                                        <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
-                                    </div>
-                                </div>
-                            </article>
-                        </div>
+                        <div id="locations" class="container"></div>
                         <!-- listing-item end-->
                     
                         
@@ -53,34 +31,16 @@
                 <div class="col-md-4">
                     <div class="fl-wrap">
                         <!-- listsearch-input-wrap  -->  
-                        <div class="listsearch-input-wrap fl-wrap">
+                        <div class="listsearch-input-wrap fl-wrap">                            
                             <div class="listsearch-input-item">
-                                <i class="mbri-key single-i"></i>
-                                <input type="text" placeholder="Keywords?" value=""/>
+                                {{ form.search_purpose|add_class:"chosen-select" }} 
                             </div>
                             <div class="listsearch-input-item">
-                                <select data-placeholder="Location" class="chosen-select" >
-                                    <option>All Locations</option>
-                                    <option>Bronx</option>
-                                    <option>Brooklyn</option>
-                                    <option>Manhattan</option>
-                                    <option>Queens</option>
-                                    <option>Staten Island</option>
-                                </select>
-                            </div>
-                            <div class="listsearch-input-item">
-                                <select data-placeholder="All Categories" class="chosen-select" >
-                                    <option>All Categories</option>
-                                    <option>Shops</option>
-                                    <option>Hotels</option>
-                                    <option>Restaurants</option>
-                                    <option>Fitness</option>
-                                    <option>Events</option>
-                                </select>
+                                {{ form.search_category|add_class:"chosen-select" }}
                             </div>
                             <div class="listsearch-input-text" id="autocomplete-container">
-                                <label><i class="mbri-map-pin"></i> Enter Addres </label>
-                                <input type="text" placeholder="Destination , Area , Street" id="autocomplete-input" class="qodef-archive-places-search" value=""/>
+                                <label><i class="mbri-map-pin"></i> Ingrese una dirección </label>
+                                {{ form.search_address|attr:"id:ac_address"|add_class:"qodef-archive-places-search"|append_attr:"placeholder:Destino, cuidad, área" }}
                                 <a  href="#"  class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
                             </div>
                             <div class="distance-input fl-wrap">
@@ -110,7 +70,7 @@
                                 </div>
                             </div>
                             <!-- hidden-listing-filter end -->
-                            <button class="button fs-map-btn">Update</button>
+                            <button id="search" class="button fs-map-btn">Actualizar</button>
                         </div>
                         <!-- listsearch-input-wrap end -->
                     </div>
@@ -126,10 +86,6 @@
 {% endblock %}
 
 {% block js %}
-    {{ block.super }}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places"></script>
-    <script type="text/javascript" src="{% static 'js/map_infobox.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/markerclusterer.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
-    <script src="{% static 'js/explorer.js' %}"></script>
+    {{ block.super }}    
+    <script src="{% static 'js/explorer_list.js' %}"></script>
 {% endblock %}

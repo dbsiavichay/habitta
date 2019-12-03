@@ -80,7 +80,9 @@ $(function () {
 
     
     //Events
-    imageInput.addEventListener('change', function (e) {        
-        uploadImage();
-    });    
+    if(imageInput) {
+        imageInput.addEventListener('change', function (e) {        
+            uploadImage();
+        });
+    }
 });

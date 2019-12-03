@@ -43,7 +43,7 @@ function initCitybook() {
         }
     });
     //   Isotope------------------
-    function initIsotope() {
+    /*function initIsotope() {
         if ($(".gallery-items").length) {
             var a = $(".gallery-items").isotope({
                 singleMode: true,
@@ -70,7 +70,7 @@ function initCitybook() {
             });
         }
     }
-	initIsotope();
+	initIsotope();*/
     //   Slick------------------
 	var sbp = $('.swiper-button-prev'),
 		sbn = $('.swiper-button-next');
@@ -161,7 +161,7 @@ function initCitybook() {
         $(this).closest(".carousel").find('.single-carousel').slick('slickNext');
     });
     $('.listing-carousel').slick({
-        infinite: true,
+        /*infinite: true,
         slidesToShow: 5,
         dots: true,
         arrows: false,
@@ -190,6 +190,37 @@ function initCitybook() {
                 breakpoint: 800,
                 settings: {
                     slidesToShow: 1,
+                }
+            }
+        ]*/
+        
+        slidesToShow: 4,
+        slidesToScroll: 4,
+        dots: true,
+        arrows: false,
+        centerMode: true,
+        centerPadding: '60px',
+        responsive: [{
+                breakpoint: 1500,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 3,
+                }
+            },
+
+            {
+                breakpoint: 1024,
+                settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 2,
+                }
+            },
+            {
+                breakpoint: 800,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    centerPadding: '20px',
                 }
             }
         ]
@@ -599,7 +630,7 @@ function initCitybook() {
         var countCurrent = $(".counter-widget").attr("data-countDate");
         $(".countdown").downCount({
             date: countCurrent ,
-            offset: 0
+            offset: -5
         });
     }
 	

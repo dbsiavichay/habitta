@@ -72,40 +72,8 @@
     <!-- list-main-wrap-->
     <div class="list-main-wrap fl-wrap card-listing">
         <a class="custom-scroll-link back-to-filters btf-l" href="#lisfw"><i class="fa fa-angle-double-up"></i><span>Volver a los filtros</span></a> 
-        {% verbatim %}
-        <div id="locations" class="container">
-            <!-- listing-item -->
-            <div v-for="object in locations" class="listing-item">
-                <article v-bind:data-url="object.url" class="geodir-category-listing fl-wrap">
-                    <div class="geodir-category-img">
-                        <img :src="object.cover" alt="">
-                        <div class="overlay"></div>
-                        <div class="list-post-counter"><span>4</span><i class="fa fa-heart"></i></div>
-                    </div>
-                    <div class="geodir-category-content fl-wrap">
-                        <span class="listing-geodir-category">
-                            <i class="fa fa-usd"></i> {{ object.price }}
-                        </span>
-                        <div class="listing-avatar"><a :href="object.user_url"><img :src="object.user_avatar" alt=""></a>
-                            <span class="avatar-tooltip">Publicado por <strong>{{ object.user_name }}</strong></span>
-                        </div>
-                        <h3>
-                            <div>{{ object.purpose }}</div>
-                            <span>{{ object.category }}</span>
-                        </h3>
-                        <p>{{ object.description }}</p>
-                        <div class="geodir-category-options fl-wrap">
-                            <div class="listing-rating card-popup-rainingvis" data-starrating2="5">
-                                <span>({{ object.reviews }} comentarios)</span>
-                            </div>
-                            <div class="geodir-category-location"><span><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address }}</span></div>
-                        </div>
-                    </div>
-                </article>
-            </div>
-            <!-- listing-item end-->            
-        </div>
-        {% endverbatim %}                                                  
+ 
+        <div id="locations" class="container"></div>
         <a class="load-more-button" href="#">Cargar más <i class="fa fa-circle-o-notch"></i> </a>  
     </div>
     <!-- list-main-wrap end-->
@@ -116,10 +84,8 @@
 {% endblock %}
 
 {% block js %}
-    {{ block.super }}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places"></script>
+    {{ block.super }}    
     <script type="text/javascript" src="{% static 'js/map_infobox.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/markerclusterer.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
     <script src="{% static 'js/explorer.js' %}"></script>
 {% endblock %}

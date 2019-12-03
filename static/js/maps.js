@@ -2,7 +2,7 @@
     "use strict";
     var markerIcon = {
         anchor: new google.maps.Point(22, 16),
-        url: 'images/marker.png',
+        url: '/static/images/marker.png',
     }
 
     function mainMap() {
@@ -227,7 +227,7 @@
             }]
         });
         var markerIcon2 = {
-            url: 'images/marker.png',
+            url: '/static/images/marker.png',
         }		
         var marker = new google.maps.Marker({
             position: myLatLng,

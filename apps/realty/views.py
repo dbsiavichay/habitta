@@ -13,7 +13,7 @@ from apps.multimedia.forms import ImageForm
 
 from .models import Category, Property, Purpose
 from .forms import FinderForm, GroupDetailsForm
-from .mixins import PropertyViewMixin, get_active_icons_url
+from .mixins import PropertyViewMixin
 
 from apps.logs.models import Log
 
@@ -75,7 +75,6 @@ class PropertyDetailView(DetailView):
         context.update({
             'image_form': image_form,
             'more_for_this_user': more_for_this_user,
-            'icons_url': get_active_icons_url(),            
         })
 
         return context

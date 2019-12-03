@@ -5,7 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from .models import Property, Category
 from .forms import PropertyForm, GroupDetailsForm, LocationForm
 from apps.multimedia.forms import CoverImageForm
-from apps.project.models import Icons
 
 
 class PropertyViewMixin:
@@ -61,7 +60,6 @@ class PropertyViewMixin:
 
       context.update({            
           'cover_form': self.get_cover_form(),
-          'icons_url': get_active_icons_url()
       })
 
       if not self.get_kind():
@@ -128,10 +126,3 @@ class PropertyViewMixin:
           cover.object_id = obj.id
           cover.content_type = ContentType.objects.get_for_model(obj)
           cover.save()
-
-def get_active_icons_url():
-    try:
-        icons = Icons.objects.get(is_active=True)
-        return icons.css.url
-    except Icons.DoesNotExist:
-        return ''

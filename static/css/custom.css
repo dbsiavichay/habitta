@@ -96,6 +96,36 @@ section {
     color: #999;
 }
 
+.gallery-item-del {
+    background-color: #FF2400;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    height: 30px;
+    line-height: 29px;
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    width: 30px;
+    z-index: 20;
+}
+
+.gallery-item img, .grid-sizer img {
+    height: 150px;
+    object-fit: contain;
+    background-color: rgba(0,0,0,.7);
+}
+
+.auction h4 {
+    font-size: 36px;
+}
+
+.auction p {
+    font-size: 18px;
+    color: grey;
+    font-weight: 600;
+}
+
 /* End detail */
 
 /*Property card*/
@@ -103,10 +133,27 @@ section {
     font-size: 24px;
     font-weight: 600;
     color: #4DB7FE;
+    margin-bottom: 12px;
 }
 .card-listing .geodir-category-content p i {
     font-size: 12px;
     margin-right: 5px;
     vertical-align: top;
 }
+.card-specification {
+    color: #797d8a;
+    font-size: 16px;
+    text-align: left;
+}
+.card-specification i {
+    margin-right: 7px;
+    font-size: 18px;
+}
 /* End property card */
+
+/*Maps*/
+#inputMap {
+    height: 300px;
+    width: 100%;
+}
+/*End Maps*/

@@ -64,19 +64,3 @@
 </div>
 <!--register form end -->
 {% endblock %}
-
-{% block js %}
-{{ block.super }}
-<script type="text/javascript">    
-    function render_details_form() {
-        $.get('/realty/render/detalles-de-categoria/' + this.value + '/', function (data) {
-            var container = document.getElementById('details-form');
-            container.innerHTML = '';
-            container.insertAdjacentHTML('afterbegin', data.form);
-            $(container).find('.chosen-select').niceSelect();
-        });
-    }
-
-    $('#id_category').on('change', render_details_form);
-</script>
-{% endblock %}

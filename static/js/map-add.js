@@ -22,7 +22,7 @@
             }]
         });
         var markerIcon2 = {
-            url: 'images/marker.png',
+            url: '/static/images/marker.png',
         }		
         var marker = new google.maps.Marker({
             position: myLatLng,

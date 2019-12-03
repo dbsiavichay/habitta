@@ -1,8 +1,10 @@
 var fb = document.getElementById('facebook');
-fb.addEventListener('click', function(event) {
-    event.preventDefault();
-    checkLogin();
-});
+if(fb) {
+    fb.addEventListener('click', function(event) {
+        event.preventDefault();
+        checkLogin();
+    });    
+}
 
 
 function checkLogin() {
@@ -20,8 +22,10 @@ function checkLogin() {
 }
 
 var tw = document.getElementById('twitter');
-tw.addEventListener('click', function (event) {
-    event.preventDefault();
-    document.getElementById('socialProvider').value = 'twitter';            
-    document.getElementById('socialForm').submit();
-});
+if(tw) {
+    tw.addEventListener('click', function (event) {
+        event.preventDefault();
+        document.getElementById('socialProvider').value = 'twitter';            
+        document.getElementById('socialForm').submit();
+    });
+}

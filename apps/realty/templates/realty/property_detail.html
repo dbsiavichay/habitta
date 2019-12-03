@@ -1,6 +1,6 @@
 {% extends 'base/base_detail.html' %}
 
-{% load static comments payments logs auctions %}
+{% load static payments logs auctions %}
 
 {% block pallarax %}
 <!--  section  --> 
@@ -35,7 +35,7 @@
                                 <div class="showshare"><span>Compartir </span><i class="fa fa-share"></i></div>
                                 <div class="share-container  isShare"></div>
                             </div>                            
-                            <a class="custom-scroll-link" href="#"><i class="fa fa-print"></i>Imprimir</a>
+                            <a class="custom-scroll-link" href="{% url 'print_property' object.id %}"><i class="fa fa-print"></i>Imprimir</a>
                         </div>
                     </div>
                 </div>
@@ -63,9 +63,10 @@
         <div class="box-widget">
             <div class="banner-wdget fl-wrap">
                 <div class="overlay"></div>
-                <div class="bg"  data-bg="images/bg/1.jpg"></div>
-                <div class="banner-wdget-content fl-wrap">                    
-                    <h4>Esta publicación esta en subasta, paga el enganche para ofertar.</h4>
+                <div class="bg" data-bg="{% static 'images/bg/auction.jpg' %}"></div>
+                <div class="banner-wdget-content fl-wrap auction">                    
+                    <h4>Esta publicación esta en subasta</h4>
+                    <p>Para ofertar debes pagar un enganche</p>
                     <a href="#" class="color-bg">Pagar</a>
                 </div>  
             </div>
@@ -78,7 +79,7 @@
         <div class="box-widget-item-header">
             <h3>Finaliza en: </h3>
         </div>
-        <div class="box-widget counter-widget gradient-bg" data-countDate="09/12/2019">
+        <div class="box-widget counter-widget gradient-bg" data-countDate="{{ auction.ending_date|date:'m/d/Y H:i:s' }}">
             <div class="countdown fl-wrap">
                 <div class="countdown-item">
                     <span class="days rot">00</span>
@@ -304,9 +305,4 @@
     <!--box-widget-item end -->
     {% endif %}     
 </div>
-{% endblock %}
-
-{% block css %}
-{{ block.super }}
-<link rel="stylesheet" href="{{ icons_url }}">
 {% endblock %}
