@@ -92,4 +92,7 @@ var renderCards = function(locations) {
     for (var i in locations){
         container.insertAdjacentHTML('beforeend', locations[i].list_card)
     }
+    $('.listing-item').on('click', function () {
+        window.location.href = $(this).data('url');
+    });
 }
