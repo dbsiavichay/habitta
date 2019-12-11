@@ -58,6 +58,7 @@
                     <div class="box-widget-item fl-wrap">
                         <div class="box-widget-item-header">
                             <h3>Información de usuario : </h3>
+                            <input type="hidden" id="owner" value="{{ object.user.id }}">
                         </div>
                         <div class="box-widget">
                             <div class="box-widget-content">
@@ -89,4 +90,11 @@
 <!-- section end -->
 <div class="limit-box fl-wrap"></div>
 {% include 'base/have_a_questions.html' %}
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+{% if user != object.user %}
+{% include 'base/chat_widget.html' with receiver=object.user %}
+{% endif %}
 {% endblock %}

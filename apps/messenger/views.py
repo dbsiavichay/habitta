@@ -8,39 +8,39 @@ from .forms import MessageForm
 from django.db.models import Q
 
 class ConversationListView(ListView):
-	model = Conversation
+    model = Conversation
 
-	def get_queryset(self):
-		queryset = super().get_queryset()
-		queryset = queryset.filter(Q(owner=self.request.user)|Q(member=self.request.user))
-		return queryset
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(Q(owner=self.request.user)|Q(member=self.request.user))
+        return queryset
 
 class ConversationDetailView(DetailView):
-	model = Conversation
+    model = Conversation
 
 class MessageCreateView(CreateView):
-	model = Message
-	form_class = MessageForm
-	success_url = reverse_lazy('conversations')
+    model = Message
+    form_class = MessageForm
+    success_url = reverse_lazy('conversations')
 
-	def form_valid(self, form):
-		receiver = get_object_or_404(User, pk=form.cleaned_data['receiver'])
-		sender = self.request.user
-		try:
-			conversation = Conversation.objects.get(Q(owner=sender, member=receiver)|Q(owner=receiver, member=sender))
-		except:
-			conversation = Conversation.objects.create(owner=sender, member=receiver)
+    def form_valid(self, form):
+        receiver = get_object_or_404(User, pk=form.cleaned_data['receiver'])
+        sender = self.request.user
+        try:
+            conversation = Conversation.objects.get(Q(owner=sender, member=receiver)|Q(owner=receiver, member=sender))
+        except:
+            conversation = Conversation.objects.create(owner=sender, member=receiver)
 
-		self.object = form.save(commit=False)
-		self.object.sender = sender
-		self.object.conversation = conversation
-		self.object.save()
-		
-		return redirect(form.cleaned_data['success_url'])
+        self.object = form.save(commit=False)
+        self.object.sender = sender
+        self.object.conversation = conversation
+        self.object.save()
+        
+        return redirect(form.cleaned_data['success_url'])
 
-	def form_invalid(self, form):
-		print(form.errors)
+    def form_invalid(self, form):
+        print(form.errors)
 
-	def get(self, request, *args, **kwargs):
-		raise Http404
+    def get(self, request, *args, **kwargs):
+        raise Http404
 

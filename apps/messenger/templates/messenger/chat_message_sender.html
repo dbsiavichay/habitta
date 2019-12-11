@@ -1,0 +1,10 @@
+<!-- message-->
+<div class="chat-message chat-message_guest fl-wrap">
+    <div class="dashboard-message-avatar">
+        <img src="{{ message.sender.profile.get_avatar }}" alt="">
+    </div>
+    <span class="chat-message-user-name">{{ message.sender.first_name|default:message.sender.username }}</span>
+    <span class="massage-date">{{ message.create_date }}</span>
+    <p>{{ message.content }}</p>
+</div>
+<!-- message end-->

@@ -12,14 +12,13 @@
 <!-- dashboard-list end-->    
 <div class="dashboard-list" data-url="{% url 'detail_conversation' object.id %}">
     <div class="dashboard-message">
-        {% get_conversation_user object as conversation_user %}
+        {% get_conversation_receiver object user as receiver %}
         {% with object.last_message as last_message %}
-        <span class="new-dashboard-item">1</span>
         <div class="dashboard-message-avatar">
-            <img src="{{ conversation_user.profile.get_avatar }}" alt="">
+            <img src="{{ receiver.profile.get_avatar }}" alt="">
         </div>
         <div class="dashboard-message-text">
-            <h4>{{ conversation_user.first_name }} - <span>Hace {{ last_message.create_date|timesince }}</span></h4>
+            <h4>{{ receiver.first_name }} - <span>Hace {{ last_message.create_date|timesince }}</span></h4>
             <p>{{ last_message.content }}</p>            
         </div>
         {% endwith %}
@@ -40,15 +39,16 @@
 </style>
 {% endblock %}
 
-{% block 'extrajs' %}
+{% block js %}
+{{ block.super }}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    elements = document.querySelectorAll('.dashboard-list');
-    elements.forEach(function (elem, index) {
-        elem.addEventListener('click', function () {
-            window.location.href = this.dataset.url;
+    document.addEventListener('DOMContentLoaded', function () {
+        elements = document.querySelectorAll('.dashboard-list');
+        elements.forEach(function (elem, index) {
+            elem.addEventListener('click', function () {
+                window.location.href = this.dataset.url;
+            });
         });
-    });
 });
 </script>
 {% endblock %}

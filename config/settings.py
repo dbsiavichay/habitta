@@ -46,6 +46,7 @@ THIRD_PARTY_APPS = [
     'fontawesome',
     'components',
     'hydra',
+    'channels'
 ]
 
 MY_APPS = [    
@@ -169,3 +170,14 @@ TWITTER_API_SECRET = os.environ['TWITTER_API_SECRET']
 PAYPAL_MODE = os.environ['PAYPAL_MODE']
 PAYPAL_CLIENT_ID  = os.environ['PAYPAL_CLIENT_ID']
 PAYPAL_CLIENT_SECRET = os.environ['PAYPAL_CLIENT_SECRET']
+
+# Channels
+ASGI_APPLICATION = 'config.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}

@@ -140,6 +140,9 @@ section {
     margin-right: 5px;
     vertical-align: top;
 }
+.card-listing .listing-geodir-category {
+    background: #EFB810;
+}
 .card-specification {
     color: #797d8a;
     font-size: 16px;
@@ -157,3 +160,14 @@ section {
     width: 100%;
 }
 /*End Maps*/
+
+/* Chat */
+.custom-chat {
+    display: block;
+    position: static;
+    width: 100%;
+    box-shadow: unset;
+    border: 1px solid #eee;
+    height: 1000px;
+}
+/* End chat */

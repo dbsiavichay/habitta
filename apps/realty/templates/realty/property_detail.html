@@ -248,6 +248,7 @@
     <div class="box-widget-item fl-wrap">
         <div class="box-widget-item-header">
             <h3><i class="fa fa-user"></i> Publicado por : </h3>
+            <input type="hidden" id="owner" value="{{ object.user.id }}">
         </div>
         <div class="box-widget list-author-widget">
             <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
@@ -305,4 +306,11 @@
     <!--box-widget-item end -->
     {% endif %}     
 </div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+{% if user != object.user %}
+{% include 'base/chat_widget.html' with receiver=object.user %}
+{% endif %}
 {% endblock %}

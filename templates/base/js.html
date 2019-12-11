@@ -38,7 +38,42 @@
 <!-- Detail -->
 <script type="text/javascript" src="{% static 'js/gallery-upload-image.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/reactions.js' %}"></script>
+<script>
+    var receiver = document.querySelector('#owner').value;
+    var chatSocket = new WebSocket(
+        'ws://' + window.location.host +
+        '/ws/message/' + receiver + '/', );
 
+
+    chatSocket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        var message = data['message'];
+        document.querySelector('.chat-body').insertAdjacentHTML('beforeend', message)
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('.chat-widget_input textarea').onkeyup = function(e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('.chat-widget_input button').click();
+        }
+    };
+
+    document.querySelector('.chat-widget_input button').onclick = function(e) {
+        var messageInputDom = document.querySelector('.chat-widget_input textarea');
+        var receiverInputDom = document.querySelector('#owner');
+        var message = messageInputDom.value;
+        var receiver = receiverInputDom.value;
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'receiver': receiver,
+        }));
+
+        messageInputDom.value = '';
+    };
+</script>
 <!-- Facebook -->
 <script type="text/javascript" src="{% static 'plugins/facebook/facebook-sdk.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/facebook/social.js' %}"></script>
