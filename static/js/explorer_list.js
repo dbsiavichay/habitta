@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.getElementById('search').addEventListener('click', function () {       
-        getLocations(map, getSearchUrl());
+        getLocations(getSearchUrl());
     });
 
     var autocompleteAddress = document.getElementById('ac_address');    
@@ -85,9 +85,9 @@ var getLocations = function(center) {
     });
 }
 
-var renderCards = function(locations) {
-    console.log(locations)
-    container = document.getElementById('locations');
+var renderCards = function(locations) {    
+    var container = document.getElementById('locations');
+    container.innerHTML = '';
     if(!locations) return;
     for (var i in locations){
         container.insertAdjacentHTML('beforeend', locations[i].list_card)

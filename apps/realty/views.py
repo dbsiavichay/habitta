@@ -157,7 +157,7 @@ class PropertyDetailsRenderer(FormView):
 def filter_category_by_purpose(request, pk, klass): 
     purpose = get_object_or_404(Purpose, pk=pk)
     form = FinderForm(initial={'search_purpose': purpose})
-    r = render_to_string('components/realty/category_by_purpose.html', context={'form':form, 'klass':klass})
+    r = render_to_string('hydra/search_select.html', context={'form':form, 'klass':klass})
     
     return JsonResponse({'select': r}, status=200)
 

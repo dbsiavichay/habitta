@@ -10,17 +10,18 @@
             <div class="listing-avatar"><a href="{% url 'detail_profile' object.user.username %}"><img src="{{ object.user.profile.get_avatar }}" alt=""></a>
                 <span class="avatar-tooltip">Publicado por  <strong>{{ object.user.get_full_name }}</strong></span>
             </div>
-            <h3><a href="{{ object.get_absolute_url }}">{{ object.title|lower|capfirst|truncatechars:"30"|default:object.category.singular_name }}</a></h3>
+            <h3><a href="{{ object.get_absolute_url }}">{{ object.title|lower|capfirst|truncatechars:"25"|default:object.category.singular_name }}</a></h3>
             <p><i class="fa fa-usd"></i>{{ object.get_price_area }}</p>
-            <div class="geodir-category-options fl-wrap">
+            <div class="geodir-category-options fl-wrap">                
                 <div class="row">
                     {% for item in object.get_specifications_for_card %}
                     <div class="col-xs-6 card-specification">
                         <i class="lb-{{ item.icon }}"></i>{{ item.value }}
                     </div>
                     {% endfor %}
-                </div>
-                <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address|truncatechars:"40" }}</a></div>
+                </div>                
+                <div class="geodir-category-date"><i class="fa fa-clock-o" aria-hidden="true"></i>Hace {{ object.pub_date|timesince }}</div>
+                <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address|truncatechars:"35" }}</a></div>
             </div>
         </div>
     </article>

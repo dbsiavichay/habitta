@@ -142,6 +142,24 @@ section {
 }
 .card-listing .listing-geodir-category {
     background: #EFB810;
+    padding: 10px;
+}
+.card-listing .geodir-category-location {
+    padding:10px 0;
+    margin-top: unset;
+}
+.card-listing .geodir-category-location i{
+    padding-right: 10px;
+}
+.card-listing .geodir-category-date {
+    color: #999;
+    float: left;
+    padding: 10px 0;
+}
+.card-listing .geodir-category-date i {
+    padding-right: 10px;
+    font-size: 14px;
+    color:#4DB7FE;
 }
 .card-specification {
     color: #797d8a;
@@ -171,3 +189,9 @@ section {
     height: 1000px;
 }
 /* End chat */
+
+/*Search bar*/
+.header-search-select-item.custom {
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+}

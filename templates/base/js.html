@@ -3,7 +3,8 @@
 <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/plugins.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/scripts.js' %}"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places&callback=initAutocomplete"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places"></script>
+<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places&callback=initAutocomplete"></script> -->
 <script type="text/javascript" src="{% static 'js/single-map.js' %}"></script>
 
 
@@ -15,6 +16,22 @@
 <script type="text/javascript" src="{% static 'js/forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/cropper/cropper.min.js' %}"></script>    
 <script type="text/javascript" src="{% static 'plugins/cropper/config.js' %}"></script>
+<!-- Search bar -->
+<script>   
+    $(function () {
+        $('#id_search_purpose').on('change', function () {
+            var pk = this.value;            
+            klass = this.getAttribute('class').split(' ')[0]
+            $.get('/realty/finder/purpose/' + pk + '/' + klass + '/', function (data){
+                var container = $('#id_search_category').parent();
+                container.text('');
+                container.html(data.select)
+                $('#id_search_category').niceSelect();
+            })
+        });
+    });
+</script>
+
 <script type="text/javascript">
     $(function () {
         /*Cards*/
@@ -34,6 +51,16 @@
         $('#id_category').on('change', render_details_form);
     });
 </script>
+
+<!-- Index -->
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var autocompleteAddress = document.getElementById('ac_address');    
+        var autocomplete = new google.maps.places.Autocomplete(autocompleteAddress);
+    });
+</script>
+
+
 
 <!-- Detail -->
 <script type="text/javascript" src="{% static 'js/gallery-upload-image.js' %}"></script>

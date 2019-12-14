@@ -194,8 +194,8 @@ function initCitybook() {
             }
         ]*/
         
-        slidesToShow: 4,
-        slidesToScroll: 4,
+        slidesToShow: 5,
+        slidesToScroll: 5,
         dots: true,
         arrows: false,
         centerMode: true,
@@ -203,8 +203,13 @@ function initCitybook() {
         responsive: [{
                 breakpoint: 1500,
                 settings: {
+                    slidesToShow: 4,
+                }
+            },
+            {
+                breakpoint: 1224,
+                settings: {
                     slidesToShow: 3,
-                    slidesToScroll: 3,
                 }
             },
 
@@ -212,15 +217,12 @@ function initCitybook() {
                 breakpoint: 1024,
                 settings: {
                     slidesToShow: 2,
-                    slidesToScroll: 2,
                 }
             },
             {
                 breakpoint: 800,
                 settings: {
                     slidesToShow: 1,
-                    slidesToScroll: 1,
-                    centerPadding: '20px',
                 }
             }
         ]
@@ -301,7 +303,7 @@ function initCitybook() {
     });
     // Share   ------------------
     $(".share-container").share({
-        networks: ['facebook', 'pinterest', 'googleplus', 'twitter', 'linkedin']
+        networks: ['facebook', 'twitter', 'pinterest', 'linkedin']
     });
     var shrcn = $(".share-container");
     function showShare() {

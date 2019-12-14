@@ -122,7 +122,7 @@
 
     <div class="list-single-main-item fl-wrap">
         <div class="list-single-main-item-title fl-wrap">
-            <h3>Acerca de </h3>
+            <h3>{{ object.title|lower|capfirst }}</h3>
         </div>
         <p>{{ object.description|linebreaks }}</p> 
     </div>

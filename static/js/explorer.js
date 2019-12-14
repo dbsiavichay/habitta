@@ -283,7 +283,8 @@ var buildMap = function (center) {
 }
 
 var renderCards = function(locations) {
-    container = document.getElementById('locations');
+    var container = document.getElementById('locations');
+    container.innerHTML = ''
     if(!locations) return;
     for (var i in locations){
         container.insertAdjacentHTML('beforeend', locations[i].list_card)
