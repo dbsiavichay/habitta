@@ -68,7 +68,7 @@
 <script>
     var receiver = document.querySelector('#owner').value;
     var chatSocket = new WebSocket(
-        'wss://' + window.location.host +
+        'ws://' + window.location.host +
         '/ws/message/' + receiver + '/', );
 
 

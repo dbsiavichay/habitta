@@ -51,7 +51,7 @@ class UserForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        exclude = ('user', 'social_networks',)    
+        exclude = ('user', 'social_networks', 'image')    
 
 class CompleteRegisterForm(ProfileForm):
     first_name = forms.CharField(label='Nombres')

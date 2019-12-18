@@ -1,9 +1,5 @@
 {% extends 'base/base_form.html' %}
 
-{% load static components %}
-
-
-
 {% block breadcumbs %}
 <div class="profile-edit-page-header">
     <h2>Editar perfil</h2>
@@ -15,18 +11,18 @@
 <div class="row">
     <div class="col-xs-9">
         {% include 'hydra/form.html' with form=user_form %}
-        {{ block.super }}        
+        {{ block.super }}
     </div>
     <div class="col-xs-3">
-        <div class="edit-profile-photo fl-wrap">                        
+        <div class="edit-profile-photo fl-wrap">
             <img src="{{ object.get_avatar }}" class="respimg" alt="">
             <div class="change-photo-btn">
                 <div class="photoUpload">
                     <span><i class="fa fa-upload"></i> Subir foto</span>
-                    <form id="upload_avatar" action="{% url 'upload_avatar_profile' %}" method="POST" enctype="multipart/form-data" novalidate>
+                    <div id="upload_avatar" data-action="{% url 'upload_avatar_profile' %}">
                         {% csrf_token %}
-                        <input name="image" type="file" class="upload">                                    
-                    </form>
+                        <input name="image" type="file" class="upload">
+                    </div>
                 </div>
             </div>
         </div>
@@ -69,11 +65,15 @@
 </div>
 {% endblock %}
 
-{% block 'extrajs' %}
+{% block js %}
+    {{ block.super }}
     <script type="text/javascript">
         var input = document.querySelector('input[name=image]');
         input.addEventListener('change', function(event){
-            document.getElementById('upload_avatar').submit();
+            var action = document.getElementById('upload_avatar').dataset.action;
+            form = document.querySelector('form');
+            form.action = action;
+            form.submit();
         });
     </script>
 {% endblock %}

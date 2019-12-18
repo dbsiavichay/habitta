@@ -34,9 +34,9 @@
                 <li><a href="{% url 'update_profile' %}"> Mi perfil</a></li>
                 <li><a href="{% url 'properties' %}"> Publicaciones</a></li>                
                 <li><a href="{% url 'add_auction' %}"> Subastar</a></li>                
-                <li><a href="{% url 'downloads' %}"> Descargas</a></li>                                
+                <li><a href="{% url 'downloads' %}"> Descargas</a></li>
+                <li><a href="{% url 'conversations' %}"> Conversaciones</a></li>
                 <li><a href="{% url 'favorite_properties' %}"> Favoritos</a></li>                
-                <li><a href="{% url 'choose_category' %}"> Publicar</a></li>
                 <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
             </ul>
         </div>
@@ -56,7 +56,7 @@
                         <a href="{% url 'home' %}" {% if request.path == '/' %}class="act-link"{% endif %}>Inicio</a>
                     </li>
                     <li>
-                        <a href="{% url 'finder_without_map' %}">Publicaciones</a>
+                        <a href="{% url 'conversations' %}">Mensajeria</a>
                     </li>
                     <li>
                         <a href="{% url 'finder' %}" {% if 'finder' in request.path %}class="act-link"{% endif %}>Mapa</a>
