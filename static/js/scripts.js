@@ -223,6 +223,7 @@ function initCitybook() {
                 breakpoint: 800,
                 settings: {
                     slidesToShow: 1,
+                    centerPadding: 0,
                 }
             }
         ]
