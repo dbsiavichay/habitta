@@ -220,6 +220,7 @@ section {
     border: 1px solid #4DB7FE;
     width: 100%; 
     height: 250px;
+    position: relative;
 }
 
 @media only screen and  (max-width: 1064px) {
