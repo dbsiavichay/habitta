@@ -107,17 +107,15 @@
 <script>
     $(function () {
 
-
-        var success = function (data) {
-            window.location.href = data;
-        }
-
-        var error = function (error) {
-            console.log(error)
-        }
-
         $('.nav-button-qrcode').on('click', function () {
-            $('#qr-reader').html5_qrcode(success, error, error);
+            $('#qr-reader').html5_qrcode(function(data){
+                window.location.href = data;
+            }, function(error) {
+                console.log(error);
+            }, function(videoError) {
+                console.log(videoError)
+            });
+
             $('#qrcode-modal').fadeIn();
         });
 
