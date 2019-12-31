@@ -108,7 +108,7 @@
     $(function () {
 
         var scan = function () {
-            let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+            let scanner = new Instascan.Scanner({ video: document.getElementById('qr-reader') });
             scanner.addListener('scan', function (content) {
                 console.log(content);
                 window.location.href = content;
