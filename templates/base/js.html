@@ -109,12 +109,10 @@
 
         var scan = function () {
             let scanner = new Instascan.Scanner({ video: document.getElementById('qr-reader') });
-            scanner.addListener('scan', function (content) {
-                console.log(content);
+            scanner.addListener('scan', function (content) {                
                 window.location.href = content;
             });
-            Instascan.Camera.getCameras().then(function (cameras) {
-                console.log(cameras)
+            Instascan.Camera.getCameras().then(function (cameras) {                
                 if (cameras.length > 0) {
                   scanner.start(cameras[cameras.length-1]);
                 } else {
