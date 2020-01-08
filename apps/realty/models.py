@@ -202,3 +202,10 @@ class Property(ImageMixin, models.Model):
 
     def get_absolute_url(self):     
         return reverse_lazy('detail_property', args=[str(self.id)])
+
+    def get_thumbnail(self):
+        image = self.get_last_image_by_code('thumbnail')
+        if image and image.img:
+            return image.img.url
+
+        return settings.STATIC_URL + 'images/bg/1.png'

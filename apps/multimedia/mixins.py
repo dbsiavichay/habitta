@@ -49,3 +49,17 @@ class ImageMixin(object):
 
 		image.save()
 		return image
+
+	def update_image(self, img, code):
+		image = self.get_last_image_by_code(code)
+		if not image:
+			return self.add_image(img, code)
+		else:
+			buff = BytesIO()
+			img.save(buff, 'PNG')
+			filename = '%s.png' % (str(uuid.uuid4()),)
+			filebuffer = InMemoryUploadedFile(buff, None, filename, 'image/png', img.tell, None)
+			image.img.save(filename, filebuffer)
+
+		image.save()
+		return image

@@ -171,6 +171,10 @@ PAYPAL_MODE = os.environ['PAYPAL_MODE']
 PAYPAL_CLIENT_ID  = os.environ['PAYPAL_CLIENT_ID']
 PAYPAL_CLIENT_SECRET = os.environ['PAYPAL_CLIENT_SECRET']
 
+#Tinify config
+
+TINIFY_API_KEY = os.environ['TINIFY_API_KEY']
+
 # Channels
 ASGI_APPLICATION = 'config.routing.application'
 CHANNEL_LAYERS = {
