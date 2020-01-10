@@ -37,7 +37,8 @@
 {% endfor %}
 {% endblock %}
 
-{% block 'extrajs' %}
+{% block js %}
+{{ block.super }}
 <script>
     $('.del-btn').on('click', function (e) {
         e.preventDefault()

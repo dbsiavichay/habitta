@@ -1,0 +1,19 @@
+<div id="delete-modal" class="main-register-wrap modal">
+    <div class="main-overlay"></div>
+    <div class="main-register-holder">
+        <div class="main-register fl-wrap">
+            <div class="close-reg"><i class="fa fa-times"></i></div>
+            <h3>Eliminar</h3>
+            <div class="soc-log fl-wrap">
+                <p>¿Seguro que desea eliminar este elemento?</p>
+                <p>* Recuerde que esta acción eliminará tambien todos los objectos asociados.</p>
+            </div>
+            <form id="del-form" action="" method="POST">
+                {% csrf_token %}
+            </form>      
+            <div class="modal-footer">                
+                <button type="submit" form="del-form" style="background-color: red" class="btn btn-primary">Eliminar</button>
+            </div>        
+        </div>
+    </div>
+</div>
