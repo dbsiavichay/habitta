@@ -17,14 +17,19 @@ section {
 /* Choose category */
 .box-cat{
     display: block;
-    background-color: #4DB7FE;
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 15px;
+    color: rgba(0,0,0,.7);
 }
 
 .box-cat i {
     font-size: 50px;
+}
+
+.box-cat:hover{
+    background-color: #4DB7FE;
+    color: #FFF; 
 }
 /* end choose category*/
 

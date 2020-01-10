@@ -24,51 +24,63 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.fc-casa:before {
-  content: "\e601";
-}
-.fc-estudiantil:before {
-  content: "\e602";
-}
-.fc-compartido:before {
-  content: "\e603";
-}
 .fc-negocio:before {
-  content: "\e604";
+  content: "\e90c";
 }
-.fc-villa:before {
-  content: "\e605";
+.fc-alojamientoprivado:before {
+  content: "\e900";
 }
-.fc-finca:before {
-  content: "\e606";
-}
-.fc-departamento:before {
-  content: "\e607";
-}
-.fc-minidepartamento:before {
-  content: "\e608";
-}
-.fc-edificio:before {
-  content: "\e609";
-}
-.fc-oficina:before {
-  content: "\e610";
-}
-.fc-hotel:before {
-  content: "\e611";
-}
-.fc-hostal:before {
-  content: "\e612";
-}
-.fc-local:before {
-  content: "\e613";
+.fc-apartamento:before {
+  content: "\e901";
 }
 .fc-bodega:before {
-  content: "\e614";
+  content: "\e902";
 }
-.fc-plano:before {
-  content: "\e615";
+.fc-casa:before {
+  content: "\e903";
+}
+.fc-edificio:before {
+  content: "\e904";
+}
+.fc-estudiantil:before {
+  content: "\e905";
+}
+.fc-finca:before {
+  content: "\e906";
+}
+.fc-hostal:before {
+  content: "\e907";
+}
+.fc-hotel:before {
+  content: "\e908";
+}
+.fc-local:before {
+  content: "\e909";
 }
 .fc-lote:before {
-  content: "\e616";
+  content: "\e90a";
+}
+.fc-miniapartamento:before {
+  content: "\e90b";
+}
+.fc-oficina:before {
+  content: "\e91d";
+}
+.fc-otrosnegocios:before {
+  content: "\e91e";
+}
+.fc-planos:before {
+  content: "\e91f";
+}
+.fc-proyectosinmobiliairios:before {
+  content: "\e920";
+}
+.fc-proyectosinmobiliairios01:before {
+  content: "\e921";
+}
+.fc-villas:before {
+  content: "\e922";
+}
+.fc-servicios:before {
+  content: "\e923";
 }
