@@ -126,7 +126,7 @@ class FinderListView(FinderMapView) :
 
 ##Ajax components
 class PropertyDetailsRenderer(FormView):
-    template_name = 'components/publication_details.html'
+    template_name = 'realty/publication_details.html'
     form_class = GroupDetailsForm
     http_method_names = ['get',]
 
