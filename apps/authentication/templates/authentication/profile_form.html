@@ -20,7 +20,6 @@
                 <div class="photoUpload">
                     <span><i class="fa fa-upload"></i> Subir foto</span>
                     <div id="upload_avatar" data-action="{% url 'upload_avatar_profile' %}">
-                        {% csrf_token %}
                         <input name="image" type="file" class="upload">
                     </div>
                 </div>
@@ -71,7 +70,7 @@
         var input = document.querySelector('input[name=image]');
         input.addEventListener('change', function(event){
             var action = document.getElementById('upload_avatar').dataset.action;
-            form = document.querySelector('form');
+            form = document.getElementById('upload_avatar').closest('form');
             form.action = action;
             form.submit();
         });

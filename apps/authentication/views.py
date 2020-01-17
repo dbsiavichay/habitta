@@ -100,6 +100,7 @@ class ProfileUploadImageView(UpdateView):
 		# Solo se puede enviar la imagen con post acción no permitida en get
 		return 'Acción no permitida'
 
+
 class ProfileDetailView(DetailView):
 	model = Profile	
 	slug_field = 'user__username'
