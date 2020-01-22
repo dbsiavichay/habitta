@@ -1,6 +1,8 @@
 *.[oa]
 *~
 *.pyc
-.python-version
+*.lock
 media/
 migrations/
+.env
+.DS_Store

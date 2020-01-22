@@ -1,0 +1,37 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+asn1crypto = "*"
+certifi = "*"
+cffi = "*"
+chardet = "*"
+cryptography = "*"
+django = "==2.2.6"
+django-fontawesome = "*"
+djangorestframework = "*"
+idna = "*"
+oauthlib = "*"
+paypalrestsdk = "*"
+psycopg2-binary = "*"
+pycparser = "*"
+pyopenssl = "*"
+pytz = "*"
+pyyaml = "*"
+qrcode = "*"
+reportlab = "*"
+requests = "*"
+requests-oauthlib = "*"
+six = "*"
+sqlparse = "*"
+urllib3 = "*"
+tinify = "*"
+Pillow = "*"
+channels = "*"
+
+[requires]
+python_version = "3.7"
