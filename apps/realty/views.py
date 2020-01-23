@@ -24,6 +24,12 @@ class ChooseCategoryListView(ListView):
     queryset = Category.objects.filter(enabled=True, kind=Category.REAL_STATE)
     template_name = 'realty/choose_category.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        services = self.model.objects.filter(enabled=True, kind=Category.SERVICE)
+        context.update({'services':services})
+        return context
+
 class PropertyListView(ListView):
     model = Property
 
