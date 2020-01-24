@@ -599,6 +599,11 @@ function initCitybook() {
     // Mob Menu------------------
     $(".nav-button-wrap").on("click", function () {
         $(".main-menu").toggleClass("vismobmenu");
+
+        if ($(".header-user-name").hasClass("hu-menu-visdec")) {
+            $(".header-user-menu ul").toggleClass("hu-menu-vis");
+            $(".header-user-name").toggleClass("hu-menu-visdec");
+        }
     });
     function mobMenuInit() {
         var ww = $(window).width();
@@ -627,6 +632,8 @@ function initCitybook() {
     $(".header-user-name").on("click", function () {
         $(".header-user-menu ul").toggleClass("hu-menu-vis");
         $(this).toggleClass("hu-menu-visdec");
+
+        if($(".main-menu").hasClass("vismobmenu")) $(".main-menu").toggleClass("vismobmenu");
     });
     // Counter ------------------
     if ($(".counter-widget").length > 0) {
