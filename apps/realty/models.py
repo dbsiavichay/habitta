@@ -67,9 +67,9 @@ class Group(models.Model):
 class Category(models.Model):   
     ICON_CHOICES = get_category_icons()
 
-    REAL_STATE, SERVICE = (1, 2)
+    REAL_STATE, SERVICE, JOB = (1, 2, 3)
     KIND_CHOICES = (
-        (REAL_STATE, 'Inmobiliario'), (SERVICE, 'Servicio')
+        (REAL_STATE, 'Inmobiliario'), (SERVICE, 'Servicio'), (JOB, 'Empleo')
     )
     
     kind = models.PositiveSmallIntegerField(choices=KIND_CHOICES, verbose_name='tipo')

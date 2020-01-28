@@ -107,7 +107,7 @@ body h1 {
 }
 .tabs .slider {
   position: relative;
-  width: 50%;
+  width: 33.33%;
   -webkit-transition: all 0.33s cubic-bezier(0.38, 0.8, 0.32, 1.07);
   transition: all 0.33s cubic-bezier(0.38, 0.8, 0.32, 1.07);
 }

@@ -27,7 +27,13 @@ class ChooseCategoryListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         services = self.model.objects.filter(enabled=True, kind=Category.SERVICE)
-        context.update({'services':services})
+        jobs = self.model.objects.filter(enabled=True, kind=Category.JOB)
+        context.update(
+            {
+                'services':services,
+                'jobs': jobs
+            }
+        )
         return context
 
 class PropertyListView(ListView):
