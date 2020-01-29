@@ -22,19 +22,19 @@
                 <div class="col-xs-12">
                     
                     <div class="tabs">
-                        <input type="radio" id="tab1" name="tab-control" checked>
-                        <input type="radio" id="tab2" name="tab-control">
+                        <input type="radio" id="tab1" name="tab-control">
+                        <input type="radio" id="tab2" name="tab-control" checked>
                         <input type="radio" id="tab3" name="tab-control">
                                                   
                         <ul>
-                            <li title="Services">
+                            <li title="Jobs">
                                 <label for="tab1" role="button">
-                                    {% include 'realty/services_option.html' %}<br><span>Servicios</span>
+                                    {% include 'realty/job_option.html' %}<br><span>Empleos</span>
                                 </label>
                             </li>
-                            <li title="Jobs">
+                            <li title="Services">
                                 <label for="tab2" role="button">
-                                    {% include 'realty/job_option.html' %}<br><span>Empleos</span>
+                                    {% include 'realty/services_option.html' %}<br><span>Servicios</span>
                                 </label>
                             </li>
                             <li title="Realty">
@@ -47,26 +47,26 @@
                         <div class="slider"><div class="indicator"></div></div>
                         <div class="content">
                             <section>
-                                <h2>Servicios</h2>
-                                {% for category in services %}
-                                <div class="col-xs-6 col-sm-3 col-md-2">
+                                <h2>Empleos</h2>
+                                {% for category in jobs %}
+                                <div class="col-xs-6 col-sm-3">
                                     <!--box-cat-->
                                     <a href="{% url 'add_property' category.pk %}" class="box-cat">
                                         <i class="fc-{{ category.icon }}"></i>
-                                        <h4 class="name">{{ category|truncatechars:"15" }}</h4>
+                                        <h4 class="name">{{ category|truncatechars:"25" }}</h4>
                                     </a>
                                     <!--box-cat end-->
                                 </div>
                                 {% endfor %} 
                             </section>
                             <section>
-                                <h2>Empleos</h2>
-                                {% for category in jobs %}
-                                <div class="col-xs-6 col-sm-3 col-md-2">
+                                <h2>Servicios</h2>
+                                {% for category in services %}
+                                <div class="col-xs-6 col-sm-3">
                                     <!--box-cat-->
                                     <a href="{% url 'add_property' category.pk %}" class="box-cat">
                                         <i class="fc-{{ category.icon }}"></i>
-                                        <h4 class="name">{{ category|truncatechars:"15" }}</h4>
+                                        <h4 class="name">{{ category|truncatechars:"25" }}</h4>
                                     </a>
                                     <!--box-cat end-->
                                 </div>
@@ -75,11 +75,11 @@
                             <section>
                                 <h2>Inmuebles</h2>                                
                                 {% for category in object_list %}
-                                <div class="col-xs-6 col-sm-3 col-md-2">
+                                <div class="col-xs-6 col-sm-3">
                                     <!--box-cat-->
                                     <a href="{% url 'add_property' category.pk %}" class="box-cat">
                                         <i class="fc-{{ category.icon }}"></i>
-                                        <h4 class="name">{{ category|truncatechars:"15" }}</h4>
+                                        <h4 class="name">{{ category|truncatechars:"25" }}</h4>
                                     </a>
                                     <!--box-cat end-->
                                 </div>

@@ -197,7 +197,7 @@ class FinderForm(Form):
     )
     search_category = ModelChoiceField(
         queryset = Category.objects.all(),
-        empty_label = 'Todas las categorías',       
+        empty_label = '¿Que estás buscando?',       
         required = False
     )
     search_address = CharField(required=False)
