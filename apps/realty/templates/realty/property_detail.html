@@ -255,6 +255,9 @@
             <div class="list-author-widget-text">
                 <a href="{% url 'update_property' property.id %}" class="btn transparent-btn">Editar <i class="fa fa-pencil"></i></a>
             </div>
+            <div class="list-author-widget-text">
+                <a href="{% url 'add_auction'  %}?id={{ object.id }}" class="btn transparent-btn">Subastar <i class="fa fa-pencil"></i></a>
+            </div>
         </div>
     </div>
     {% endif %}

@@ -29,7 +29,7 @@ class MessageCreateView(CreateView):
         sender = self.request.user
         try:
             conversation = Conversation.objects.get(Q(owner=sender, member=receiver)|Q(owner=receiver, member=sender))
-        except:
+        except Conversation.DoesNotExist:
             conversation = Conversation.objects.create(owner=sender, member=receiver)
 
         self.object = form.save(commit=False)
@@ -38,9 +38,6 @@ class MessageCreateView(CreateView):
         self.object.save()
         
         return redirect(form.cleaned_data['success_url'])
-
-    def form_invalid(self, form):
-        print(form.errors)
 
     def get(self, request, *args, **kwargs):
         raise Http404

@@ -111,7 +111,7 @@ class Property(ImageMixin, models.Model):
         (DRAFT, 'Borrador'), (PUBLISHED, 'Publicado'), (COMPLETE, 'Completado'),
     )
 
-    title = models.CharField(max_length=32, verbose_name='título, nombre, negocio, etc.')
+    title = models.CharField(max_length=32, verbose_name='descripción rápida (Max 32 caracteres)')
     description = models.TextField(blank=True, null=True, verbose_name='descripción')
     address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')
     geopoint = models.PointField(blank=True, null=True) 
