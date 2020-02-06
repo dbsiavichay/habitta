@@ -80,6 +80,7 @@ class Category(models.Model):
     icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
     order = models.PositiveSmallIntegerField(verbose_name='orden')  
     require_location = models.BooleanField(default=True, verbose_name='requiere ubicación?')
+    is_salable = models.BooleanField(default=False, verbose_name='puede venderse?')
     purposes = models.ManyToManyField(Purpose, blank=True, verbose_name='propósitos')
     groups = models.ManyToManyField(Group, through='GroupCategory', blank=True, verbose_name='grupos de especificaciones')
 
@@ -181,15 +182,15 @@ class Property(ImageMixin, models.Model):
                         'key': spc.name,
                         'value': self.details['specifications'][key],
                         'icon': spc.icon,
-                        'require_payment': True if 'FileField' in spc.field_type else False,
+                        'downloadable': True if 'FileField' in spc.field_type else False,
                         'group': group.name
                     })
         return specifications
 
     def get_path_files(self):
         files = []
-
-        for spc in self.category.specifications.all():
+        specifications = Specification.objects.filter(group__category=self.category)
+        for spc in specifications:
             key = str(spc.id)
             if 'FileField' in spc.field_type and key in self.details['specifications']:
                 files.append(self.details['specifications'][key])

@@ -47,7 +47,7 @@ section {
     margin-top: 0;
 }
 
-.custom-form textarea, .custom-form input[type="text"], .custom-form input[type="number"], .custom-form input[type=email], .custom-form input[type=password], .custom-form input[type=button] {
+.custom-form textarea, .custom-form input[type="file"], .custom-form input[type="text"], .custom-form input[type="number"], .custom-form input[type=email], .custom-form input[type=password], .custom-form input[type=button] {
     padding: 15px 20px;
 }
 
@@ -97,7 +97,7 @@ section {
     margin-bottom: 3px;
 }
 
-.list-single-info span {
+.list-single-info span, .list-single-info a{
     color: #999;
 }
 

@@ -4,7 +4,7 @@ from apps.authentication.decorators import owner_required
 from .views import (
     ChooseCategoryListView, 
     PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView, PropertyPrintView, PropertyDeleteView,
-    PropertyFavoriteListView,
+    PropertyFavoriteListView, PropertyDownloadView,
     FinderMapView, FinderListView, filter_category_by_purpose, DetailsView,
     PropertyDetailsRenderer
 )
@@ -21,6 +21,8 @@ urlpatterns = [
     path('property/<int:pk>/print/', PropertyPrintView.as_view(), name='print_property'),       
     path('property/<int:pk>/delete/', PropertyDeleteView.as_view(), name='delete_property'),        
     path('favorite/properties/', login_required(PropertyFavoriteListView.as_view()), name='favorite_properties'),
+    
+    path('property/<int:pk>/descarga/', login_required(PropertyDownloadView.as_view()), name='download_property'), 
         
     path('explorador/mapa/', FinderMapView.as_view(), name='finder'),
     path('explorador/lista/', FinderListView.as_view(), name='finder_without_map'),

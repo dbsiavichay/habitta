@@ -67,46 +67,53 @@ class SpecificationForm(ModelForm):
         return self.cleaned_data
 
 class PropertyForm(ModelForm):    
-  purpose = ModelChoiceField(
-      label = '¿Que desea hacer?',
-      empty_label = None,
-      widget = RadioSelect,
-      queryset = Purpose.objects.none(),
-      required = True,
+    purpose = ModelChoiceField(
+        label = '¿Que desea hacer?',
+        empty_label = None,
+        widget = RadioSelect,
+        queryset = Purpose.objects.none(),
+        required = True,
 
-  )
+    )
 
-  class Meta:
-      model = Property
-      fields = ('category', 'purpose', 'title', 'description',)       
+    class Meta:
+        model = Property
+        fields = ('category', 'purpose', 'title', 'description',)       
 
-  def __init__(self, *args, **kwargs):        
-      self.category = kwargs.pop('category', None)
-      self.kind = kwargs.pop('kind', None)
-      super().__init__(*args, **kwargs)                       
-      if self.kind and self.kind == Category.SERVICE:
-          queryset = self.fields['category'].queryset.filter(kind=self.kind)
-          self.fields['category'].queryset = queryset
-          purposes = Category.objects.filter(kind=self.kind).last().purposes.all()
-          self.fields['purpose'].widget = HiddenInput()
-          self.fields['purpose'].queryset = purposes
-          self.fields['purpose'].initial = purposes[0]
+    def __init__(self, *args, **kwargs):        
+        self.category = kwargs.pop('category', None)
+        self.kind = kwargs.pop('kind', None)
+        super().__init__(*args, **kwargs)                       
+        if self.kind and self.kind == Category.SERVICE:
+            queryset = self.fields['category'].queryset.filter(kind=self.kind)
+            self.fields['category'].queryset = queryset
+            purposes = Category.objects.filter(kind=self.kind).last().purposes.all()
+            self.fields['purpose'].widget = HiddenInput()
+            self.fields['purpose'].queryset = purposes
+            self.fields['purpose'].initial = purposes[0]
 
-      else:
-          purposes = self.category.purposes.all()
-          if len(purposes) == 1:
-              self.fields['purpose'].widget = HiddenInput()
-              self.fields['purpose'].initial = purposes[0]
-          self.fields['purpose'].queryset = purposes          
-          self.fields['category'].initial = self.category
-          self.fields['category'].widget = HiddenInput()
+        else:
+            purposes = self.category.purposes.all()
+            if len(purposes) == 1:
+                self.fields['purpose'].widget = HiddenInput()
+                self.fields['purpose'].initial = purposes[0]
+            self.fields['purpose'].queryset = purposes          
+            self.fields['category'].initial = self.category
+            self.fields['category'].widget = HiddenInput()
 
 
-      if self.instance.pk:
-          try:
-              self.fields['purpose'].initial = self.instance.details['purpose']
-          except KeyError:
-              pass
+        if self.instance.pk:
+            try:
+                instance_purpose = int(self.instance.details['purpose'])
+            except KeyError as e:
+                instance_purpose = None
+
+            if instance_purpose in purposes.values_list("id", flat=True):
+                self.fields['purpose'].initial = instance_purpose
+            elif len(purposes) == 1:
+                self.fields['purpose'].initial = purposes[0]
+            else:
+                self.fields['purpose'].initial = None
 
 class LocationForm(Form):
     longitude = FloatField(widget=HiddenInput)
@@ -168,18 +175,15 @@ class GroupDetailsForm(Form):
         
         self.columns = results
 
-
-
     def get_not_empty_cleaned_data(self):
         import time
-        if not self.cleaned_data:
+        if not self.cleaned_data and not self.files:
             return []
         not_empty_cleaned_data = { key:str(self.cleaned_data[key]) for key in self.cleaned_data if self.cleaned_data[key] }
-
         for specification in self.group.specifications.all():
             key = str(specification.id)
-            if 'FileField' in specification.field_type and self.cleaned_data[key]:
-                uploaded_file = self.cleaned_data[key]
+            if 'FileField' in specification.field_type and key in self.files and self.files[key]:
+                uploaded_file = self.files[key]
                 name, extension = os.path.splitext(uploaded_file.name)
                 fs = FileSystemStorage(location='media/files/%s/'% (time.strftime('%Y/%m/%d')))
                 filename = '%s%s' % (str(uuid.uuid4()),extension)

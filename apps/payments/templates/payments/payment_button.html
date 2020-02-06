@@ -1,7 +1,6 @@
+{% load payments %}
 {% if not payment %}
-<a href="{% url 'select_method_payment' object_id content_type %}" class="btn color-bg flat-btn">
-    Comprar ${{ price }}
-</a>
+{% payment_form obj=object amount=price %}
 {% elif payment.is_confirmed %}
 <a href="{% url 'download' payment.id %}" class="btn color-bg flat-btn">Descargar
     <i class="fa fa-download"></i>

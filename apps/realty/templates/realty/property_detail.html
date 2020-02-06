@@ -139,28 +139,18 @@
                 <div class="col-sm-4">
                     <div class="list-single-info">
                         <strong><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</strong>
-                        {% if not spc.require_payment %}
+                        {% if not spc.downloadable %}
                         <span>{{ spc.value }}</span>
                         {% else %}
-                        {% check_payment object user %} 
+                        <a href="{% url 'download_property' object.id %}">
+                            <i class="fa fa-download"></i> Descargar
+                        </a> 
                         {% endif %}
                     </div>
                 </div>
                 {% endfor %}
                     
             </div>
-            <!-- <ul>
-                {% for spc in group.list %}
-                <li>
-                    <span class=""><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</span>
-                    {% if not spc.require_payment %}
-                    <a href="#">{{ spc.value }}</a>
-                    {% else %}
-                    {% check_payment object user %} 
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul> -->
         </div> 
     </div>
     {% endfor %}
@@ -260,6 +250,38 @@
             </div>
         </div>
     </div>
+    {% endif %}
+
+    {% if object.category.is_salable %}
+    <!--box-widget-item -->
+    <div class="box-widget-item fl-wrap">
+        <div class="box-widget-item-header">
+            <h3><i class="fa fa-usd"></i> Este artículo esta a la venta : </h3>
+        </div>
+        <div class="box-widget">
+            <div class="box-widget-content">
+                <div class="claim-price-wdget fl-wrap">
+                    <div class="claim-price-wdget-content fl-wrap">
+                        <div class="pricerange fl-wrap">
+                            <span class="lprice-text">Price : </span><span class="lprice-from">$&nbsp;{{ object.get_price_area }}</span>                   
+                        </div>
+                        <div class="claim-widget-link fl-wrap"> 
+                            <a class="logreg-modal-open" href="#" data-message="You must be logged in to claim listing.">
+                                {% if not object|is_pay:user %}
+                                {% payment_form obj=object amount=object.get_price_area label="Comprar" %}
+                                {% else %}
+                                <a href="{% url 'download' object.id %}" class="btn color-bg flat-btn">Descargar
+                                    <i class="fa fa-download"></i>
+                                </a>
+                                {% endif %}                           
+                            </a>
+                        </div>
+                    </div>  
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--box-widget-item end -->
     {% endif %}
 
     <!--box-widget-item -->

@@ -19,6 +19,11 @@ from apps.logs.models import Log
 
 from .report import get_pdf
 
+#For download object
+import os
+import zipfile
+from io import BytesIO
+
 class ChooseCategoryListView(ListView):
     model = Category
     queryset = Category.objects.filter(enabled=True, kind=Category.REAL_STATE)
@@ -120,6 +125,36 @@ class PropertyDeleteView(DeleteView):
     model = Property
     success_url = reverse_lazy('properties')
     http_method_names = ['post',]
+
+class PropertyDownloadView(DetailView):
+    model = Property
+
+    def render_to_response(self, context, **httpresponse_kwargs):		
+        dirname = u'download_files_{0}'.format(self.object.id)
+        filename = u'{0}.zip'.format(dirname)
+
+        buffer = BytesIO()
+        z = zipfile.ZipFile(buffer, 'w')
+
+        for path in self.object.get_path_files():						
+            z.write(path, os.path.join(dirname, os.path.basename(path)))
+        z.close()
+        buffer.seek(0)
+        response = HttpResponse(buffer.read())
+        response['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
+        response['Content-Type'] = 'application/x-zip'
+        return response
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        from apps.payments.templatetags.payments import is_pay
+
+        if not is_pay(self.object, request.user):
+            return redirect(reverse_lazy('detail_property', args=[self.object.id,]))
+        
+        return super().get(request, *args, **kwargs)
+
+
 
 class FinderMapView(FormView) :    
     template_name = 'realty/finder.html'

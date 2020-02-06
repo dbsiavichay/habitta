@@ -12,6 +12,7 @@ register = template.Library()
 @register.inclusion_tag('payments/payment_button.html')
 def check_payment(object, user):        
     context = {
+        'object': object,
     	'object_id': object.id,
     	'content_type': ContentType.objects.get_for_model(object).id,        
     }
@@ -25,12 +26,14 @@ def check_payment(object, user):
 @register.simple_tag(takes_context=True)
 def payment_form(context, **kwargs):
     request = context.get('request')
+    label = kwargs.get('label', 'Pagar')
     obj = kwargs.get('obj')
     amount = kwargs.get('amount')
     content_type = ContentType.objects.get_for_model(obj)
     form = PaymentForm(initial={'object_id': obj.id, 'content_type': content_type, 'amount': amount})
     context =  {        
-        'form': form
+        'form': form,
+        'label': label,
     }
     liststr = render_to_string(['payments/payment_form.html',], context, request=request)
     return liststr
