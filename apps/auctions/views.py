@@ -16,7 +16,8 @@ class AuctionCreateView(CreateView):
 
 	def get_form_kwargs(self):
 		kwargs = super().get_form_kwargs()
-		kwargs.update({'user':self.request.user})		
+		property = self.request.GET.get('id', None)
+		kwargs.update({'user':self.request.user, 'initial': {'property':property}})		
 		return kwargs
 
 class OfferCreateView(CreateView):
