@@ -53,5 +53,5 @@ def get_conversation_messages(sender, receiver):
 
 @register.simple_tag
 def get_conversations_count(user):
-    count = Conversation.objects.filter(Q(owner=user)|Q(member=user)).count()
+    count = Conversation.objects.filter(Q(owner=user)|Q(member=user)).exclude(messages__isnull=True).count()
     return count
