@@ -13,7 +13,7 @@ class ConversationListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.filter(Q(owner=self.request.user)|Q(member=self.request.user))\
-            .annotate(max_create_date=Max('messages__create_date')).order_by('-max_create_date')
+            .exclude(messages__isnull=True).annotate(max_create_date=Max('messages__create_date')).order_by('-max_create_date')
         return queryset
 
 class ConversationDetailView(DetailView):

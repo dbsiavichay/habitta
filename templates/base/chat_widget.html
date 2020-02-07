@@ -8,6 +8,7 @@
     </div>
     <div class="chat-body">
         {% if user.is_authenticated %}
+
         {% get_conversation_messages user receiver as messages %}
         {% for message in messages %}
         
@@ -18,6 +19,7 @@
         {% endif %}
             
         {% endfor %}
+
         {% else %}
         <div class="soc-log fl-wrap">
             <p>Inicia sesión primero.</p>
