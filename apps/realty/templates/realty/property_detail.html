@@ -24,8 +24,10 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="list-single-header-contacts fl-wrap">
-                            <ul>                                
+                            <ul>    
+                                {% if object.category.require_location %}                            
                                 <li><i class="fa fa-map-marker"></i><a href="#">{{ object.address }}</a></li>
+                                {% endif %}
                             </ul>
                         </div>
                     </div>
