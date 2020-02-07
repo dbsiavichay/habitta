@@ -5,7 +5,7 @@ from .forms import SpecificationForm, GroupForm, CategoryForm
 
 class SpecificationAdmin(admin.ModelAdmin):
     form = SpecificationForm
-    list_display = ['name', 'internal_name', 'is_required', 'for_card',]
+    list_display = ['name', 'internal_name', 'is_required',]
 
 class GroupAdmin(admin.ModelAdmin):
     form = GroupForm

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
+from django.db.models import Q
 from django.urls import reverse_lazy
 from django.template.loader import render_to_string
 from apps.multimedia.mixins import ImageMixin
@@ -39,8 +40,7 @@ class Specification(models.Model):
     attributes = models.CharField(max_length=128, blank=True, null=True, verbose_name='atributos')
     choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')    
     icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='ícono')
-    is_required = models.BooleanField(default=False, verbose_name='requerido?')
-    for_card = models.BooleanField(default=False, verbose_name="aplicable en tarjeta")   
+    is_required = models.BooleanField(default=False, verbose_name='requerido?') 
 
     def __str__(self):
         return self.name
@@ -62,7 +62,7 @@ class Group(models.Model):
         return self.name
     
     class Meta:
-        verbose_name = 'grupo'
+        verbose_name = 'formulario'
 
 class Category(models.Model):   
     ICON_CHOICES = get_category_icons()
@@ -82,6 +82,7 @@ class Category(models.Model):
     require_location = models.BooleanField(default=True, verbose_name='requiere ubicación?')
     is_salable = models.BooleanField(default=False, verbose_name='puede venderse?')
     purposes = models.ManyToManyField(Purpose, blank=True, verbose_name='propósitos')
+    for_card = models.CharField(max_length=128, blank=True, null=True, verbose_name="especificaciones aplicables en tarjeta", help_text="Si es más de uno separe por coma")
     groups = models.ManyToManyField(Group, through='GroupCategory', blank=True, verbose_name='grupos de especificaciones')
 
     def __str__(self):
@@ -92,13 +93,13 @@ class Category(models.Model):
         ordering = ('kind', 'name',)
 
 class GroupCategory(models.Model):
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name='grupo')
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name='formulario')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='categoría')    
     sequence = models.PositiveSmallIntegerField(verbose_name='secuencia')
 
     class Meta:
-        verbose_name = 'grupo de categoría'
-        verbose_name_plural = 'grupos de categoría'
+        verbose_name = 'formulario de categoría'
+        verbose_name_plural = 'formularios de categoría'
 
 class Property(ImageMixin, models.Model):
     class Meta:
@@ -127,7 +128,7 @@ class Property(ImageMixin, models.Model):
 
     def get_price_area(self):
         try:
-            specification = Specification.objects.get(internal_name=self.category.price_area)
+            specification = Specification.objects.get(internal_name__iexact=self.category.price_area)
             key = str(specification.id)
             r = self.details['specifications'][key] if key in self.details['specifications'] else self.category.price_area
         except:
@@ -145,8 +146,14 @@ class Property(ImageMixin, models.Model):
 
     def get_specifications_for_card(self):
         specifications = []
-        for spc in Specification.objects.filter(group__category=self.category, for_card=True)[:2]:
+        if not self.category.for_card: return specifications
+        names = [name.strip() for name in self.category.for_card.split(',')]
+        params = Q()
+        for name in names:
+            params = params | Q(internal_name__iexact=name)
+        for spc in Specification.objects.filter(params):
             key = str(spc.id)
+            if len(specifications) == 2: break
             if key in self.details['specifications'] and not 'FileField' in spc.field_type:
                 item = {
                     'key': spc.name,
