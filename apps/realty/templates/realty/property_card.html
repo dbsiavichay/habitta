@@ -23,6 +23,8 @@
                 <div class="geodir-category-date"><i class="fa fa-clock-o" aria-hidden="true"></i>Hace {{ object.pub_date|timesince }}</div>
                 {% if object.category.require_location %}
                 <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>{{ object.address|truncatechars:"35" }}</a></div>
+                {% else %}
+                <div class="geodir-category-location"><a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i>Ubicación reservada</a></div>
                 {% endif %}
             </div>
         </div>
