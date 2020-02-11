@@ -1,6 +1,16 @@
 !function($){
 	"use strict";
 
+	//Para buscar por punto
+    /* if ("geolocation" in navigator) {
+		var center = {'lng': -78.11685009999997, 'lat': -2.2874005};
+        navigator.geolocation.getCurrentPosition(function(position) {           
+            center['lng'] = position.coords.longitude;
+            center['lat'] = position.coords.latitude
+            console.log(center)          
+        });
+    } */
+
 	//Show a single position 
 
 	var mapMarker={		

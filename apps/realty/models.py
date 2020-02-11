@@ -217,3 +217,12 @@ class Property(ImageMixin, models.Model):
             return image.img.url
 
         return settings.STATIC_URL + 'images/bg/1.png'
+
+    #Usado para el serializer en api
+    def get_longitude(self):
+        return self.geopoint.x if self.category.require_location else 0
+    
+    def get_latitude(self):
+        return self.geopoint.y if self.category.require_location else 0
+
+

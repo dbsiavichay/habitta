@@ -76,13 +76,18 @@ var getSearchUrl = function () {
     var category = document.getElementById('id_search_category').value;
     var purpose = document.getElementById('id_search_purpose').value;
     var address = document.getElementById('ac_address').value;
+    var radio = document.getElementById('range').value;
+    var lat = map.center.lat();
+    var lng = map.center.lng();
+    url = url + '?radio='+radio
 
-    if (!category && !purpose && !address) return url;
+    if (!category && !purpose && !address) return url + '&lat='+lat+'&lng='+lng;
 
-    url+='?';
+    url+='&';
     if (category) url+= 'category='+category+'&';
     if (purpose) url+= 'purpose='+purpose+'&';
     if (address) url+= 'address='+address+'&';
+    else url+= 'lat='+lat+'&lng='+lng;
     return url;
 }
 
@@ -115,7 +120,7 @@ var getInfoBoxTemplate = function(location){
     return template;
 }
 
-var buildInfoBox = function (locations, map) {          
+var buildInfoBox = function (locations, map) {        
     var currentLocation;    
     var container=document.createElement("div");
     container.className="map-box";  
@@ -138,6 +143,8 @@ var buildInfoBox = function (locations, map) {
     for (var index in locations){               
         infobox = new InfoBox;
         google.maps.event.addListener(infobox, 'domready',function(){cardRaining()});
+
+        
         google.maps.event.addListener(locations[index].marker, 'click', function(marker,index){
             return function(){          
                 infobox.setOptions(options);                
@@ -154,7 +161,8 @@ var buildInfoBox = function (locations, map) {
                     });
                 })
             }
-        }(locations[index].marker,index))       
+        }(locations[index].marker,index))   
+          
     }
 
     document.querySelector('.nextmap-nav').addEventListener('click', function(e){       
@@ -184,7 +192,7 @@ var destroyMarkers = function(map) {
 
 var buildMarkers = function(locations, map) {
     destroyMarkers(map);
-
+    filtered_locations = []
     if (!locations.length) return;
 
     var icon = {        
@@ -193,18 +201,22 @@ var buildMarkers = function(locations, map) {
     };  
 
     for (var index=0;index<locations.length;index++) {
-        var location = locations[index];                
-        var marker = new google.maps.Marker({
-            animation:google.maps.Animation.DROP,
-            position:new google.maps.LatLng(location['latitude'],location['longitude']),
-            icon:icon,
-            id:index
-        });
-        markers.push(marker);
-        location['marker'] = marker;
+        var location = locations[index];  
+        if (location['latitude'] != 0 && location['longitude'] != 0) {
+            var marker = new google.maps.Marker({
+                animation:google.maps.Animation.DROP,
+                position:new google.maps.LatLng(location['latitude'],location['longitude']),
+                icon:icon,
+                id:index
+            });
+            markers.push(marker);
+            location['marker'] = marker;
+            filtered_locations.push(location)
+        }         
+        
     }
     
-    buildInfoBox(locations, map);           
+    buildInfoBox(filtered_locations, map);           
 
     cluster = new MarkerClusterer(map, markers, {
         imagePath:"images/",

@@ -167,9 +167,6 @@ class FinderListView(FinderMapView) :
     template_name = 'realty/finder_without_map.html'
     form_class = FinderForm
 
-    def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
-
 
 ##Ajax components
 class PropertyDetailsRenderer(FormView):

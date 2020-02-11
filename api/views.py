@@ -3,6 +3,9 @@ from .serializers import PropertySerializer
 from apps.realty.models import Property
 from django.db.models import Q
 from functools import reduce
+
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance
 import operator
 
 class PropertyListAPIView(generics.ListAPIView):
@@ -10,20 +13,32 @@ class PropertyListAPIView(generics.ListAPIView):
 	serializer_class = PropertySerializer
 
 	def get_queryset(self):        
-		queryset = Property.objects.exclude(category__require_location=False)
-
-		if len(self.request.query_params) == 0:		
-			return queryset
+		#queryset = Property.objects.exclude(category__require_location=False)
+		queryset = Property.objects.all()
+		lat = self.request.query_params.get('lat', None)
+		lng = self.request.query_params.get('lng', None)
+		radio = self.request.query_params.get('radio', None)
+		if lat and lng:
+			point = Point(float(lng), float(lat))
+			queryset = queryset.exclude(category__require_location=False).filter(geopoint__distance_lte=(point, Distance(km=int(radio))))
+			queryset = queryset | Property.objects.filter(category__require_location=False)
+		
+		
 
 		purpose = self.request.query_params.get('purpose', None)
-
 		params = {
 			'category': self.request.query_params.get('category', None),
 			'details__purpose': int(purpose) if purpose else purpose,
 			'address__icontains': self.request.query_params.get('address', None)
 		}		
-		
 		args = [Q(**{key: params[key]}) for key in params.keys() if params[key] is not None]
+
+		count_args = 0
+		for arg in args:
+			count_args+=1
+	
+		if count_args == 0:		
+			return queryset
 		queryset = queryset.filter(reduce(operator.__and__, args))
 
 		return queryset
