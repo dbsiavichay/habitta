@@ -41,19 +41,21 @@
                     {{ form.search_address|attr:"id:ac_address"|add_class:"qodef-archive-places-search"|append_attr:"placeholder:Destino, cuidad, área" }}                    
                     <a  href="#" class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
                 </div>
+
+                <div class="listsearch-input-text">
+                    <label style="width: 100%;"><i class="mbri-map-pin"></i>Rango de precios </label>
+                    <div class="row">
+                        <div class="col-xs-5"><input type="number" id="minPrice" placeholder="Desde Ej. 1.00"></div>
+                        <div class="col-xs-2" style="line-height: 45px;">a</div>
+                        <div class="col-xs-5"><input type="number" id="maxPrice" placeholder="Hasta Ej. 500000"></div>
+                    </div>
+                </div>
                 <!-- hidden-listing-filter -->
                 <div class="hidden-listing-filter fl-wrap">
                     <div class="distance-input fl-wrap">
                         <div class="distance-title"> Radio alrededor del destino seleccionado <span></span> km</div>
                         <div class="distance-radius-wrap fl-wrap">
                             <input id="range" class="distance-radius rangeslider--horizontal" type="range" min="1" max="200" step="1" value="15" data-title="Radius around selected destination">
-                        </div>
-                    </div>
-
-                    <div class="distance-input fl-wrap">
-                        <div class="range-price-title"> Precios hasta <span></span> $</div>
-                        <div class="distance-radius-wrap fl-wrap">
-                            <input id="rangeMaxPrice" class="distance-radius rangeslider--horizontal" type="range" min="1" max="100000" step="1" value="50000" data-title="Radius around selected destination">
                         </div>
                     </div>
 

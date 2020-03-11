@@ -68,8 +68,14 @@ var getSearchUrl = function () {
     var category = document.getElementById('id_search_category').value;
     var purpose = document.getElementById('id_search_purpose').value;
     var address = document.getElementById('ac_address').value;
-    var price = document.getElementById('rangeMaxPrice').value;
-    url+='?price='+price;
+    var minPrice = document.getElementById('minPrice').value;
+    var maxPrice = document.getElementById('maxPrice').value;
+
+    if(minPrice || maxPrice){
+        if(!minPrice) minPrice = 0
+        if(!maxPrice) maxPrice = 999999999
+        url = url + '?min_price='+minPrice+'&max_price='+maxPrice
+    }
 
     if (!category && !purpose && !address) return url;
     url+='&';

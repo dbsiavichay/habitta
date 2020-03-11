@@ -18,7 +18,8 @@ class PropertyListAPIView(generics.ListAPIView):
 		lat = self.request.query_params.get('lat', None)
 		lng = self.request.query_params.get('lng', None)
 		radio = self.request.query_params.get('radio', None)
-		price = self.request.query_params.get('price', None)
+		min_price = self.request.query_params.get('min_price', None)
+		max_price = self.request.query_params.get('max_price', None)
 		purpose = self.request.query_params.get('purpose', None)
 		address = self.request.query_params.get('address', None)
 
@@ -41,20 +42,9 @@ class PropertyListAPIView(generics.ListAPIView):
 		if count_args:		
 			queryset = queryset.filter(reduce(operator.__and__, args))
 
-		queryset1 = []
-		queryset2 = []
-		for obj in queryset:
-			try:
-				float(obj.get_price_area())
-				queryset1.append(obj)
-			except:
-				queryset2.append(obj)
-
-		queryset3 = []
-
-		for obj in queryset1:
-			if float(price) > float(obj.get_price_area()):
-				queryset3.append(obj)
-
-		queryset = queryset3 + queryset2
+		if min_price and max_price:
+			min_price = float(min_price)
+			max_price = float(max_price)
+			queryset = [obj for obj in queryset if isinstance(obj.get_price_area(), float)]
+			queryset = [obj for obj in queryset if min_price <= float(obj.get_price_area()) <= max_price]
 		return queryset

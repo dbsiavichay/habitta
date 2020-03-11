@@ -131,6 +131,7 @@ class Property(ImageMixin, models.Model):
             specification = Specification.objects.get(internal_name__iexact=self.category.price_area)
             key = str(specification.id)
             r = self.details['specifications'][key] if key in self.details['specifications'] else self.category.price_area
+            r = float(r)
         except:
             r = self.category.price_area
 

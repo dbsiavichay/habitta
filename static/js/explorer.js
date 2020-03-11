@@ -77,10 +77,17 @@ var getSearchUrl = function () {
     var purpose = document.getElementById('id_search_purpose').value;
     var address = document.getElementById('ac_address').value;
     var radio = document.getElementById('range').value;
-    var price = document.getElementById('rangeMaxPrice').value;
+    var minPrice = document.getElementById('minPrice').value;
+    var maxPrice = document.getElementById('maxPrice').value;
     var lat = map.center.lat();
     var lng = map.center.lng();
-    url = url + '?radio='+radio+'&price='+price
+
+    url = url + '?radio='+radio
+    if(minPrice || maxPrice){
+        if(!minPrice) minPrice = 0
+        if(!maxPrice) maxPrice = 999999999
+        url = url + '&min_price='+minPrice+'&max_price='+maxPrice
+    }
 
     if (!category && !purpose && !address) return url + '&lat='+lat+'&lng='+lng;
 
