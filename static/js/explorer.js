@@ -77,9 +77,10 @@ var getSearchUrl = function () {
     var purpose = document.getElementById('id_search_purpose').value;
     var address = document.getElementById('ac_address').value;
     var radio = document.getElementById('range').value;
+    var price = document.getElementById('rangeMaxPrice').value;
     var lat = map.center.lat();
     var lng = map.center.lng();
-    url = url + '?radio='+radio
+    url = url + '?radio='+radio+'&price='+price
 
     if (!category && !purpose && !address) return url + '&lat='+lat+'&lng='+lng;
 

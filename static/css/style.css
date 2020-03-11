@@ -2092,14 +2092,14 @@ section.gray-section .section-separator {
 .list-main-wrap {
 	padding:50px 0;
 }
-.distance-title {
+.distance-title, .range-price-title {
 	float:left;
 	text-align:left;
 	margin-bottom:20px;
 	font-weight:500;
 	font-size:14px;
 }
-.distance-title i {
+.distance-title i, .range-price-title i {
 	font-size:14px;
 	padding-right:6px;
 }

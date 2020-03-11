@@ -12,24 +12,25 @@ class PropertyListAPIView(generics.ListAPIView):
 	#queryset = Property.objects.all()
 	serializer_class = PropertySerializer
 
-	def get_queryset(self):        
+	def get_queryset(self):      
 		#queryset = Property.objects.exclude(category__require_location=False)
 		queryset = Property.objects.all()
 		lat = self.request.query_params.get('lat', None)
 		lng = self.request.query_params.get('lng', None)
 		radio = self.request.query_params.get('radio', None)
+		price = self.request.query_params.get('price', None)
+		purpose = self.request.query_params.get('purpose', None)
+		address = self.request.query_params.get('address', None)
+
 		if lat and lng:
 			point = Point(float(lng), float(lat))
 			queryset = queryset.exclude(category__require_location=False).filter(geopoint__distance_lte=(point, Distance(km=int(radio))))
 			queryset = queryset | Property.objects.filter(category__require_location=False)
 		
-		
-
-		purpose = self.request.query_params.get('purpose', None)
 		params = {
 			'category': self.request.query_params.get('category', None),
 			'details__purpose': int(purpose) if purpose else purpose,
-			'address__icontains': self.request.query_params.get('address', None)
+			'address__icontains': address
 		}		
 		args = [Q(**{key: params[key]}) for key in params.keys() if params[key] is not None]
 
@@ -37,8 +38,23 @@ class PropertyListAPIView(generics.ListAPIView):
 		for arg in args:
 			count_args+=1
 	
-		if count_args == 0:		
-			return queryset
-		queryset = queryset.filter(reduce(operator.__and__, args))
+		if count_args:		
+			queryset = queryset.filter(reduce(operator.__and__, args))
 
+		queryset1 = []
+		queryset2 = []
+		for obj in queryset:
+			try:
+				float(obj.get_price_area())
+				queryset1.append(obj)
+			except:
+				queryset2.append(obj)
+
+		queryset3 = []
+
+		for obj in queryset1:
+			if float(price) > float(obj.get_price_area()):
+				queryset3.append(obj)
+
+		queryset = queryset3 + queryset2
 		return queryset

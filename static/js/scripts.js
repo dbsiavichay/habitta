@@ -539,8 +539,9 @@ function initCitybook() {
         $radio.closest('label').addClass('selected');
     });
  
-	$('.chosen-select').niceSelect();
-    $('input[type="range"].distance-radius').rangeslider({
+    $('.chosen-select').niceSelect();
+    
+    $('input[type="range"]#range').rangeslider({
         polyfill: false,
         onInit: function () {
             this.output = $(".distance-title span").html(this.$element.val());
@@ -550,6 +551,18 @@ function initCitybook() {
             this.output.html(value);
         }
     });
+
+    $('input[type="range"]#rangeMaxPrice').rangeslider({
+        polyfill: false,
+        onInit: function () {
+            this.output = $(".range-price-title span").html(this.$element.val());
+        },
+        onSlide: function (
+            position, value) {
+            this.output.html(value);
+        }
+    });
+
     $('input.datepicker').dateDropper();
     $("input.timepicker").timeDropper({
         setCurrentTime: false,

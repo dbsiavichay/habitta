@@ -68,10 +68,11 @@ var getSearchUrl = function () {
     var category = document.getElementById('id_search_category').value;
     var purpose = document.getElementById('id_search_purpose').value;
     var address = document.getElementById('ac_address').value;
+    var price = document.getElementById('rangeMaxPrice').value;
+    url+='?price='+price;
 
     if (!category && !purpose && !address) return url;
-
-    url+='?';
+    url+='&';
     if (category) url+= 'category='+category+'&';
     if (purpose) url+= 'purpose='+purpose+'&';
     if (address) url+= 'address='+address+'&';

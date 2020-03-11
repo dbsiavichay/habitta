@@ -43,31 +43,16 @@
                                 {{ form.search_address|attr:"id:ac_address"|add_class:"qodef-archive-places-search"|append_attr:"placeholder:Destino, cuidad, área" }}
                                 <a  href="#"  class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
                             </div>
+                            
                             <div class="distance-input fl-wrap">
-                                <div class="distance-title"> Radius around selected destination <span></span> km</div>
+                                <div class="range-price-title"> Precios hasta <span></span> $</div>
                                 <div class="distance-radius-wrap fl-wrap">
-                                    <input class="distance-radius rangeslider--horizontal" type="range" min="1" max="100" step="1" value="1" data-title="Radius around selected destination">
+                                    <input id="rangeMaxPrice" class="distance-radius rangeslider--horizontal" type="range" min="1" max="100000" step="1" value="50000" data-title="Radius around selected destination">
                                 </div>
                             </div>
                             <!-- Checkboxes -->
                             <div class=" fl-wrap filter-tags">
-                                <h4>Filter by Tags</h4>
-                                <div class="filter-tags-wrap">
-                                    <input id="check-a" type="checkbox" name="check" checked>
-                                    <label for="check-a">Elevator in building</label>
-                                </div>
-                                <div class="filter-tags-wrap">
-                                    <input id="check-b" type="checkbox" name="check">
-                                    <label for="check-b">Friendly workspace</label>
-                                </div>
-                                <div class="filter-tags-wrap">  
-                                    <input id="check-c" type="checkbox" name="check">
-                                    <label for="check-c">Instant Book</label>
-                                </div>
-                                <div class="filter-tags-wrap">
-                                    <input id="check-d" type="checkbox" name="check">
-                                    <label for="check-d">Wireless Internet</label>
-                                </div>
+                                
                             </div>
                             <!-- hidden-listing-filter end -->
                             <button id="search" class="button fs-map-btn">Actualizar</button>
