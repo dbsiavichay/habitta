@@ -111,7 +111,7 @@ class PropertyViewMixin:
     def get_location_form(self):
         kwargs = self.get_kwargs()
         kwargs.update({'require_location': self.category.require_location})
-        if self.object is not None:
+        if self.object is not None and self.object.geopoint is not None:
             initials = {'longitude':self.object.geopoint.x, 'latitude': self.object.geopoint.y, 'radius': self.object.radius}
             kwargs.update({'initial': initials})
         form = LocationForm(**kwargs)
