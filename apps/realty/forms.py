@@ -118,12 +118,20 @@ class PropertyForm(ModelForm):
 class LocationForm(Form):
     longitude = FloatField(widget=HiddenInput)
     latitude = FloatField(widget=HiddenInput)
-    address = CharField(max_length=64, label='Dirección')
+    address = CharField(max_length=64, label='Ciudad/Lugar donde operas')
+    radius = IntegerField(min_value=1,label='Radio (m) de operación', initial=3000)
+
+    def __init__(self, *args, **kwargs):
+        require_location = kwargs.pop('require_location')
+        super().__init__(*args, **kwargs)
+        if require_location:
+            self.fields['address'].label='Dirección'
+            self.fields['radius'].widget = HiddenInput()
+            self.fields['radius'].initial = 0
 
     def get_geopoint(self):
         geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])     
-        return geopoint 
-
+        return geopoint
 
 class GroupDetailsForm(Form):
     def __init__(self, *args, **kwargs):

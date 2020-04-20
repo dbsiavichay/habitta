@@ -18,9 +18,9 @@ class PropertyViewMixin:
         cover_form = self.get_cover_form()
 
         location_valid = True
-        if self.category.require_location:
-            location_form = self.get_location_form()
-            location_valid = location_form.is_valid()
+        #if self.category.require_location:
+        location_form = self.get_location_form()
+        location_valid = location_form.is_valid()
 
         for dform in details_forms:
             if not dform.is_valid(): self.form_invalid(form)
@@ -34,9 +34,12 @@ class PropertyViewMixin:
         }   
 
         self.object = form.save(commit=False)
-        if self.category.require_location:
-            self.object.address = location_form.cleaned_data['address']
-            self.object.geopoint = location_form.get_geopoint()
+        #if self.category.require_location:
+        print(location_form.cleaned_data['radius'])
+        self.object.address = location_form.cleaned_data['address']
+        self.object.geopoint = location_form.get_geopoint()
+        self.object.radius = location_form.cleaned_data['radius']
+
         self.object.details = details
         if not hasattr(self.object, 'user'):
             self.object.user = self.request.user
@@ -55,8 +58,9 @@ class PropertyViewMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.category.require_location:
-            context.update({'location_form': self.get_location_form(),})
+        #if self.category.require_location:
+        #    context.update({'location_form': self.get_location_form(),})
+        context.update({'location_form': self.get_location_form(),})
 
         context.update({            
             'cover_form': self.get_cover_form(),
@@ -105,7 +109,12 @@ class PropertyViewMixin:
         return forms
 
     def get_location_form(self):
-        form = LocationForm(**self.get_kwargs())
+        kwargs = self.get_kwargs()
+        kwargs.update({'require_location': self.category.require_location})
+        if self.object is not None:
+            initials = {'longitude':self.object.geopoint.x, 'latitude': self.object.geopoint.y, 'radius': self.object.radius}
+            kwargs.update({'initial': initials})
+        form = LocationForm(**kwargs)
         return form
 
     def get_cover_form(self):               

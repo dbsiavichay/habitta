@@ -20,6 +20,8 @@ $('#id_address, #id_latitude, #id_longitude').keydown(function (e) {
 });
 
 function setMap(lon, lat) {   
+    var radius = $('#id_radius').val();
+    
     var l = $('#inputMap').locationpicker({
         location: {
             latitude: lat,
@@ -27,10 +29,12 @@ function setMap(lon, lat) {
         },
         enableAutocomplete: true,
         enableReverseGeocode: true,
-        radius: 0,
+        radius: radius?radius:0,
+        zoom: 14,
         inputBinding: {
             longitudeInput: $('#id_longitude'),        
             latitudeInput: $('#id_latitude'),
+            radiusInput: $('#id_radius'),
             locationNameInput: $('#id_address')
         },
         addressFormat: "street_number",
@@ -41,6 +45,9 @@ function setMap(lon, lat) {
             //updateControls(addressComponents); //Data
         }
     });
+    window.l = l;
 }
 
-getPosition();
+$(function () {
+    getPosition();
+});
