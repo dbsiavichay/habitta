@@ -133,9 +133,13 @@
 
 
 
-<!-- Facebook -->
-<script type="text/javascript" src="{% static 'plugins/facebook/facebook-sdk.js' %}"></script>
+<!-- Login social (sólo si está configurado) -->
+{% if FACEBOOK_LOGIN_ENABLED %}
+<script type="text/javascript" src="{% static 'plugins/facebook/facebook-sdk.js' %}" data-app-id="{{ FACEBOOK_APP_ID }}"></script>
+{% endif %}
+{% if FACEBOOK_LOGIN_ENABLED or TWITTER_LOGIN_ENABLED %}
 <script type="text/javascript" src="{% static 'plugins/facebook/social.js' %}"></script>
+{% endif %}
 <!-- Logout por POST (Django 5 no admite GET) -->
 <script>
     document.addEventListener('click', function (e) {

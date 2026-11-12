@@ -77,11 +77,11 @@ class AuthenticationForm(AuthAuthenticationForm):
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
 
-        try:
-            user = User.objects.get(email=username)
-            username = user.username
-        except User.DoesNotExist:
-            pass
+        # Permite entrar con el email; si hay emails duplicados se usa el primero.
+        if username and '@' in username:
+            user = User.objects.filter(email__iexact=username).order_by('pk').first()
+            if user is not None:
+                username = user.username
 
         if username is not None and password:
             self.user_cache = authenticate(self.request, username=username, password=password)

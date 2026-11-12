@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, ListView, DetailView
 from django.contrib.auth.models import User
 from .models import Conversation, Message
@@ -19,6 +20,10 @@ class ConversationListView(ListView):
 class ConversationDetailView(DetailView):
     model = Conversation
 
+    def get_queryset(self):
+        user = self.request.user
+        return super().get_queryset().filter(Q(owner=user) | Q(member=user))
+
 class MessageCreateView(CreateView):
     model = Message
     form_class = MessageForm
@@ -27,9 +32,12 @@ class MessageCreateView(CreateView):
     def form_valid(self, form):
         receiver = get_object_or_404(User, pk=form.cleaned_data['receiver'])
         sender = self.request.user
-        try:
-            conversation = Conversation.objects.get(Q(owner=sender, member=receiver)|Q(owner=receiver, member=sender))
-        except Conversation.DoesNotExist:
+        if receiver == sender:
+            raise Http404
+        conversation = Conversation.objects.filter(
+            Q(owner=sender, member=receiver) | Q(owner=receiver, member=sender)
+        ).first()
+        if conversation is None:
             conversation = Conversation.objects.create(owner=sender, member=receiver)
 
         self.object = form.save(commit=False)
@@ -37,7 +45,13 @@ class MessageCreateView(CreateView):
         self.object.conversation = conversation
         self.object.save()
         
-        return redirect(form.cleaned_data['success_url'])
+        # Evita redirecciones abiertas: sólo se aceptan URLs del propio sitio.
+        next_url = form.cleaned_data['success_url']
+        if not url_has_allowed_host_and_scheme(
+            next_url, allowed_hosts={self.request.get_host()}, require_https=self.request.is_secure()
+        ):
+            next_url = self.get_success_url()
+        return redirect(next_url)
 
     def get(self, request, *args, **kwargs):
         raise Http404

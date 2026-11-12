@@ -1,9 +1,16 @@
 from django.conf import settings
-from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.base import ContentFile
 from io import BytesIO
 import uuid
 
 from .models import Image
+
+
+def _png_file(img):
+	"""Serializa una imagen (Pillow o qrcode) a PNG: devuelve (nombre, ContentFile)."""
+	buff = BytesIO()
+	img.save(buff, 'PNG')
+	return '%s.png' % uuid.uuid4(), ContentFile(buff.getvalue())
 
 class ImageMixin(object):
 	def get_last_image_by_code(self, code):
@@ -41,11 +48,7 @@ class ImageMixin(object):
 		image = Image(code=code)
 		image.set_object(self)
 
-		buff = BytesIO()
-		img.save(buff, 'PNG')
-		filename = '%s.png' % (str(uuid.uuid4()),)
-		filebuffer = InMemoryUploadedFile(buff, None, filename, 'image/png', img.tell, None)
-		image.img.save(filename, filebuffer)
+		image.img.save(*_png_file(img))
 
 		image.save()
 		return image
@@ -55,11 +58,7 @@ class ImageMixin(object):
 		if not image:
 			return self.add_image(img, code)
 		else:
-			buff = BytesIO()
-			img.save(buff, 'PNG')
-			filename = '%s.png' % (str(uuid.uuid4()),)
-			filebuffer = InMemoryUploadedFile(buff, None, filename, 'image/png', img.tell, None)
-			image.img.save(filename, filebuffer)
+			image.img.save(*_png_file(img))
 
 		image.save()
 		return image

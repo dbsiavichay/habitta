@@ -1,17 +1,8 @@
-import base64
 import os
 import re
 
 from django.conf import settings
-from django.core.files.base import ContentFile
 
-def base64_to_image(base64image):		
-		format, imgstr = base64image.split(';base64,')		
-		ext = format.split('/')[-1]
-
-		data = ContentFile(base64.b64decode(imgstr))  
-		
-		return (data, ext)
 
 def _read_icon_names(relative_path, prefix):
 	"""Extrae los nombres de íconos (``.<prefix>-<nombre>:before``) de un CSS."""

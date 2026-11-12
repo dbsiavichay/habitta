@@ -13,8 +13,8 @@
             <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
             <div class="soc-log fl-wrap half">
                 <p>Facilmente puedes registrarte usando tus redes sociales.</p>
-                <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Regístrate con Facebook</a>
-                <a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Regístrate con Twitter</a>
+                {% if FACEBOOK_LOGIN_ENABLED %}<a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Regístrate con Facebook</a>{% endif %}
+                {% if TWITTER_LOGIN_ENABLED %}<a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Regístrate con Twitter</a>{% endif %}
                 <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" id="socialProvider" name="provider">
@@ -52,8 +52,4 @@
 <div class="limit-box fl-wrap"></div>
 {% include 'base/have_a_questions.html' %}
 {% endblock %}
-{% block js %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static 'js/plugins/facebook-sdk.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/authentication/social.js' %}"></script>
-{% endblock %}
+

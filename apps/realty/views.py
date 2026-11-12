@@ -15,6 +15,7 @@ from apps.multimedia.forms import ImageForm
 from .models import Category, Property, Purpose
 from .forms import FinderForm, GroupDetailsForm
 from .mixins import PropertyViewMixin
+from apps.authentication.mixins import OwnerQuerysetMixin
 
 from apps.logs.models import Log
 
@@ -57,7 +58,7 @@ class PropertyCreateView(PropertyViewMixin, CreateView):
             raise Http404
         return super().get(request, *args, **kwargs)
 
-class PropertyUpdateView(PropertyViewMixin, UpdateView):    
+class PropertyUpdateView(OwnerQuerysetMixin, PropertyViewMixin, UpdateView):
     def get_details_forms(self):
         forms = super().get_details_forms()
         if self.request.method == 'GET':
@@ -122,7 +123,7 @@ class PropertyPrintView(DetailView):
         response.write(pdf)
         return response
 
-class PropertyDeleteView(DeleteView):
+class PropertyDeleteView(OwnerQuerysetMixin, DeleteView):
     model = Property
     success_url = reverse_lazy('properties')
     http_method_names = ['post',]

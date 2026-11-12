@@ -13,7 +13,7 @@ from .forms import (
 )
 
 from .social import (
-	get_facebook_user, 
+	facebook_enabled, twitter_enabled, get_facebook_user,
 	get_twitter_authenticate_url, get_twitter_access_token, get_twitter_user
 )
 
@@ -37,6 +37,10 @@ class CompleteRegisterView(UpdateView):
 	form_class = CompleteRegisterForm
 	success_url = reverse_lazy('update_profile')
 	template_name = 'authentication/complete_register.html'
+
+	def get_object(self, queryset=None):
+		# Cada usuario sólo puede completar su propio perfil (el pk de la URL se ignora).
+		return self.request.user.profile
 
 class ProfileUpdateView(UpdateView):
 	model = Profile
@@ -116,29 +120,29 @@ class LoginView(AuthLoginView):
 			return redirect(self.get_success_url())
 
 class SocialLoginView(LoginView):
-	def get(self, request, *args, **kwargs):		
-		#Only used for twitter
-		oauth_token = request.GET.get('oauth_token')		
-		if oauth_token:
+	def get(self, request, *args, **kwargs):
+		# Callback de Twitter (OAuth 1.0a)
+		oauth_token = request.GET.get('oauth_token')
+		if oauth_token and twitter_enabled():
 			access_token = get_twitter_access_token(oauth_token, request.GET.get('oauth_verifier'))
-			user = get_twitter_user(access_token)
-			return self.do_login(user)
-
+			return self.do_login(get_twitter_user(access_token))
 		raise Http404
 
 	def do_login(self, user):
-		form = self.get_form()		
+		form = self.get_form()
 		if user:
-			form.user_cache = user		
+			form.user_cache = user
 			return self.form_valid(form)
-		else:
-			return self.form_invalid(form)
+		return self.form_invalid(form)
 
-	def post(self, request, *args, **kwargs):		
+	def post(self, request, *args, **kwargs):
 		provider = request.POST.get('provider')
-		if provider == 'facebook':
-			user = get_facebook_user(request.POST.get('token'))
-			return self.do_login(user)
+		if provider == 'facebook' and facebook_enabled():
+			return self.do_login(get_facebook_user(request.POST.get('token')))
 
-		if provider == 'twitter':
-			return redirect(get_twitter_authenticate_url())
+		if provider == 'twitter' and twitter_enabled():
+			url = get_twitter_authenticate_url()
+			if url:
+				return redirect(url)
+
+		raise Http404

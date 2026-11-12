@@ -1,3 +1,7 @@
+import ast
+import logging
+
+from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.forms import ( 
     ModelForm, Form, 
@@ -21,6 +25,44 @@ import os
 import uuid
 
 #Custom form fields
+
+logger = logging.getLogger(__name__)
+
+# Tipos de campo y widgets permitidos para las especificaciones dinámicas
+# (antes se resolvían con eval() sobre datos de la base de datos).
+SPECIFICATION_FIELDS = {
+    'CharField': CharField,
+    'IntegerField': IntegerField,
+    'DecimalField': DecimalField,
+    'FloatField': FloatField,
+    'BooleanField': BooleanField,
+    'ChoiceField': ChoiceField,
+    'FileField': FileField,
+}
+SPECIFICATION_WIDGETS = {
+    'RadioSelect': RadioSelect,
+    'Select': Select,
+    'TextInput': TextInput,
+    'NumberInput': NumberInput,
+}
+
+
+def parse_widget_attributes(attributes):
+    """Convierte 'min=0, max=2020' en {'min': 0, 'max': 2020} sin ejecutar código."""
+    attrs = {}
+    if not attributes:
+        return attrs
+    for pair in attributes.split(','):
+        name, sep, value = pair.partition('=')
+        if not sep or not name.strip():
+            continue
+        value = value.strip()
+        try:
+            attrs[name.strip()] = ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            attrs[name.strip()] = value
+    return attrs
+
 class PurposeChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.for_user
@@ -125,9 +167,9 @@ class LocationForm(Form):
         require_location = kwargs.pop('require_location')
         super().__init__(*args, **kwargs)
         if require_location:
+            # Con ubicación exacta no hay radio de operación: el campo va oculto en 0.
             self.fields['address'].label='Dirección'
-            self.fields['radius'].widget = HiddenInput()
-            self.fields['radius'].initial = 0
+            self.fields['radius'] = IntegerField(widget=HiddenInput(), required=False, min_value=0, initial=0)
 
     def get_geopoint(self):
         geopoint = Point(self.cleaned_data['longitude'], self.cleaned_data['latitude'])     
@@ -146,26 +188,25 @@ class GroupDetailsForm(Form):
     def generate_fields(self):
         for specification in self.group.specifications.all():
             key = str(specification.id)
-            try:
-                form_field, widget = specification.field_type.split(':')
-            except ValueError:
-                form_field = specification.field_type
-                widget = None           
+            form_field, _, widget = specification.field_type.partition(':')
+            field_class = SPECIFICATION_FIELDS.get(form_field)
+            if field_class is None:
+                logger.warning('Tipo de campo no permitido en especificación %s: %r', specification.pk, form_field)
+                continue
 
-            self.fields[key] = eval(form_field)(
-                label = specification.name,
-                required = specification.is_required,
-                validators = [FileExtensionValidator(allowed_extensions=['pdf', 'dwg'])] if form_field == 'FileField' else []
+            self.fields[key] = field_class(
+                label=specification.name,
+                required=specification.is_required,
+                validators=[FileExtensionValidator(allowed_extensions=['pdf', 'dwg'])] if field_class is FileField else [],
             )
-                        
-            if widget: self.fields[key].widget = eval(widget)()
+
+            if widget in SPECIFICATION_WIDGETS:
+                self.fields[key].widget = SPECIFICATION_WIDGETS[widget]()
             if specification.choices:
                 CHOICES = [(choice.strip(), choice.strip()) for choice in specification.choices.split(',')]
                 self.fields[key].choices = CHOICES
-            
-            pairs = (pair.split('=') for pair in specification.attributes.split(',')) if specification.attributes is not None else None         
-            attrs = dict((key.strip(), eval(value.strip())) for key, value in pairs) if pairs is not None else {}
-            self.fields[key].widget.attrs.update(attrs)
+
+            self.fields[key].widget.attrs.update(parse_widget_attributes(specification.attributes))
             self.calculate_columns()
 
     def calculate_columns(self):
@@ -193,7 +234,7 @@ class GroupDetailsForm(Form):
             if 'FileField' in specification.field_type and key in self.files and self.files[key]:
                 uploaded_file = self.files[key]
                 name, extension = os.path.splitext(uploaded_file.name)
-                fs = FileSystemStorage(location='media/files/%s/'% (time.strftime('%Y/%m/%d')))
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files', time.strftime('%Y/%m/%d')))
                 filename = '%s%s' % (str(uuid.uuid4()),extension)
                 file = fs.save(filename, uploaded_file)
                 file_path = fs.path(file)

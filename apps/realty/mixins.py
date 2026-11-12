@@ -35,7 +35,6 @@ class PropertyViewMixin:
 
         self.object = form.save(commit=False)
         #if self.category.require_location:
-        print(location_form.cleaned_data['radius'])
         self.object.address = location_form.cleaned_data['address']
         self.object.geopoint = location_form.get_geopoint()
         self.object.radius = location_form.cleaned_data['radius']
@@ -130,23 +129,17 @@ class PropertyViewMixin:
         return kwargs
 
     def save_cover(self, form, obj):
-        import tinify
-        import os
-        from django.conf import settings
         from PIL import Image
+        from apps.multimedia.utils import compress_image
 
         cover = form.save(commit=False)
         if cover:
             cover.object_id = obj.id
             cover.content_type = ContentType.objects.get_for_model(obj)
             cover.save()
-            #Tinify
-            tinify.key = settings.TINIFY_API_KEY
             path = cover.img.path
-            source = tinify.from_file(path)
-            source.to_file(path)
-            #Thumbnail
-            size = 320, 180
-            im = Image.open(path)
-            im.thumbnail(size)
-            obj.update_image(im, 'thumbnail')
+            compress_image(path)
+            # Miniatura
+            with Image.open(path) as im:
+                im.thumbnail((320, 180))
+                obj.update_image(im, 'thumbnail')
