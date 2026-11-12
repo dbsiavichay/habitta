@@ -1,8 +1,11 @@
 *.[oa]
 *~
 *.pyc
-*.lock
+__pycache__/
 media/
-migrations/
+staticfiles/
+backups/
 .env
+.env.*
+!.env.example
 .DS_Store
