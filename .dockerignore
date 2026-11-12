@@ -12,4 +12,3 @@ staticfiles/
 docker-compose*.yml
 Dockerfile
 .dockerignore
-Citybook/
