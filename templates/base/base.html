@@ -60,6 +60,9 @@
         </div>
     </div>
     <!--Qr code reader end -->
+    {% if user.is_authenticated %}
+    <form id="logout-form" method="post" action="{% url 'logout' %}" hidden>{% csrf_token %}</form>
+    {% endif %}
     {% block js %}
     {% include 'base/js.html' %}
     {% endblock %}

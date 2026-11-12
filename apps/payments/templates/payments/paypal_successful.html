@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
 {% load static %}
 
-{% block 'content' %}
+{% block content %}
 <div>
     <!--  content  --> 
     <div class="content">
@@ -35,7 +35,7 @@
                         <div class="col-md-8">
                             <h3>Debes cerrar sesión</h3>                            
                         </div>
-                        <div class="col-md-4"><a href="{% url 'logout' %}" class="join-wrap-btn">Salir <i class="fa fa-sign-out"></i></a></div>
+                        <div class="col-md-4"><a href="{% url 'logout' %}" data-logout class="join-wrap-btn">Salir <i class="fa fa-sign-out"></i></a></div>
                     </div>
                 </div>
             </div>

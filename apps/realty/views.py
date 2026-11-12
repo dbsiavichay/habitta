@@ -1,4 +1,5 @@
 from django.http import HttpResponse, JsonResponse, Http404
+from hydra.utils import is_ajax
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy
@@ -149,7 +150,8 @@ class PropertyDownloadView(DetailView):
         self.object = self.get_object()
         from apps.payments.templatetags.payments import is_pay
 
-        if not is_pay(self.object, request.user):
+        is_owner = self.object.user == request.user or request.user.is_superuser
+        if not is_owner and not is_pay(self.object, request.user):
             return redirect(reverse_lazy('detail_property', args=[self.object.id,]))
         
         return super().get(request, *args, **kwargs)
@@ -175,7 +177,7 @@ class PropertyDetailsRenderer(FormView):
     http_method_names = ['get',]
 
     def get(self, request, *args, **kwargs):
-        if not self.request.is_ajax(): 
+        if not is_ajax(self.request):
             raise Http404
         forms = []
         for group in self.get_groups():
@@ -205,28 +207,3 @@ def filter_category_by_purpose(request, pk, klass):
     
     return JsonResponse({'select': r}, status=200)
 
-class DetailsView(FormView):
-    form_class = GroupDetailsForm
-    http_method_names = ['get',]
-
-    def get(self, request, *args, **kwargs):
-        if not self.request.is_ajax(): raise Http404
-        forms = []
-        for group in self.get_groups():
-            forms.append(self.get_form(group))
-        r = render_to_string('components/realty/publication_details.html', context={'forms':forms})
-        return JsonResponse({'form': r}, status=200)
-
-    def get_groups(self):
-        pk = self.kwargs.get('category')            
-        category = get_object_or_404(Category, pk=pk)
-        groups = category.groups.all().order_by('groupcategory__sequence')
-        return groups
-
-    def get_form(self, group, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
-        kwargs = self.get_form_kwargs()
-        kwargs['group'] = group
-        return form_class(**kwargs)
-        

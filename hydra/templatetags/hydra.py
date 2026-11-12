@@ -1,7 +1,7 @@
 from copy import copy
 from django import template
 from django.urls import reverse_lazy, reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.template.loader import render_to_string
 from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
@@ -10,7 +10,7 @@ from collections.abc import Iterable
 import types
 import re
 
-from django.template import Context
+from django.template import Context, TemplateDoesNotExist
 from django.template.base import (
     FILTER_SEPARATOR,
     VariableNode,
@@ -241,12 +241,10 @@ class FieldNode(Node):
             template_name = "hydra/forms/{widget}.html".format(widget=widget)
             try:
                 t = context.template.engine.get_template(template_name)
-                component = t.render(context)
-                context.pop()
-                return mark_safe(component)
-            except:
-                print(widget)
+            except TemplateDoesNotExist:
+                # Widgets sin plantilla propia (hidden, url, file...) se renderizan tal cual.
                 return bounded_field
+            return mark_safe(t.render(context))
 
 
 @register.inclusion_tag("autosite/forms/form.html")

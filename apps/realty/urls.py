@@ -5,7 +5,7 @@ from .views import (
     ChooseCategoryListView, 
     PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView, PropertyPrintView, PropertyDeleteView,
     PropertyFavoriteListView, PropertyDownloadView,
-    FinderMapView, FinderListView, filter_category_by_purpose, DetailsView,
+    FinderMapView, FinderListView, filter_category_by_purpose,
     PropertyDetailsRenderer
 )
 
@@ -28,6 +28,5 @@ urlpatterns = [
     path('explorador/lista/', FinderListView.as_view(), name='finder_without_map'),
     ## Ajax components
     path('finder/purpose/<int:pk>/<slug:klass>/', filter_category_by_purpose, name='finder_by_purpose'),
-    #path('render/details/<int:category>/category/', DetailsView.as_view() , name='render_details'),
     path('render/detalles-de-categoria/<int:category>/', PropertyDetailsRenderer.as_view() , name='render_details'),
 ]

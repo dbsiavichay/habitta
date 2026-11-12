@@ -23,7 +23,7 @@ class PropertyViewMixin:
         location_valid = location_form.is_valid()
 
         for dform in details_forms:
-            if not dform.is_valid(): self.form_invalid(form)
+            if not dform.is_valid(): return self.form_invalid(form)
 
         if not cover_form.is_valid() or not location_valid:
             return self.form_invalid(form)

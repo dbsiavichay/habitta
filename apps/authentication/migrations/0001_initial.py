@@ -4,7 +4,6 @@ import apps.multimedia.mixins
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import fontawesome.fields
 
 
 class Migration(migrations.Migration):
@@ -33,7 +32,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=32, verbose_name='nombre')),
-                ('icon', fontawesome.fields.IconField(blank=True, max_length=60, verbose_name='ícono')),
+                ('icon', models.CharField(blank=True, max_length=60, verbose_name='ícono')),
                 ('url', models.URLField()),
             ],
             options={

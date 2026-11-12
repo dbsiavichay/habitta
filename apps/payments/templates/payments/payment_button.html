@@ -1,6 +1,6 @@
 {% load payments %}
 {% if not payment %}
-{% payment_form obj=object amount=price %}
+{% payment_form obj=object amount=price label=label %}
 {% elif payment.is_confirmed %}
 <a href="{% url 'download' payment.id %}" class="btn color-bg flat-btn">Descargar
     <i class="fa fa-download"></i>

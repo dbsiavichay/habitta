@@ -96,9 +96,8 @@ class ProfileUploadImageView(UpdateView):
 	def get_object(self, queryset=None):		
 		return self.request.user.profile
 
-	def get(self, request, *args, **kwargs):
-		# Solo se puede enviar la imagen con post acción no permitida en get
-		return 'Acción no permitida'
+	# Sólo se puede enviar la imagen con POST
+	http_method_names = ['post']
 
 
 class ProfileDetailView(DetailView):

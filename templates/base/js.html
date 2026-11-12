@@ -136,3 +136,14 @@
 <!-- Facebook -->
 <script type="text/javascript" src="{% static 'plugins/facebook/facebook-sdk.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/facebook/social.js' %}"></script>
+<!-- Logout por POST (Django 5 no admite GET) -->
+<script>
+    document.addEventListener('click', function (e) {
+        var link = e.target.closest('[data-logout]');
+        var form = document.getElementById('logout-form');
+        if (link && form) {
+            e.preventDefault();
+            form.submit();
+        }
+    });
+</script>

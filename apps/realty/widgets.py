@@ -2,7 +2,7 @@ import math
 from itertools import chain
 
 from django import forms
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
@@ -14,12 +14,12 @@ class ColumnCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     to the <ul> elements that make up the columns.
     """
     def __init__(self, columns=2, css_class=None, wrapper_css_class=None, **kwargs):
-        super(self.__class__, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.columns = columns
         self.css_class = css_class
         self.wrapper_css_class = wrapper_css_class
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None, renderer=None, choices=()):
         if value is None: value = []
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(self.attrs, attrs)
@@ -39,7 +39,7 @@ class ColumnCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             else:
                 output.append(u'<ul>')
             # Normalize to strings
-            str_values = set([force_text(v) for v in value])
+            str_values = set([force_str(v) for v in value])
             for i, (option_value, option_label) in column:
                 # If an ID attribute was given, add a numeric index as a suffix,
                 # so that the checkboxes don't all have the same ID attribute.
@@ -52,9 +52,9 @@ class ColumnCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
                 cb = forms.CheckboxInput(
                     final_attrs, check_test=lambda value: value in str_values)
-                option_value = force_text(option_value)
+                option_value = force_str(option_value)
                 rendered_cb = cb.render(name, option_value)
-                option_label = conditional_escape(force_text(option_label))
+                option_label = conditional_escape(force_str(option_label))
                 output.append(u'<li><label%s>%s %s</label></li>' % (
                         label_for, rendered_cb, option_label))
             output.append(u'</ul>')

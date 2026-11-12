@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen.canvas import Canvas
@@ -36,15 +38,20 @@ def set_template_page(canvas):
         template = Image(base_path + 'print_template.png', A4[0], A4[1])
         template.drawOn(canvas, 0, 0)
 
+def _file_exists(path):
+    return bool(path) and os.path.isfile(path)
+
 def set_cover(canvas, obj):
     cover_path = obj.get_cover_path()
+    if not _file_exists(cover_path):
+        return
     img = Image(cover_path, 549.5, 350)
     img.drawOn(canvas, 23, 352)
 
 def set_qrcode(canvas, obj):
     url = 'https://larbit.com%s' % obj.get_absolute_url()
     qr_image = obj.get_last_image_by_code('qrcode')
-    if not qr_image or not qr_image.img:
+    if not qr_image or not qr_image.img or not _file_exists(qr_image.img.path):
         qr = qrcode.make(url)
         qr_image = obj.add_image(qr, 'qrcode')
     img = Image(qr_image.img.path, 120, 110)
@@ -62,23 +69,35 @@ def set_qrcode(canvas, obj):
     canvas.drawText(txt_obj)
 
 def set_map(canvas, obj):
-    if not obj.category.require_location: 
+    if not obj.category.require_location or not obj.geopoint:
         return
     map_image = obj.get_last_image_by_code('map')
-    if not map_image or not map_image.img:
+    if not map_image or not map_image.img or not _file_exists(map_image.img.path):
+        key = settings.GOOGLE_MAPS_API_KEY
+        if not key:
+            return
         center = '%s,%s' % (obj.geopoint.y, obj.geopoint.x)
-        zoom = 17
-        size = '274x203'
-        key = 'AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ'
-        url = 'https://maps.googleapis.com/maps/api/staticmap?center=%s&zoom=%s&size=%s&maptype=hybrid&markers=%s&key=%s' % (center, zoom, size, center, key)    
-        result = requests.get(url)
-        image = PilImage.open(BytesIO(result.content))
+        params = {
+            'center': center, 'zoom': 17, 'size': '274x203',
+            'maptype': 'hybrid', 'markers': center, 'key': key,
+        }
+        try:
+            result = requests.get(
+                'https://maps.googleapis.com/maps/api/staticmap',
+                params=params, timeout=settings.EXTERNAL_HTTP_TIMEOUT,
+            )
+            result.raise_for_status()
+            image = PilImage.open(BytesIO(result.content))
+        except (requests.RequestException, OSError):
+            return
         map_image = obj.add_image(image, 'map')
     img = Image(map_image.img.path, 274, 203)
     img.drawOn(canvas, 23, 78)
 
 def set_avatar(canvas, obj):
     avatar = obj.user.profile.get_avatar_path()
+    if not _file_exists(avatar):
+        return
     img = Image(avatar, 75, 75)
     img.drawOn(canvas, 334.5, 217.5)
 
