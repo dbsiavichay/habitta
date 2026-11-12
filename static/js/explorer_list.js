@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', function () {
             navigator.geolocation.getCurrentPosition(function(position) {           
                 var lng = position.coords.longitude;
                 var lat = position.coords.latitude
-                var url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+lat+','+lng+'&key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I';
+                var key = (window.LARBIT_CONFIG || {}).googleGeocodingKey;
+                if (!key) return;
+                var url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+lat+','+lng+'&key='+encodeURIComponent(key);
                 $.get(url, function (response) {
                     if (response.status=='OK') {
                         var address = response.results[1].formatted_address
@@ -79,9 +81,9 @@ var getSearchUrl = function () {
 
     if (!category && !purpose && !address) return url;
     url+='&';
-    if (category) url+= 'category='+category+'&';
-    if (purpose) url+= 'purpose='+purpose+'&';
-    if (address) url+= 'address='+address+'&';
+    if (category) url+= 'category='+encodeURIComponent(category)+'&';
+    if (purpose) url+= 'purpose='+encodeURIComponent(purpose)+'&';
+    if (address) url+= 'address='+encodeURIComponent(address)+'&';
     return url;
 }
 

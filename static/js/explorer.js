@@ -33,7 +33,9 @@ document.addEventListener('DOMContentLoaded', function () {
             navigator.geolocation.getCurrentPosition(function(position) {           
                 var lng = position.coords.longitude;
                 var lat = position.coords.latitude
-                var url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+lat+','+lng+'&key=AIzaSyDjnbmaDZ4HPsRJQC9oDHOp6PjIdPsYr8I';
+                var key = (window.LARBIT_CONFIG || {}).googleGeocodingKey;
+                if (!key) return;
+                var url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+lat+','+lng+'&key='+encodeURIComponent(key);
                 $.get(url, function (response) {
                     if (response.status=='OK') {
                         var address = response.results[1].formatted_address
@@ -92,9 +94,9 @@ var getSearchUrl = function () {
     if (!category && !purpose && !address) return url + '&lat='+lat+'&lng='+lng;
 
     url+='&';
-    if (category) url+= 'category='+category+'&';
-    if (purpose) url+= 'purpose='+purpose+'&';
-    if (address) url+= 'address='+address+'&';
+    if (category) url+= 'category='+encodeURIComponent(category)+'&';
+    if (purpose) url+= 'purpose='+encodeURIComponent(purpose)+'&';
+    if (address) url+= 'address='+encodeURIComponent(address)+'&';
     else url+= 'lat='+lat+'&lng='+lng;
     return url;
 }
@@ -106,25 +108,32 @@ var getLocations = function(map, url) {
     });
 }
 
-var getInfoBoxTemplate = function(location){    
+// Escapa texto antes de insertarlo como HTML (los datos vienen de usuarios).
+var escapeHtml = function (value) {
+    return String(value === null || value === undefined ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+};
+
+var getInfoBoxTemplate = function(location){
     var template = '<div class="map-popup-wrap">'+
                 '<div class="map-popup">'+
                     '<div class="infoBox-close"><i class="fa fa-times"></i></div>'+
-                    '<div class="map-popup-category">'+location.category+'</div>'+
-                    '<a href="'+location.url+'" class="listing-img-content fl-wrap"><img src="'+location.cover+'" alt=""></a>'+
+                    '<div class="map-popup-category">'+escapeHtml(location.category)+'</div>'+
+                    '<a href="'+escapeHtml(location.url)+'" class="listing-img-content fl-wrap"><img src="'+escapeHtml(location.cover)+'" alt=""></a>'+
                     '<div class="listing-content fl-wrap">'+
-                        '<div class="card-popup-raining map-card-rainting" data-staRrating="'+location.stars+'">'+
-                            '<span class="map-popup-reviews-count">( '+location.reviews+' comentarios )</span>'+
+                        '<div class="card-popup-raining map-card-rainting" data-staRrating="'+escapeHtml(location.stars)+'">'+
+                            '<span class="map-popup-reviews-count">( '+escapeHtml(location.reviews)+' comentarios )</span>'+
                         '</div>'+
                         '<div class="listing-title fl-wrap">'+
-                            '<h4><a href='+location.url+">"+location.purpose+'</a></h4>'+
-                            '<span class="map-popup-location-info"><i class="fa fa-map-marker"></i>'+location.address+'</span>'+
-                            '<span class="map-popup-location-phone"><i class="fa fa-phone"></i>'+location.phone+'</span>'+
+                            '<h4><a href="'+escapeHtml(location.url)+'">'+escapeHtml(location.purpose)+'</a></h4>'+
+                            '<span class="map-popup-location-info"><i class="fa fa-map-marker"></i>'+escapeHtml(location.address)+'</span>'+
+                            '<span class="map-popup-location-phone"><i class="fa fa-phone"></i>'+escapeHtml(location.phone)+'</span>'+
                         '</div>'+
                     '</div>'+
                 '</div>'+
             '</div>';
-    
+
     return template;
 }
 

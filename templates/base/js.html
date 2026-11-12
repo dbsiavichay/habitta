@@ -1,18 +1,29 @@
 {% load static %}
 <!--=============== scripts  ===============-->
-<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script>
+    window.LARBIT_CONFIG = {
+        googleGeocodingKey: "{{ GOOGLE_GEOCODING_API_KEY|escapejs }}"
+    };
+</script>
+<script type="text/javascript" src="{% static 'js/vendor/jquery-3.7.1.min.js' %}"></script>
+<!-- jQuery Migrate mantiene compatibles los plugins del tema escritos para jQuery 1.x/2.x -->
+<script type="text/javascript" src="{% static 'js/vendor/jquery-migrate-3.5.2.min.js' %}"></script>
+<script>jQuery.migrateMute = true;</script>
 <script type="text/javascript" src="{% static 'js/plugins.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/scripts.js' %}"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places"></script>
-<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOX7k1UhTEhlW9hiLWRAdxCOvB9yfSWPQ&libraries=places&callback=initAutocomplete"></script> -->
+{% if GOOGLE_MAPS_API_KEY %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY|urlencode }}&libraries=places"></script>
 <script type="text/javascript" src="{% static 'js/single-map.js' %}"></script>
+{% endif %}
 
 
 
 <!-- Forms -->
 <script type="text/javascript" src="{% static 'js/csfrtoken.js' %}"></script>
+{% if GOOGLE_MAPS_API_KEY %}
 <script type="text/javascript" src="{% static 'plugins/locationpicker/locationpicker.jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/locationpicker/config.js' %}"></script>
+{% endif %}
 <script type="text/javascript" src="{% static 'js/forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/cropper/cropper.min.js' %}"></script>    
 <script type="text/javascript" src="{% static 'plugins/cropper/config.js' %}"></script>
@@ -55,8 +66,10 @@
 <!-- Index -->
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        var autocompleteAddress = document.getElementById('ac_address');    
-        var autocomplete = new google.maps.places.Autocomplete(autocompleteAddress, {types:['(cities)']});
+        var autocompleteAddress = document.getElementById('ac_address');
+        if (autocompleteAddress && window.google && google.maps && google.maps.places) {
+            new google.maps.places.Autocomplete(autocompleteAddress, {types:['(cities)']});
+        }
     });
 </script>
 
@@ -64,42 +77,9 @@
 <!-- Detail -->
 <script type="text/javascript" src="{% static 'js/gallery-upload-image.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/reactions.js' %}"></script>
-<script>
-    var receiver = document.querySelector('#owner').value;
-    var chatSocket = new WebSocket(
-        'wss://' + window.location.host +
-        '/ws/message/' + receiver + '/', );
-
-
-    chatSocket.onmessage = function(e) {
-        var data = JSON.parse(e.data);
-        var message = data['message'];
-        document.querySelector('.chat-body').insertAdjacentHTML('beforeend', message)
-    };
-
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
-    };
-
-    document.querySelector('.chat-widget_input textarea').onkeyup = function(e) {
-        if (e.keyCode === 13) {  // enter, return
-            document.querySelector('.chat-widget_input button').click();
-        }
-    };
-
-    document.querySelector('.chat-widget_input button').onclick = function(e) {
-        var messageInputDom = document.querySelector('.chat-widget_input textarea');
-        var receiverInputDom = document.querySelector('#owner');
-        var message = messageInputDom.value;
-        var receiver = receiverInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'message': message,
-            'receiver': receiver,
-        }));
-
-        messageInputDom.value = '';
-    };
-</script>
+{% if user.is_authenticated %}
+<script type="text/javascript" src="{% static 'js/chat.js' %}"></script>
+{% endif %}
 
 <!-- QR Code Reader -->
 <script type="text/javascript" src="{% static 'plugins/qrcode-reader/instascan.min.js' %}"></script>
@@ -108,8 +88,12 @@
 
         var scan = function () {
             let scanner = new Instascan.Scanner({ video: document.getElementById('qr-reader') });
-            scanner.addListener('scan', function (content) {                
-                window.location.href = content;
+            scanner.addListener('scan', function (content) {
+                // Sólo se siguen códigos QR que apunten a este mismo sitio.
+                try {
+                    var target = new URL(content, window.location.origin);
+                    if (target.origin === window.location.origin) window.location.href = target.href;
+                } catch (e) {}
             });
             Instascan.Camera.getCameras().then(function (cameras) {                
                 if (cameras.length > 0) {

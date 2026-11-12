@@ -171,6 +171,8 @@ PAYPAL_CLIENT_SECRET = env('PAYPAL_CLIENT_SECRET', default='')
 TINIFY_API_KEY = env('TINIFY_API_KEY', default='')
 
 GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default='')
+# Key usada desde el navegador para la Geocoding API (si no se define, se usa la de Maps)
+GOOGLE_GEOCODING_API_KEY = env('GOOGLE_GEOCODING_API_KEY', default='') or GOOGLE_MAPS_API_KEY
 
 # Timeout (segundos) para llamadas HTTP a servicios externos
 EXTERNAL_HTTP_TIMEOUT = env.int('EXTERNAL_HTTP_TIMEOUT', default=10)

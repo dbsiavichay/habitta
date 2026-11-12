@@ -1,17 +1,12 @@
 {% load static %}
 <!DOCTYPE HTML>
-<html lang="en">
+<html lang="es">
 
 <head>
     {% include 'base/meta.html' %}
     {% block css %}
     {% include 'base/css.html' %}
     {% endblock %}
-    {% include 'plugins/pixel.html' %}
-    {% include 'plugins/analitycs.html' %}
-    {% include 'plugins/smartlook.html' %}
-    {% include 'plugins/mouseflow.html' %}
-    {% include 'plugins/adsense.html' %}
     {% block og %}{% endblock %}
     <!--=============== favicons ===============-->
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
