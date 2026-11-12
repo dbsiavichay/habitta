@@ -1,0 +1,12 @@
+# Ajustes de desarrollo (docker compose los aplica automáticamente).
+services:
+  web:
+    environment:
+      DEBUG: "True"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
+      CSRF_TRUSTED_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000"
+    # runserver de daphne: HTTP + WebSocket con recarga automática
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - .:/app
+      - ./media:/app/media
