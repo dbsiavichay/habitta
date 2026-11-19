@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+from django.utils import timezone
 from apps.realty.models import Property, Purpose
 from apps.auctions.models import Auction
 from .models import Settings, Term, Help
@@ -27,7 +29,7 @@ class HomeView(ProjectMixin, TemplateView):
 		return result
 
 	def get_auctions_properties(self):
-		Auction.objects.filter(ending_date__lte=datetime.now()+timedelta(minutes=1), stage=Auction.OPEN).update(stage=Auction.CLOSED)
+		Auction.objects.filter(ending_date__lte=timezone.now()+timedelta(minutes=1), stage=Auction.OPEN).update(stage=Auction.CLOSED)
 		queryset = Property.objects.filter(auction__stage=Auction.OPEN)
 		return queryset
 

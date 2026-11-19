@@ -1,6 +1,6 @@
 {% extends 'base/base_detail.html' %}
 
-{% load static payments logs auctions %}
+{% load static l10n payments logs auctions %}
 
 {% block pallarax %}
 <!--  section  --> 
@@ -162,7 +162,7 @@
     <div class="box-widget-item fl-wrap">        
         <div class="box-widget">
             <div class="map-container">
-                <div id="singleMap" data-longitude="{{ object.geopoint.x }}" data-latitude="{{ object.geopoint.y }}" data-mapTitle="Out Location"></div>
+                <div id="singleMap" data-longitude="{{ object.geopoint.x|unlocalize }}" data-latitude="{{ object.geopoint.y|unlocalize }}" data-mapTitle="Out Location"></div>
             </div>            
             <div class="box-widget-content">
                 <div class="list-author-widget-contacts list-item-widget-contacts">
@@ -269,13 +269,7 @@
                         </div>
                         <div class="claim-widget-link fl-wrap"> 
                             <a class="logreg-modal-open" href="#" data-message="You must be logged in to claim listing.">
-                                {% if not object|is_pay:user %}
-                                {% payment_form obj=object amount=object.get_price_area label="Comprar" %}
-                                {% else %}
-                                <a href="{% url 'download' object.id %}" class="btn color-bg flat-btn">Descargar
-                                    <i class="fa fa-download"></i>
-                                </a>
-                                {% endif %}                           
+                                {% check_payment object user label="Comprar" %}
                             </a>
                         </div>
                     </div>  

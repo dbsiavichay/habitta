@@ -185,3 +185,8 @@ def get_model(app_name):
     for site in sites:
         modelos.append(site.model)
     return modelos
+
+
+def is_ajax(request):
+    """Reemplazo de HttpRequest.is_ajax() (removido en Django 4.0)."""
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'

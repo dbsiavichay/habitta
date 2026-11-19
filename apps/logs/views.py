@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from django.http import Http404
+from django.shortcuts import redirect
 from django.views.generic import CreateView, DeleteView
 from .models import Log
 from .forms import LogForm
@@ -27,12 +28,12 @@ class LogCreateView(CreateView):
 
 class LogDeleteView(DeleteView):
 	model = Log
+	http_method_names = ['post']
 
-	def delete(self, request, *args, **kwargs):
-		self.object = self.get_object()
-		self.success_url = self.object.property.get_absolute_url()
+	def get_queryset(self):
+		return super().get_queryset().filter(user=self.request.user)
+
+	def form_valid(self, form):
+		success_url = self.object.property.get_absolute_url()
 		self.object.delete()
-		return redirect(self.success_url)
-
-	def get(self, request, *args, **kwargs):
-		raise Http404
+		return redirect(success_url)

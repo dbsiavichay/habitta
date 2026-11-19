@@ -1,4 +1,4 @@
-{% load static components %}
+{% load static hydra %}
 <!-- header-->
 <header class="main-header dark-header fs-header sticky">
     <div class="header-inner">
@@ -38,7 +38,7 @@
                 <li><a href="{% url 'conversations' %}"> Conversaciones</a></li>
                 <li><a href="{% url 'favorite_properties' %}"> Favoritos</a></li>                
                 <li><a href="{% url 'choose_category' %}"> Publicar</a></li>                
-                <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+                <li><a href="{% url 'logout' %}" data-logout>Cerrar sesión</a></li>
             </ul>
         </div>
         {% endif %}

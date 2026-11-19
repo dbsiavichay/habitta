@@ -2,7 +2,6 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from apps.multimedia.mixins import ImageMixin
-from fontawesome.fields import IconField
 
 class SocialNetwork(ImageMixin, models.Model):
 	class Meta:
@@ -10,7 +9,10 @@ class SocialNetwork(ImageMixin, models.Model):
 		verbose_name_plural = 'redes sociales'
 
 	name = models.CharField(max_length=32, verbose_name='nombre')
-	icon = IconField(verbose_name='ícono')
+	icon = models.CharField(
+		max_length=60, blank=True, verbose_name='ícono',
+		help_text='Nombre del ícono de Font Awesome 4 (p. ej. facebook, twitter).'
+	)
 	url = models.URLField()
 
 	def __str__(self):

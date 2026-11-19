@@ -1,2 +1,2 @@
-<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+<label for="{{ field.id_for_label }}">{% if icon %}<i class="fa fa-{{ icon }}"></i> {% endif %}{{ field.label }}</label>
 {{ field }}

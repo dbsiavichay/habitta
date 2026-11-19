@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models
 from django.db.models import Q
 from django.urls import reverse_lazy
@@ -8,7 +7,6 @@ from apps.multimedia.mixins import ImageMixin
 
 from .utils import get_category_icons, get_larbit_icons
 
-from fontawesome.fields import IconField
 
 #Lo que se pretende hacer con la propiedad ej: vender, rentar
 class Purpose(models.Model):
@@ -26,7 +24,6 @@ class Purpose(models.Model):
         return self.for_owner
 
 class Specification(models.Model):
-    ICON_CHOICES = get_larbit_icons()
 
     FIELD_CHOICES = (       
         ('CharField', 'Texto'),('IntegerField', 'Número Entero'), ('DecimalField', 'Número decimal'),
@@ -39,7 +36,7 @@ class Specification(models.Model):
     field_type = models.CharField(max_length=64, choices=FIELD_CHOICES, verbose_name='tipo de campo')
     attributes = models.CharField(max_length=128, blank=True, null=True, verbose_name='atributos')
     choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')    
-    icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='ícono')
+    icon = models.CharField(max_length=32, blank=True, null=True, choices=get_larbit_icons, verbose_name='ícono')
     is_required = models.BooleanField(default=False, verbose_name='requerido?') 
 
     def __str__(self):
@@ -65,7 +62,6 @@ class Group(models.Model):
         verbose_name = 'formulario'
 
 class Category(models.Model):   
-    ICON_CHOICES = get_category_icons()
 
     REAL_STATE, SERVICE, JOB = (1, 2, 3)
     KIND_CHOICES = (
@@ -77,7 +73,7 @@ class Category(models.Model):
     singular_name = models.CharField(max_length=64, verbose_name='nombre singular')
     price_area = models.CharField(max_length=64, blank=True, null=True, verbose_name='área del precio') 
     enabled = models.BooleanField(default=True, verbose_name='habilitado?')
-    icon = models.CharField(max_length=32, blank=True, null=True, choices=ICON_CHOICES, verbose_name='icono')
+    icon = models.CharField(max_length=32, blank=True, null=True, choices=get_category_icons, verbose_name='icono')
     order = models.PositiveSmallIntegerField(verbose_name='orden')  
     require_location = models.BooleanField(default=True, verbose_name='requiere ubicación?')
     is_salable = models.BooleanField(default=False, verbose_name='puede venderse?')
@@ -119,7 +115,7 @@ class Property(ImageMixin, models.Model):
     geopoint = models.PointField(blank=True, null=True)
     radius = models.PositiveIntegerField(blank=True, null=True, verbose_name='Radio (m)') 
     status = models.PositiveSmallIntegerField(default=DRAFT)
-    details = JSONField(blank=True, null=True, verbose_name='detalles') 
+    details = models.JSONField(blank=True, null=True, verbose_name='detalles') 
     pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación') 
     category = models.ForeignKey(Category, verbose_name='categoría', on_delete=models.CASCADE)  
     user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)
@@ -222,9 +218,9 @@ class Property(ImageMixin, models.Model):
 
     #Usado para el serializer en api
     def get_longitude(self):
-        return self.geopoint.x if self.category.require_location else 0
-    
+        return self.geopoint.x if self.category.require_location and self.geopoint else 0
+
     def get_latitude(self):
-        return self.geopoint.y if self.category.require_location else 0
+        return self.geopoint.y if self.category.require_location and self.geopoint else 0
 
 

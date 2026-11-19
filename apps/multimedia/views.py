@@ -1,4 +1,5 @@
 from django.http import HttpResponse, JsonResponse, Http404
+from hydra.utils import is_ajax
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -43,14 +44,17 @@ class Base64ImageUploadView(CreateView):
 
 class ImageDeleteView(DeleteView):
 	model = Image
-	http_method_names = ['post',]
+	http_method_names = ['post']
 
-	def delete(self, request, *args, **kwargs):		
-		if not request.is_ajax():
+	def post(self, request, *args, **kwargs):
+		if not is_ajax(request):
 			raise Http404
-		self.object = self.get_object()	    
-		if self.object.get_object().user != request.user:
-			return JsonResponse({'error': 'No estas autorizado para realizar esta acción'}, status=401)
+		return super().post(request, *args, **kwargs)
+
+	def form_valid(self, form):
+		owner = getattr(self.object.get_object(), 'user', None)
+		if owner != self.request.user:
+			return JsonResponse({'error': 'No estás autorizado para realizar esta acción'}, status=403)
 		if self.object.img:
 			self.object.img.delete()
 		self.object.delete()

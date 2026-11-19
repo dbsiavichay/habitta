@@ -12,8 +12,8 @@
             <h3>Bienvenido a <span>LAR<strong>BIT</strong></span></h3>                
             <div class="soc-log fl-wrap half">
                 <p>Ingresa con tus redes sociales.</p>
-                <a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>
-                <a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>
+                {% if FACEBOOK_LOGIN_ENABLED %}<a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>{% endif %}
+                {% if TWITTER_LOGIN_ENABLED %}<a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>{% endif %}
                 <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" id="socialProvider" name="provider">

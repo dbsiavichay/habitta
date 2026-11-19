@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.http import Http404
 from django.views.generic import ListView, CreateView, DeleteView
 from .models import Comment
@@ -18,12 +18,14 @@ class CommentCreateView(CreateView):
 	def get(self, request, *args, **kwargs):
 		raise Http404
 
-class CommentDeleteView(DeleteView):	
-	model = Comment	
+class CommentDeleteView(DeleteView):
+	model = Comment
+	http_method_names = ['post']
 
-	def delete(self, request, *args, **kwargs):	    
-	    self.object = self.get_object()
-	    self.object.delete()
+	def get_queryset(self):
+		return super().get_queryset().filter(user=self.request.user)
 
-	    return redirect(self.object.get_object_url())
-
+	def form_valid(self, form):
+		success_url = self.object.get_object_url()
+		self.object.delete()
+		return redirect(success_url)

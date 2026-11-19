@@ -1,0 +1,13 @@
+Django>=5.2,<5.3
+channels[daphne]>=4.2
+channels-redis>=4.2
+djangorestframework>=3.15
+psycopg[binary]>=3.2
+Pillow>=11
+reportlab>=4
+qrcode[pil]>=8
+requests>=2.32
+requests-oauthlib>=2
+tinify>=1.6
+django-environ>=0.11
+whitenoise>=6.7

@@ -1,35 +1,25 @@
+import os
 import re
-import base64
-from django.core.files.base import ContentFile
 
-def base64_to_image(base64image):		
-		format, imgstr = base64image.split(';base64,')		
-		ext = format.split('/')[-1]
+from django.conf import settings
 
-		data = ContentFile(base64.b64decode(imgstr))  
-		
-		return (data, ext)
+
+def _read_icon_names(relative_path, prefix):
+	"""Extrae los nombres de íconos (``.<prefix>-<nombre>:before``) de un CSS."""
+	path = os.path.join(settings.BASE_DIR, relative_path)
+	regex = re.compile(r'%s-(?P<icon>[\w_-]+):before' % prefix)
+	try:
+		with open(path, 'r', encoding='utf-8') as file:
+			return sorted(set(regex.findall(file.read())))
+	except OSError:
+		return []
+
 
 def get_category_icons():
-	CHOICES = []
-	file = open('static/plugins/fontcategories/fontcategories.css', 'r')
-	regex = regex = re.compile(r'fc-(?P<icon>[\w_-]+):before')
-	for line in file:
-	    match = regex.findall(line)    	    	    
-	    CHOICES = CHOICES + [icon for icon in match]
-	
-	CHOICES = sorted(CHOICES)
-	CHOICES = [(icon, icon.capitalize()) for icon in CHOICES]
-	return CHOICES
+	icons = _read_icon_names('static/plugins/fontcategories/fontcategories.css', 'fc')
+	return [(icon, icon.capitalize()) for icon in icons]
+
 
 def get_larbit_icons():
-	CHOICES = []
-	file = open('media/larbitfonts/style.css', 'r')
-	regex = regex = re.compile(r'lb-(?P<icon>[\w_-]+):before')
-	for line in file:
-	    match = regex.findall(line)    	    	    
-	    CHOICES = CHOICES + [icon for icon in match]
-	
-	CHOICES = sorted(CHOICES)
-	CHOICES = [(icon, ' '.join(icon.capitalize().split('-'))) for icon in CHOICES]
-	return CHOICES
+	icons = _read_icon_names('media/larbitfonts/style.css', 'lb')
+	return [(icon, ' '.join(icon.capitalize().split('-'))) for icon in icons]
