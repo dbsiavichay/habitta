@@ -1,61 +1,43 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% load hydra %}
+{% block title %}Centro de ayuda{% endblock %}
+{% block description %}Preguntas frecuentes sobre cómo buscar, publicar y contactar en {{ SITE_NAME }}.{% endblock %}
 
 {% block content %}
-<!--section -->
-<section class="parallax-section parallax-sm" data-scrollax-parent="true" id="sec1">
-    <div class="bg par-elem " data-bg="{% if project.help_cover %} {{ project.help_cover.url }} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
-    <div class="overlay"></div>
-    <div class="container">
-        <div class="section-title center-align no-padding">
-            <h2><span>Ayuda</span></h2>
-            <div class="breadcrumbs fl-wrap"><a href="{% url 'home' %}">Inicio</a><span>Ayuda</span></div>
-            <span class="section-separator"></span>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+<c-page-header title="¿En qué te ayudamos?" icon="life-buoy" :cover="project.help_cover"
+               description="Respuestas rápidas sobre cómo buscar, publicar y contactar a los anunciantes."
+               :breadcrumbs="[('Ayuda', '')]" />
 
-<!--section -->
-<section id="sec1">
-    <!-- container -->
-    <div class="container">
-        <!-- profile-edit-wrap -->
-        <div class="profile-edit-wrap">            
-            <div class="row">                
-                <div class="col-md-12">
-                    <div class="dashboard-list-box fl-wrap">
-                        <div class="dashboard-header fl-wrap">
-                            <h3>Listado</h3>
-                        </div>
-                        <div class="accordion">
-                            {% for object in object_list %}
-                            <!-- dashboard-list end-->
-                            <a class="toggle" href="#">
-                                {{ object.title }}
-                                <i class="fa fa-angle-down"></i>
-                            </a>
-                            <div class="accordion-inner">
-                                <!-- dashboard-list end-->    
-                                <div class="item-list">
-                                    <div class="item-text">
-                                        <p>{{ object.description|linebreaks }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+<section class="container-page py-12 sm:py-16">
+    <div class="grid gap-10 lg:grid-cols-[1fr_20rem]">
+        <div class="space-y-3">
+            {% for object in object_list %}
+            <details class="collapse collapse-plus rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60 open:ring-primary/30" {% if forloop.first %}open{% endif %}>
+                <summary class="collapse-title text-lg font-bold pr-12">{{ object.title }}</summary>
+                <div class="collapse-content prose-habitta text-base-content/80">{{ object.description|linebreaks }}</div>
+            </details>
+            {% empty %}
+            <c-empty-state icon="life-buoy" title="Aún no hay preguntas frecuentes" text="Muy pronto publicaremos respuestas a las dudas más comunes." />
+            {% endfor %}
+        </div>
+
+        <aside class="lg:sticky lg:top-24 h-fit space-y-4">
+            <div class="rounded-box bg-primary text-primary-content p-6">
+                <c-icon name="message-circle-more" class="size-8 opacity-80" />
+                <h2 class="mt-4 text-xl font-bold">¿No encuentras lo que buscas?</h2>
+                <p class="mt-2 text-primary-content/80">Escríbele directo al anunciante desde su publicación, o contáctanos.</p>
+                {% if CONTACT_EMAIL %}
+                <c-button variant="white" href="mailto:{{ CONTACT_EMAIL }}" icon="mail" class="mt-5">Escríbenos</c-button>
+                {% else %}
+                <c-button variant="white" href="{% url 'finder' %}" icon="compass" class="mt-5">Explorar anuncios</c-button>
+                {% endif %}
             </div>
-        </div>
-        <!--profile-edit-wrap end -->
+            <a href="{% url 'terms' %}" class="flex items-center gap-3 rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 hover:ring-primary/40 transition">
+                <c-icon name="scroll-text" class="size-6 text-secondary" />
+                <span class="font-semibold">Términos y condiciones</span>
+                <c-icon name="chevron-right" class="ml-auto size-4 opacity-50" />
+            </a>
+        </aside>
     </div>
-    <!--container end -->
 </section>
-<!-- section end -->    
-<div class="limit-box fl-wrap"></div>
-{% include 'base/join_our.html' %}
 {% endblock %}
-

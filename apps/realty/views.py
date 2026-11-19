@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse, Http404
 from hydra.utils import is_ajax
 from django.shortcuts import render, redirect, get_object_or_404
@@ -15,6 +16,7 @@ from apps.multimedia.forms import ImageForm
 from .models import Category, Property, Purpose
 from .forms import FinderForm, GroupDetailsForm
 from .mixins import PropertyViewMixin
+from .search import search_data
 from apps.authentication.mixins import OwnerQuerysetMixin
 
 from apps.logs.models import Log
@@ -81,22 +83,65 @@ class PropertyUpdateView(OwnerQuerysetMixin, PropertyViewMixin, UpdateView):
 
 class PropertyDetailView(DetailView):
     model = Property
+    queryset = Property.objects.select_related('category', 'user__profile')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self.object = self.get_object() 
+        content_type = ContentType.objects.get_for_model(self.object)
         image_form = ImageForm(initial = {
             'object_id': self.object.id,
-            'content_type': ContentType.objects.get_for_model(self.object)
+            'content_type': content_type,
         })
-        more_for_this_user = self.model.objects.filter(user=self.object.user).exclude(pk=self.object.pk)
-        
+        more_for_this_user = (
+            self.model.objects.filter(user=self.object.user)
+            .exclude(pk=self.object.pk)
+            .select_related('category', 'user__profile')[:8]
+        )
+
         context.update({
             'image_form': image_form,
+            'content_type_id': content_type.id,
             'more_for_this_user': more_for_this_user,
+            'photos': self.get_photos(),
+            'map_point': self.get_map_point(),
         })
 
         return context
+
+    def get_photos(self):
+        """Portada + galería con sus dimensiones (las necesita el visor PhotoSwipe)."""
+        photos = []
+        cover = self.object.get_cover_instance()
+        images = ([cover] if cover and cover.img else []) + self.object.get_gallery()
+        seen = set()
+        for image in images:
+            # Las imágenes generadas para el PDF (QR, mapa estático, miniatura) no son fotos del anuncio
+            if image.pk in seen or image.code in ('qrcode', 'map', 'thumbnail'):
+                continue
+            seen.add(image.pk)
+            try:
+                width, height = image.img.width, image.img.height
+            except (OSError, ValueError):
+                # La imagen no existe en el almacenamiento: no se muestra
+                continue
+            photos.append({
+                'id': image.pk,
+                'url': image.img.url,
+                'width': width,
+                'height': height,
+                'is_cover': image.is_cover,
+                'delete_url': reverse_lazy('delete_image', args=[image.pk]),
+            })
+        return photos
+
+    def get_map_point(self):
+        point = self.object.geopoint
+        if not point:
+            return None
+        radius = None if self.object.category.require_location else self.object.radius
+        if not self.object.category.require_location and not radius:
+            return None
+        return {'lat': point.y, 'lng': point.x, 'radius': radius or 0}
 
 
 class PropertyFavoriteListView(ListView):
@@ -118,7 +163,7 @@ class PropertyPrintView(DetailView):
         #response['Content-Disposition'] = 'inline; filename=report.pdf'
         # Para descargar
         response['Content-Disposition'] = 'attachment; filename="property.pdf"' 
-        pdf = get_pdf(self.object)
+        pdf = get_pdf(self.object, base_url=settings.SITE_URL or request.build_absolute_uri('/').rstrip('/'))
         # Get the value of the StringIO buffer and write it to the response.
         response.write(pdf)
         return response
@@ -159,16 +204,51 @@ class PropertyDownloadView(DetailView):
 
 
 
-class FinderMapView(FormView) :    
+class FinderMapView(TemplateView):
+    """Explorador de anuncios (lista + mapa). Los filtros llegan por GET (URL compartible).
+
+    También acepta el POST de los buscadores antiguos (search_purpose, search_category, search_address).
+    """
     template_name = 'realty/finder.html'
-    form_class = FinderForm
+    initial_view = 'map'
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
-class FinderListView(FinderMapView) :    
-    template_name = 'realty/finder_without_map.html'
-    form_class = FinderForm
+    def get_initial_filters(self):
+        data = self.request.POST if self.request.method == 'POST' else self.request.GET
+
+        def number(name):
+            value = data.get(name, '')
+            try:
+                float(value)
+                return value
+            except ValueError:
+                return ''
+
+        return {
+            'kind': data.get('kind', '') if data.get('kind') in ('1', '2', '3') else '',
+            'purpose': number('search_purpose'),
+            'category': number('search_category'),
+            'address': data.get('search_address', '')[:120],
+            'lat': number('lat'),
+            'lng': number('lng'),
+            'radius': number('radius') or '15',
+            'minPrice': number('min_price'),
+            'maxPrice': number('max_price'),
+            'view': data.get('view') if data.get('view') in ('map', 'list') else self.initial_view,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'search_data': search_data(),
+            'initial_filters': self.get_initial_filters(),
+        })
+        return context
+
+class FinderListView(FinderMapView):
+    initial_view = 'list'
 
 
 ##Ajax components

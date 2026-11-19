@@ -1,5 +1,5 @@
 """
-Configuración de Django para Larbit.
+Configuración de Django para Habitta.
 
 Todos los valores sensibles o dependientes del entorno se leen de variables
 de entorno (ver .env.example). Documentación:
@@ -56,6 +56,9 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'hydra',
     'channels',
+    'django_cotton',
+    'django_htmx',
+    'django_tailwind_cli',
 ]
 
 MY_APPS = [
@@ -81,16 +84,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
 
+# django_cotton reemplaza APP_DIRS por sus loaders (cotton + filesystem + app_directories, cacheados)
+# y registra {% cotton %} como builtin. Los componentes viven en templates/cotton/.
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
+            'builtins': ['lucide.templatetags.lucide'],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -98,6 +105,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.realty.context_processors.search_bar',
                 'apps.project.context_processors.integrations',
+                'apps.project.context_processors.brand',
             ],
         },
     },
@@ -109,7 +117,7 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 # Database
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgis://larbit:larbit@localhost:5432/larbit'),
+    'default': env.db('DATABASE_URL', default='postgis://habitta:habitta@localhost:5432/habitta'),
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -145,6 +153,16 @@ STORAGES = {
     },
 }
 
+# Tailwind CSS v4 + daisyUI 5 con el binario standalone (sin Node).
+#   python manage.py tailwind watch   -> recompila en desarrollo
+#   python manage.py tailwind build   -> CSS minificado (lo ejecuta el Dockerfile)
+# tailwindcss-extra es el CLI oficial con daisyUI incluido (github.com/dobicinaitis/tailwind-cli-extra).
+TAILWIND_CLI_USE_DAISY_UI = True
+TAILWIND_CLI_VERSION = '2.10.34'
+TAILWIND_CLI_PATH = env('TAILWIND_CLI_PATH', default='.django_tailwind_cli')
+TAILWIND_CLI_SRC_CSS = 'assets/tailwind/source.css'
+TAILWIND_CLI_DIST_CSS = 'css/habitta.css'
+
 # Media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -155,6 +173,19 @@ LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('home')
 
 FORMS_URLFIELD_ASSUME_HTTPS = True
+
+
+# Marca y datos de contacto que se muestran en el sitio (vacíos = no se muestran)
+SITE_NAME = env('SITE_NAME', default='Habitta')
+SITE_TAGLINE = env('SITE_TAGLINE', default='Inmuebles, servicios y empleos cerca de ti')
+# URL pública sin barra final; se usa en enlaces absolutos (PDF, QR, OpenGraph).
+SITE_URL = env('SITE_URL', default='').rstrip('/')
+CONTACT_EMAIL = env('CONTACT_EMAIL', default='')
+CONTACT_PHONE = env('CONTACT_PHONE', default='')
+CONTACT_ADDRESS = env('CONTACT_ADDRESS', default='')
+SOCIAL_FACEBOOK = env('SOCIAL_FACEBOOK', default='')
+SOCIAL_INSTAGRAM = env('SOCIAL_INSTAGRAM', default='')
+SOCIAL_X = env('SOCIAL_X', default='')
 
 
 # Integraciones externas (todas opcionales: vacías = deshabilitadas)
@@ -183,7 +214,12 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [env('REDIS_URL', default='redis://localhost:6379/0')],
+            'hosts': [{
+                'address': env('REDIS_URL', default='redis://localhost:6379/0'),
+                # redis-py 8 trae socket_timeout=5 por defecto y channels_redis espera mensajes con
+                # BZPOPMIN durante 5 s: la lectura vencía justo antes y cerraba los WebSocket del chat.
+                'socket_timeout': 15,
+            }],
         },
     },
 }

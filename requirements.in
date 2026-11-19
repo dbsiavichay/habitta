@@ -11,3 +11,8 @@ requests-oauthlib>=2
 tinify>=1.6
 django-environ>=0.11
 whitenoise>=6.7
+# Frontend (Habitta): Tailwind v4 + daisyUI sin Node, componentes y parciales
+django-tailwind-cli>=4.9
+django-cotton>=2.9
+django-htmx>=1.29
+lucide>=1.1

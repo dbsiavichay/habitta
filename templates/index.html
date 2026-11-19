@@ -1,69 +1,237 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/base.html' %}
+{% load habitta %}
 
-{% block og %}
-<meta property="og:type" content="website" />
-<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
-<meta property="og:title" content="Soluciones inmobiliarias | Larbit Ecuador" />
-<meta property="og:description" content="{{ project.subtitle }}" />
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ project.cover.url }}" />
-<meta property="fb:app_id" content="489725724801134" />
-{% endblock %}
+{% block title %}Inmuebles, servicios y empleos cerca de ti{% endblock %}
+{% block og_description %}Busca en el mapa casas, departamentos, profesionales y ofertas de trabajo en Ecuador. Publica gratis en {{ SITE_NAME }}.{% endblock %}
+{% block og_image %}{% if project.cover %}{{ SITE_URL }}{{ project.cover.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
+{% block navbar %}<c-nav.navbar overlay />{% endblock %}
 
 {% block content %}
-{% include 'index/hero.html' %}
+{{ search_data|json_script:"search-data" }}
+{% url 'finder' as finder_url %}
 
-<!--section -->
-<section class="gray-section" id="sec2">
-    <div class="container">
-        <div class="section-title">
-            <h2>Recientes</h2>            
-            <span class="section-separator"></span>
+{# ============================== HERO ============================== #}
+<section class="relative isolate overflow-hidden bg-neutral text-white">
+    {% if project.cover %}
+    <img src="{{ project.cover.url }}" alt="" class="absolute inset-0 -z-10 size-full object-cover opacity-25" onerror="this.remove()">
+    {% endif %}
+    <div class="pointer-events-none absolute -left-40 -top-40 -z-10 size-[36rem] rounded-full bg-primary/45 blur-[120px]"></div>
+    <div class="pointer-events-none absolute -right-24 top-1/3 -z-10 size-[26rem] rounded-full bg-accent/20 blur-[110px]"></div>
+    <div class="pointer-events-none absolute bottom-[-12rem] left-1/3 -z-10 size-[28rem] rounded-full bg-secondary/25 blur-[120px]"></div>
+    <div class="pointer-events-none absolute inset-0 -z-10 opacity-[0.07] [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:22px_22px]"></div>
+
+    <div class="container-page grid grid-cols-1 items-center gap-12 pb-16 pt-28 sm:pt-32 lg:grid-cols-[1.2fr_0.8fr] lg:pb-24 lg:pt-36">
+        <div class="min-w-0 animate-fade-up">
+            {% if stats.properties %}
+            <p class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-semibold ring-1 ring-white/15 backdrop-blur">
+                <span class="relative flex size-2"><span class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-75"></span><span class="relative inline-flex size-2 rounded-full bg-accent"></span></span>
+                {{ stats.properties }} anuncios publicados en Ecuador
+            </p>
+            {% endif %}
+            <h1 class="mt-6 text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.2rem]">
+                Encuentra tu <span class="relative whitespace-nowrap text-accent">lugar<svg class="absolute -bottom-2 left-0 w-full text-accent/70" viewBox="0 0 200 12" fill="none" aria-hidden="true"><path d="M2 9c40-6 120-8 196-3" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>,
+                tu servicio y tu próximo empleo
+            </h1>
+            <p class="mt-6 max-w-xl text-lg text-white/75 sm:text-xl">
+                Inmuebles, profesionales y ofertas de trabajo publicados por personas cerca de ti. Búscalos en el mapa y escribe directo al anunciante.
+            </p>
+
+            <c-search.hero class="mt-9 max-w-3xl" />
+
+            {% if popular_categories %}
+            <div class="mt-6 flex flex-wrap items-center gap-2 text-sm">
+                <span class="mr-1 font-semibold text-white/60">Populares:</span>
+                {% for category in popular_categories|slice:":5" %}
+                <a href="{{ finder_url }}?search_category={{ category.id }}" class="rounded-full bg-white/10 px-3 py-1.5 font-medium ring-1 ring-white/10 transition hover:bg-white hover:text-neutral">{{ category.name }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {# Collage con fotos reales de los últimos anuncios #}
+        <div class="relative hidden h-[32rem] lg:block" aria-hidden="true">
+            {% if hero_properties %}
+            {% for p in hero_properties %}
+            <a href="{{ p.get_absolute_url }}" tabindex="-1"
+               class="group absolute overflow-hidden rounded-[1.75rem] shadow-float ring-4 ring-white/10 transition duration-500 hover:z-30 hover:rotate-0 hover:scale-[1.03]
+                      {% if forloop.counter == 1 %}right-0 top-0 h-80 w-72 rotate-3 z-10{% elif forloop.counter == 2 %}bottom-2 left-0 h-72 w-64 -rotate-6 z-20{% else %}bottom-16 right-16 h-56 w-52 rotate-[8deg] z-0 opacity-90{% endif %}">
+                <img src="{{ p.get_cover }}" alt="" class="size-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0"></div>
+                <div class="absolute inset-x-4 bottom-4">
+                    <p class="text-xs font-bold uppercase tracking-wide text-accent">{{ p.category.singular_name }}</p>
+                    <p class="mt-0.5 line-clamp-1 font-bold">{{ p.title|lower|capfirst|default:p.category.singular_name }}</p>
+                    {% with price=p.get_price_value %}{% if price %}<p class="mt-1 text-lg font-extrabold">{{ price|money }}</p>{% endif %}{% endwith %}
+                </div>
+            </a>
+            {% endfor %}
+            {% else %}
+            <div class="absolute inset-10 grid place-items-center rounded-[2.5rem] bg-white/5 ring-1 ring-white/10">
+                <c-brand.logo mark_only class="size-40 -rotate-6 drop-shadow-2xl" label="" />
+            </div>
+            {% endif %}
+            <div class="absolute -left-6 top-24 z-40 flex items-center gap-3 rounded-2xl bg-base-100 px-4 py-3 text-base-content shadow-float">
+                <span class="grid size-10 place-items-center rounded-xl bg-primary/12 text-primary"><c-icon name="message-circle" /></span>
+                <span><span class="block text-sm font-bold">Chat en tiempo real</span><span class="block text-xs text-base-content/60">Habla directo con el anunciante</span></span>
+            </div>
+            <div class="absolute -bottom-2 right-4 z-40 flex items-center gap-3 rounded-2xl bg-base-100 px-4 py-3 text-base-content shadow-float">
+                <span class="grid size-10 place-items-center rounded-xl bg-secondary/12 text-secondary"><c-icon name="map-pinned" /></span>
+                <span><span class="block text-sm font-bold">Búsqueda en el mapa</span><span class="block text-xs text-base-content/60">Mira qué hay cerca de ti</span></span>
+            </div>
         </div>
     </div>
-    {% include 'index/carousel.html' with object_list=properties %}
 </section>
-<!-- section end -->
 
-{% if auctions %}
-<!--section -->
-<section class="gray-section">
-    <div class="container">
-        <div class="section-title">
-            <h2>Subastas</h2>            
-            <span class="section-separator"></span>
-        </div>
+{# ============================== TIPOS Y CATEGORÍAS ============================== #}
+<section class="container-page py-16 sm:py-20">
+    <c-section-header eyebrow="Explora" title="¿Qué estás buscando hoy?" description="Todo lo que necesitas para vivir, trabajar y crecer, en un solo lugar." />
+    <div class="grid gap-4 sm:gap-5 md:grid-cols-3">
+        {% for item in kinds %}
+        <a href="{{ finder_url }}?kind={{ item.kind }}"
+           class="group relative overflow-hidden rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60 card-lift sm:p-7">
+            <div class="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full opacity-60 blur-2xl transition-opacity group-hover:opacity-100
+                        {% if item.kind == 1 %}bg-primary/15{% elif item.kind == 2 %}bg-secondary/15{% else %}bg-accent/30{% endif %}"></div>
+            <div class="relative flex items-start justify-between">
+                <span class="grid size-14 place-items-center rounded-2xl
+                             {% if item.kind == 1 %}bg-primary text-primary-content{% elif item.kind == 2 %}bg-secondary text-secondary-content{% else %}bg-accent text-accent-content{% endif %}">
+                    <c-icon name="{{ item.icon }}" class="size-7" />
+                </span>
+                <span class="rounded-full bg-base-200 px-3 py-1 text-sm font-bold">{{ item.total }} anuncio{{ item.total|pluralize }}</span>
+            </div>
+            <h3 class="relative mt-6 text-2xl font-extrabold">{{ item.label }}</h3>
+            <p class="relative mt-2 text-base-content/70">{{ item.description }}</p>
+            <span class="relative mt-5 inline-flex items-center gap-1.5 font-bold text-primary transition-all group-hover:gap-3">Ver {{ item.label|lower }} <c-icon name="arrow-right" class="size-4" /></span>
+        </a>
+        {% endfor %}
     </div>
-    {% include 'index/carousel.html' with object_list=auctions %}
+
+    {% if popular_categories %}
+    <div class="mt-8 flex flex-wrap gap-2.5">
+        {% for category in popular_categories %}
+        <a href="{{ finder_url }}?search_category={{ category.id }}"
+           class="inline-flex items-center gap-2 rounded-full bg-base-100 px-4 py-2 text-sm font-semibold shadow-soft ring-1 ring-base-300/60 transition hover:-translate-y-0.5 hover:text-primary hover:ring-primary/40">
+            <c-icon name="{{ category.kind|kind_icon }}" class="size-4 text-primary" />{{ category.name }}
+            <span class="text-base-content/45">{{ category.total }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
 </section>
-<!-- section end -->
+
+{# ============================== ANUNCIOS ============================== #}
+{% if properties %}
+<section class="container-page pb-6">
+    <c-section-header eyebrow="Recién publicados" title="Lo último en {{ SITE_NAME }}" href="{{ finder_url }}" link="Ver todos" />
+    <c-carousel label="Anuncios recientes">
+        {% for p in properties %}<c-carousel.item><c-property.card :property="p" /></c-carousel.item>{% endfor %}
+    </c-carousel>
+</section>
 {% endif %}
 
-
-{% for label, list in list_purposes %}
-<!--section -->
-<section class="gray-section">
-    <div class="container">
-        <div class="section-title">
-            <h2>{{ label|capfirst }}</h2>            
-            <span class="section-separator"></span>            
-        </div>
-    </div>
-    {% include 'index/carousel.html' with object_list=list %}
+{% if auctions %}
+<section class="container-page py-10">
+    <c-section-header eyebrow="Subastas" title="Oferta antes de que terminen" description="Propiedades en subasta: paga la garantía y participa." />
+    <c-carousel label="Subastas activas">
+        {% for p in auctions %}<c-carousel.item><c-property.card :property="p" /></c-carousel.item>{% endfor %}
+    </c-carousel>
 </section>
-<!-- section end -->
+{% endif %}
+
+{% for purpose, list in list_purposes %}
+<section class="container-page py-6">
+    <c-section-header title="{{ purpose.activity|capfirst }}" href="{{ finder_url }}?search_purpose={{ purpose.id }}" link="Ver más" />
+    <c-carousel label="{{ purpose.activity }}">
+        {% for p in list %}<c-carousel.item><c-property.card :property="p" /></c-carousel.item>{% endfor %}
+    </c-carousel>
+</section>
 {% endfor %}
 
-{% include 'index/join.html' %}
+{# ============================== CÓMO FUNCIONA ============================== #}
+<section class="bg-base-100 py-16 sm:py-24 mt-10">
+    <div class="container-page">
+        <c-section-header center eyebrow="Así de fácil" title="Encuentra o publica en tres pasos" description="Sin intermediarios: tú decides con quién hablar y cuándo." />
+        <div class="relative">
+        <div class="pointer-events-none absolute left-[16%] right-[16%] top-8 hidden border-t-2 border-dashed border-base-300 md:block" aria-hidden="true"></div>
+        <ol class="relative grid gap-8 md:grid-cols-3">
+            <li class="relative text-center">
+                <span class="relative mx-auto grid size-16 place-items-center rounded-2xl bg-primary text-primary-content shadow-lift"><c-icon name="search" class="size-7" /><span class="absolute -right-2 -top-2 grid size-7 place-items-center rounded-full bg-accent text-sm font-extrabold text-accent-content ring-4 ring-base-100">1</span></span>
+                <h3 class="mt-6 text-xl font-bold">Busca a tu manera</h3>
+                <p class="mx-auto mt-2 max-w-xs text-base-content/70">Filtra por tipo, categoría, precio o zona, y explora los resultados en el mapa.</p>
+            </li>
+            <li class="relative text-center">
+                <span class="relative mx-auto grid size-16 place-items-center rounded-2xl bg-secondary text-secondary-content shadow-lift"><c-icon name="message-circle" class="size-7" /><span class="absolute -right-2 -top-2 grid size-7 place-items-center rounded-full bg-accent text-sm font-extrabold text-accent-content ring-4 ring-base-100">2</span></span>
+                <h3 class="mt-6 text-xl font-bold">Conversa sin esperas</h3>
+                <p class="mx-auto mt-2 max-w-xs text-base-content/70">Escribe al anunciante por el chat, llámalo o contáctalo por WhatsApp.</p>
+            </li>
+            <li class="relative text-center">
+                <span class="relative mx-auto grid size-16 place-items-center rounded-2xl bg-neutral text-neutral-content shadow-lift"><c-icon name="handshake" class="size-7" /><span class="absolute -right-2 -top-2 grid size-7 place-items-center rounded-full bg-accent text-sm font-extrabold text-accent-content ring-4 ring-base-100">3</span></span>
+                <h3 class="mt-6 text-xl font-bold">Cierra el trato</h3>
+                <p class="mx-auto mt-2 max-w-xs text-base-content/70">Visita, compara y decide. Y si tienes algo que ofrecer, publícalo gratis.</p>
+            </li>
+        </ol>
+        </div>
+    </div>
+</section>
 
-{% include 'index/how_it_works.html' %}
+{# ============================== POR QUÉ HABITTA ============================== #}
+<section class="container-page py-16 sm:py-24">
+    <div class="grid items-center gap-12 lg:grid-cols-2">
+        <div>
+            <c-section-header eyebrow="Por qué {{ SITE_NAME }}" title="Hecho para que te encuentren y encuentres rápido" class="mb-6" />
+            <ul class="grid gap-5 sm:grid-cols-2">
+                <li class="flex gap-4">
+                    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary"><c-icon name="map-pinned" /></span>
+                    <span><span class="block font-bold">Todo en el mapa</span><span class="mt-1 block text-sm text-base-content/70">Mira qué hay cerca y busca en la zona que te interesa.</span></span>
+                </li>
+                <li class="flex gap-4">
+                    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary/12 text-secondary"><c-icon name="zap" /></span>
+                    <span><span class="block font-bold">Publica en minutos</span><span class="mt-1 block text-sm text-base-content/70">Formularios pensados para cada categoría, con fotos y ubicación.</span></span>
+                </li>
+                <li class="flex gap-4">
+                    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-accent/25 text-warning-content"><c-icon name="qr-code" /></span>
+                    <span><span class="block font-bold">Afiches con código QR</span><span class="mt-1 block text-sm text-base-content/70">Imprime tu anuncio y que lo abran con la cámara del celular.</span></span>
+                </li>
+                <li class="flex gap-4">
+                    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-neutral/10 text-base-content"><c-icon name="gavel" /></span>
+                    <span><span class="block font-bold">Subastas y pagos</span><span class="mt-1 block text-sm text-base-content/70">Subasta tus propiedades y cobra con transferencia o PayPal.</span></span>
+                </li>
+            </ul>
+        </div>
+        <dl class="grid grid-cols-2 gap-4">
+            <div class="rounded-box bg-primary p-6 text-primary-content shadow-lift">
+                <dt class="text-sm font-semibold text-primary-content/75">Anuncios publicados</dt>
+                <dd class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">{{ stats.properties }}</dd>
+            </div>
+            <div class="rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60">
+                <dt class="text-sm font-semibold text-base-content/60">Anunciantes</dt>
+                <dd class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">{{ stats.advertisers }}</dd>
+            </div>
+            <div class="rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60">
+                <dt class="text-sm font-semibold text-base-content/60">Categorías</dt>
+                <dd class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">{{ stats.categories }}</dd>
+            </div>
+            <div class="rounded-box bg-secondary p-6 text-secondary-content shadow-lift">
+                <dt class="text-sm font-semibold text-secondary-content/80">Personas registradas</dt>
+                <dd class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">{{ stats.users }}</dd>
+            </div>
+        </dl>
+    </div>
+</section>
 
-{% include 'index/prices.html' %}
-
-{% include 'index/stats.html' %}
-
-{% include 'index/testimonial.html' %}
-
-{% include 'index/terms.html' %}
-
+{# ============================== PLANES ============================== #}
+<section id="planes" class="scroll-mt-24 bg-base-100 py-16 sm:py-24">
+    <div class="container-page">
+        <c-section-header center eyebrow="Planes" title="Empieza gratis, crece cuando quieras" description="Elige cuánta visibilidad necesitan tus anuncios." />
+        <div class="mx-auto grid max-w-5xl items-stretch gap-5 md:grid-cols-3">
+            <c-pricing.card name="Gratuito" price="0" description="Para probar y publicar de vez en cuando."
+                            :features="['5 visualizaciones premium', '3 días de vigencia', 'Chat con interesados']"
+                            :missing="['Visualización 360°', 'Asesoría personalizada']" />
+            <c-pricing.card name="Premium" price="0.99" featured description="Más alcance para tus anuncios activos."
+                            :features="['10 visualizaciones premium', '10 días de vigencia', 'Visualización 360°', 'Chat con interesados']"
+                            :missing="['Asesoría personalizada']" />
+            <c-pricing.card name="Pro" price="2.99" description="Para inmobiliarias y profesionales."
+                            :features="['Visualizaciones premium ilimitadas', '30 días de vigencia', 'Visualización 360°', 'Asesoría 24/7']" />
+        </div>
+    </div>
+</section>
 {% endblock %}

@@ -1,0 +1,16 @@
+{% comment %}
+Botón de la marca. Con href se renderiza como enlace.
+  <c-button>Guardar</c-button>
+  <c-button variant="secondary" icon="plus" href="{% url 'choose_category' %}">Publicar</c-button>
+  <c-button variant="ghost" size="sm" icon_end="arrow-right">Ver más</c-button>
+variant: primary | secondary | accent | neutral | ghost | outline | soft | white
+size: xs | sm | md | lg
+{% endcomment %}
+<c-vars variant="primary" size="md" href="" type="button" icon="" icon_end="" block="" class="" />
+{% if href %}<a href="{{ href }}"{% else %}<button type="{{ type }}"{% endif %}
+    class="btn rounded-full font-semibold gap-2 shadow-none
+        {% if variant == 'primary' %}btn-primary{% elif variant == 'secondary' %}btn-secondary{% elif variant == 'accent' %}btn-accent{% elif variant == 'neutral' %}btn-neutral{% elif variant == 'ghost' %}btn-ghost{% elif variant == 'outline' %}btn-outline{% elif variant == 'soft' %}btn-soft btn-primary{% elif variant == 'white' %}bg-white text-neutral border-white hover:bg-base-200{% endif %}
+        {% if size == 'xs' %}btn-xs{% elif size == 'sm' %}btn-sm{% elif size == 'lg' %}btn-lg px-7{% else %}px-5{% endif %}
+        {% if block %}btn-block{% endif %} {{ class }}" {{ attrs }}>
+    {% if icon %}<c-icon name="{{ icon }}" class="size-[1.15em]" />{% endif %}{{ slot }}{% if icon_end %}<c-icon name="{{ icon_end }}" class="size-[1.15em]" />{% endif %}
+{% if href %}</a>{% else %}</button>{% endif %}

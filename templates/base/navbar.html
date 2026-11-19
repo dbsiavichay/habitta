@@ -3,7 +3,7 @@
 <header class="main-header dark-header fs-header sticky">
     <div class="header-inner">
         <div class="logo-holder">
-            <a href="{% url 'home' %}"><img src="{% static 'images/logo.png' %}" alt=""></a>
+            <a href="{% url 'home' %}"><img src="{% static 'brand/habitta-logo-light.svg' %}" alt="{{ SITE_NAME }}" style="height:34px;width:auto"></a>
         </div>
         {% if request.path != '/' and 'explorador' not in request.path %}
         <div class="header-search vis-header-search">

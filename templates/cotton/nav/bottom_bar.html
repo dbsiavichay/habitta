@@ -1,0 +1,41 @@
+{% comment %}
+Navegación inferior para móvil (oculta desde lg). El botón central publica.
+{% endcomment %}
+{% url 'home' as home_url %}{% url 'finder' as finder_url %}{% url 'favorite_properties' as fav_url %}{% url 'conversations' as msg_url %}
+<nav aria-label="Navegación móvil"
+     class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-base-300 bg-base-100/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
+    <ul class="grid grid-cols-5 h-[4.5rem] text-[0.7rem] font-semibold">
+        <li>
+            <a href="{{ home_url }}" class="flex h-full flex-col items-center justify-center gap-1 {% if request.path == home_url %}text-primary{% else %}text-base-content/60{% endif %}" {% if request.path == home_url %}aria-current="page"{% endif %}>
+                <c-icon name="house" class="size-[1.35rem]" />Inicio
+            </a>
+        </li>
+        <li>
+            <a href="{{ finder_url }}" class="flex h-full flex-col items-center justify-center gap-1 {% if '/explorador/' in request.path %}text-primary{% else %}text-base-content/60{% endif %}">
+                <c-icon name="compass" class="size-[1.35rem]" />Explorar
+            </a>
+        </li>
+        <li class="relative">
+            <a href="{% url 'choose_category' %}" class="absolute left-1/2 -top-5 -translate-x-1/2 grid size-14 place-items-center rounded-full bg-secondary text-secondary-content shadow-float ring-4 ring-base-100 active:scale-95 transition-transform" aria-label="Publicar">
+                <c-icon name="plus" class="size-7" stroke_width="2.5" />
+            </a>
+            <span class="absolute bottom-2.5 inset-x-0 text-center text-base-content/60">Publicar</span>
+        </li>
+        <li>
+            <a href="{{ fav_url }}" class="flex h-full flex-col items-center justify-center gap-1 {% if request.path == fav_url %}text-primary{% else %}text-base-content/60{% endif %}">
+                <c-icon name="heart" class="size-[1.35rem]" />Favoritos
+            </a>
+        </li>
+        <li>
+            {% if user.is_authenticated %}
+            <a href="{{ msg_url }}" class="flex h-full flex-col items-center justify-center gap-1 {% if '/messenger/' in request.path %}text-primary{% else %}text-base-content/60{% endif %}">
+                <c-icon name="message-circle" class="size-[1.35rem]" />Mensajes
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="flex h-full flex-col items-center justify-center gap-1 text-base-content/60">
+                <c-icon name="circle-user-round" class="size-[1.35rem]" />Ingresar
+            </a>
+            {% endif %}
+        </li>
+    </ul>
+</nav>

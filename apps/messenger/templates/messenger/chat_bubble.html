@@ -1,0 +1,13 @@
+{# Burbuja de chat (diseño Habitta). `viewer` es quien ve el mensaje. #}
+{% if message.sender_id == viewer.id %}
+<div class="chat chat-end">
+    <div class="chat-bubble chat-bubble-primary max-w-[85%] whitespace-pre-line break-words text-[0.95rem]">{{ message.content }}</div>
+    <div class="chat-footer mt-0.5 text-[0.7rem] opacity-50"><time datetime="{{ message.create_date|date:'c' }}">{{ message.create_date|date:"j M, H:i" }}</time></div>
+</div>
+{% else %}
+<div class="chat chat-start">
+    <div class="chat-image"><c-avatar :user="message.sender" size="size-8" /></div>
+    <div class="chat-bubble max-w-[85%] whitespace-pre-line break-words bg-base-200 text-[0.95rem] text-base-content">{{ message.content }}</div>
+    <div class="chat-footer mt-0.5 text-[0.7rem] opacity-50"><time datetime="{{ message.create_date|date:'c' }}">{{ message.create_date|date:"j M, H:i" }}</time></div>
+</div>
+{% endif %}

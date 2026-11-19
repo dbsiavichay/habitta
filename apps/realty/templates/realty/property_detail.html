@@ -1,352 +1,194 @@
-{% extends 'base/base_detail.html' %}
+{% extends 'layouts/base.html' %}
+{% load static l10n habitta payments logs auctions %}
 
-{% load static l10n payments logs auctions %}
+{% block title %}{{ object.title|lower|capfirst|default:object.category.singular_name }} · {{ object.category.singular_name }}{% endblock %}
+{% block description %}{{ object.category.singular_name }} {{ object.get_purpose.activity|lower }}{% if object.address %} en {{ object.address }}{% endif %}. {{ object.description|default:''|striptags|truncatechars:140 }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ object.title|lower|capfirst|default:object.category.singular_name }} · {{ SITE_NAME }}{% endblock %}
+{% block og_description %}{{ object.category.singular_name }} · {{ object.get_purpose.activity }}{% with price=object.get_price_value %}{% if price %} · {{ price|money }}{% endif %}{% endwith %}{% endblock %}
+{% block og_image %}{{ SITE_URL }}{{ object.get_cover }}{% endblock %}
 
-{% block pallarax %}
-<!--  section  --> 
-<section class="parallax-section single-par list-single-section" data-scrollax-parent="true" id="sec1">
-    <div class="bg par-elem" data-bg="{{ object.get_cover }}" data-scrollax="properties: { translateY: '30%' }"></div>
-    <div class="overlay"></div>
-    <div class="bubble-bg"></div>
-    <div class="list-single-header absolute-header fl-wrap">
-        <div class="container">
-            <div class="list-single-header-item">
-                <div class="list-single-header-item-opt fl-wrap">
-                    <div class="list-single-header-cat fl-wrap">                        
-                        <a href="#">{{ object.get_purpose.activity }}</a>
-                        <span>  Promocionado <i class="fa fa-check"></i></span>
-                    </div>
-                </div>
-                <h2>{{ object.category.singular_name }} <span> - Publicado por </span><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></h2>
-                <span class="section-separator"></span>                
-                <div class="list-post-counter single-list-post-counter"><span>{{ object.get_price_area }}</span><i class="fa fa-usd"></i></div>
-                <div class="clearfix"></div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="list-single-header-contacts fl-wrap">
-                            <ul>    
-                                {% if object.category.require_location %}                            
-                                <li><i class="fa fa-map-marker"></i><a href="#">{{ object.address }}</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="fl-wrap list-single-header-column">
-                            <div class="share-holder hid-share">
-                                <div class="showshare"><span>Compartir </span><i class="fa fa-share"></i></div>
-                                <div class="share-container  isShare"></div>
-                            </div>                            
-                            <a class="custom-scroll-link" href="{% url 'print_property' object.id %}"><i class="fa fa-print"></i>Imprimir</a>
-                        </div>
-                    </div>
-                </div>
+{% block head %}<link rel="stylesheet" href="{% static 'vendor/photoswipe/photoswipe.css' %}">{% endblock %}
+{% block scripts %}<script defer src="{% static 'js/habitta/property.js' %}"></script>{% endblock %}
+
+{% block content %}
+{% url 'finder' as finder_url %}
+{% get_auction object as auction %}
+{% with price=object.get_price_value purpose=object.get_purpose owner=object.user %}
+<article class="container-page pb-16 pt-6 sm:pt-8">
+
+    <c-breadcrumbs class="mb-5">
+        <li><a href="{{ finder_url }}?kind={{ object.category.kind }}">{{ object.category.kind|kind_label }}</a></li>
+        <li><a href="{{ finder_url }}?search_category={{ object.category.id }}">{{ object.category.name }}</a></li>
+    </c-breadcrumbs>
+
+    {# ---------- Encabezado ---------- #}
+    <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
+                    <c-icon name="{{ object.category.kind|kind_icon }}" class="size-4" />{{ object.category.singular_name }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 px-3 py-1 text-sm font-bold text-secondary">
+                    <span class="size-1.5 rounded-full bg-secondary"></span>{{ purpose.activity }}
+                </span>
+                {% if auction %}<span class="inline-flex items-center gap-1.5 rounded-full bg-accent/25 px-3 py-1 text-sm font-bold"><c-icon name="gavel" class="size-4" />En subasta</span>{% endif %}
             </div>
-        </div>
-    </div>
-</section>
-<!--  section end -->
-{% endblock %}
-
-{% block reactions %}{% like_log object user %}{% endblock %}
-
-{% block main_content %}
-<div class="list-single-main-wrapper fl-wrap" id="sec2">
-    <div class="breadcrumbs gradient-bg  fl-wrap"><a href="#">Inicio</a><a href="#">Propiedades</a><span> {{ object.category.singular_name }}</span></div>
-    <!-- <div class="list-single-main-media fl-wrap">
-        <img src="{% static 'images/all/1.jpg' %}" class="respimg" alt="">
-        <a href="https://vimeo.com/70851162" class="promo-link gradient-bg image-popup"><i class="fa fa-play"></i><span>Promo Video</span></a>
-    </div> -->
-
-    {% get_auction object as auction %}
-    {% if auction %}
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget">
-            <div class="banner-wdget fl-wrap">
-                <div class="overlay"></div>
-                <div class="bg" data-bg="{% static 'images/bg/auction.jpg' %}"></div>
-                <div class="banner-wdget-content fl-wrap auction">                    
-                    <h4>Esta publicación esta en subasta</h4>
-                    <p>Para ofertar debes pagar un enganche</p>
-                    <a href="#" class="color-bg">Pagar</a>
-                </div>  
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->
-
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3>Finaliza en: </h3>
-        </div>
-        <div class="box-widget counter-widget gradient-bg" data-countDate="{{ auction.ending_date|date:'m/d/Y H:i:s' }}">
-            <div class="countdown fl-wrap">
-                <div class="countdown-item">
-                    <span class="days rot">00</span>
-                    <p>días</p>
-                </div>
-                <div class="countdown-item">
-                    <span class="hours rot">00</span>
-                    <p>horas</p>
-                </div>
-                <div class="countdown-item no-dec">
-                    <span class="minutes rot2">00</span>
-                    <p>minutos</p>
-                </div>
-                <div class="countdown-item-seconds">
-                    <span class="seconds rot2">00</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->
-
-    {% get_offers auction as offers %}
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget opening-hours">
-            <div class="box-widget-content">
-                <span class="current-status"><i class="fa fa-usd"></i>Mejores ofertas</span>
-                <ul>
-                    {% for offer in offers %}
-                    <li><span class="opening-hours-day">{{ offer.user.first_name }}</span><span class="opening-hours-time">{{ offer.amount }}</span></li>
-                    {% empty %}
-                    <li><span class="opening-hours-day">Sin ofertas aún.</span></li>
-                    {% endfor %}                    
-                </ul>
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->
-    {% endif %}
-
-    <div class="list-single-main-item fl-wrap">
-        <div class="list-single-main-item-title fl-wrap">
-            <h3>{{ object.title|lower|capfirst }}</h3>
-        </div>
-        <p>{{ object.description|linebreaks }}</p> 
-    </div>
-
-    {% regroup object.get_specifications2 by group as group_list  %}  
-    {% for group in group_list %}
-    <div class="list-single-main-item fl-wrap">
-        <div class="list-single-main-item-title fl-wrap">
-            <h3>{{ group.grouper }}</h3>
-        </div>
-        <div class="list-author-widget-contacts list-item-widget-contacts">
-            <div class="row">
-                {% for spc in group.list %}
-                <div class="col-sm-4">
-                    <div class="list-single-info">
-                        <strong><i class="lb-{{ spc.icon }}"></i> {{ spc.key }}</strong>
-                        {% if not spc.downloadable %}
-                        <span>{{ spc.value }}</span>
-                        {% else %}
-                        <a href="{% url 'download_property' object.id %}">
-                            <i class="fa fa-download"></i> Descargar
-                        </a> 
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-                    
-            </div>
-        </div> 
-    </div>
-    {% endfor %}
-
-    {% if object.category.require_location %}
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">        
-        <div class="box-widget">
-            <div class="map-container">
-                <div id="singleMap" data-longitude="{{ object.geopoint.x|unlocalize }}" data-latitude="{{ object.geopoint.y|unlocalize }}" data-mapTitle="Out Location"></div>
-            </div>            
-            <div class="box-widget-content">
-                <div class="list-author-widget-contacts list-item-widget-contacts">
-                    <ul>                        
-                        <li><span><i class="fa fa-map-marker"></i> Dirección :</span> <a href="#">{{ object.address }}</a></li>
-                    </ul>
-                </div>                
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->  
-    {% endif %}
-
-    <div class="list-single-main-item fl-wrap" id="sec3">
-        <div class="list-single-main-item-title fl-wrap">
-            <h3>Galería - Imagenes</h3>
-        </div>
-        <!-- gallery-items   -->
-        <div id="gallery" class="gallery-items grid-small-pad  list-single-gallery three-coulms lightgallery">
-            {% for image in object.get_gallery %}
-            <div class="gallery-item">
-                {% if object.user == user %}
-                <a href="{% url 'delete_image' image.id %}" class="gallery-item-del">
-                    <i class="fa fa-close"></i>
-                </a>
+            <h1 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">{{ object.title|lower|capfirst|default:object.category.singular_name }}</h1>
+            <p class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-base-content/65">
+                {% if object.category.require_location and object.address %}
+                <span class="inline-flex items-center gap-1.5"><c-icon name="map-pin" class="size-4" />{{ object.address }}</span>
+                {% elif not object.category.require_location %}
+                <span class="inline-flex items-center gap-1.5"><c-icon name="navigation" class="size-4" />Atiende en tu zona</span>
                 {% endif %}
-                <div class="grid-item-holder">
-                    <div class="box-item">
-                        <img  src="{{ image.img.url }}"   alt="">                        
-                        <a href="{{ image.img.url }}" class="gal-link popup-image">
-                            <i class="fa fa-search"></i>
-                        </a>                                                                            
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div id="item-gallery-template" class="gallery-item hidden">
-                <a href="#" class="gallery-item-del">
-                    <i class="fa fa-close"></i>
-                </a>
-                <div class="grid-item-holder">
-                    <div class="box-item">
-                        <img  src="#"   alt="">
-                        <a href="#" class="gal-link popup-image"><i class="fa fa-search"  ></i></a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}        
+                <span class="inline-flex items-center gap-1.5"><c-icon name="clock" class="size-4" />Publicado {{ object.pub_date|ago }}</span>
+            </p>
         </div>
-
-        {% if object.user == user %}
-        <div class="add-list-media-wrap">                        
-            <div class="fuzone">                
-                <div class="fu-text">
-                    <span><i class="fa fa-picture-o"></i> Click aquí o arrastre sus imagenes para subir</span>
-                </div>                
-                <form id="image_form" action="{% url 'add_base64image' %}" method="POST" enctype="multipart/form-data" novalidate>
-                    {% csrf_token %}
-                    {{ image_form.img }}
-                    {{ image_form.object_id }}
-                    {{ image_form.content_type }}
-                </form>
-            </div>
-        </div>
-       
-        {% endif %}
-        <!-- end gallery items -->                                 
-    </div>
-    <!-- list-single-main-item end -->       
-</div>
-{% endblock %}
-{% block aside_content %}
-<div class="box-widget-wrap">
-
-    {% if object.user == user %}
-    <div class="box-widget-item-header">
-        <h3><i class="fa fa-pencil"></i> Opciones del propietario : </h3>
-    </div>
-
-    <div class="list-single-main-item fl-wrap">
-        <div class="box-widget-content">
-            <div class="list-author-widget-text">
-                <a href="{% url 'update_property' property.id %}" class="btn transparent-btn">Editar <i class="fa fa-pencil"></i></a>
-            </div>
-            <div class="list-author-widget-text">
-                <a href="{% url 'add_auction'  %}?id={{ object.id }}" class="btn transparent-btn">Subastar <i class="fa fa-pencil"></i></a>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if object.category.is_salable %}
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3><i class="fa fa-usd"></i> Este artículo esta a la venta : </h3>
-        </div>
-        <div class="box-widget">
-            <div class="box-widget-content">
-                <div class="claim-price-wdget fl-wrap">
-                    <div class="claim-price-wdget-content fl-wrap">
-                        <div class="pricerange fl-wrap">
-                            <span class="lprice-text">Price : </span><span class="lprice-from">$&nbsp;{{ object.get_price_area }}</span>                   
-                        </div>
-                        <div class="claim-widget-link fl-wrap"> 
-                            <a class="logreg-modal-open" href="#" data-message="You must be logged in to claim listing.">
-                                {% check_payment object user label="Comprar" %}
-                            </a>
-                        </div>
-                    </div>  
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->
-    {% endif %}
-
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3><i class="fa fa-user"></i> Publicado por : </h3>
-            <input type="hidden" id="owner" value="{{ object.user.id }}">
-        </div>
-        <div class="box-widget list-author-widget">
-            <div class="list-author-widget-header shapes-bg-small  color-bg fl-wrap">
-                <span class="list-author-widget-link"><a href="{% url 'detail_profile' object.user.username %}">{{ object.user.get_full_name }}</a></span>
-                <img src="{{ object.user.profile.get_avatar }}" alt="">                 
-            </div>
-            <div class="box-widget-content">
-                <div class="list-author-widget-text">
-                    <a href="{% url 'detail_profile' object.user.username %}" class="btn transparent-btn">Ver perfil <i class="fa fa-eye"></i></a>
-                    <div class="list-author-widget-contacts">
-                        <ul>
-                            <li>
-                                <span><i class="fa fa-phone"></i> Teléfono :</span> <a href="#">{{ object.user.profile.phone }}</a>
-                            </li>
-                            <li>
-                                <span><i class="fa fa-envelope-o"></i> Correo :</span> <a href="#">{{ object.user.email }}</a>
-                            </li>                            
-                        </ul>
-                    </div>
-                    <div class="list-widget-social">
-                        <ul>
-                            {% for social in object.user.profile.socialnetworkprofile_set.all %}
-                            <li><a href="{{ social.get_url }}" target="_blank" ><i class="fa fa-{{ social.social_network.icon }}"></i></a></li>
-                            {% endfor %}                                        
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--box-widget-item end -->
-    {% if more_for_this_user %}
-    <!--box-widget-item -->
-    <div class="box-widget-item fl-wrap">
-        <div class="box-widget-item-header">
-            <h3>Más de este usuario : </h3>
-        </div>
-        <div class="box-widget widget-posts">
-            <div class="box-widget-content">
-                <ul>
-                    {% for obj in more_for_this_user %}
-                    <li class="clearfix">
-                        <a href="{{ obj.get_absolute_url }}"  class="widget-posts-img"><img src="{{ obj.get_cover }}"  alt=""></a>
-                        <div class="widget-posts-descr">
-                            <a href="{{ obj.get_absolute_url }}" title="">{{ obj.category }}</a>
-                            <span class="widget-posts-date"><i class="fa fa-calendar-check-o"></i>{{ obj.pub_date }}</span> 
-                        </div>
-                    </li>
-                    {% endfor %}
+        <div class="flex shrink-0 flex-wrap gap-2" x-data="share('{{ object.title|lower|capfirst|default:object.category.singular_name|escapejs }}', '{{ SITE_URL }}{{ object.get_absolute_url }}')">
+            {% like_log object user %}
+            <div class="dropdown dropdown-end">
+                <button type="button" tabindex="0" class="btn rounded-full border-base-300 bg-base-100 font-semibold" @click="canShare && share()">
+                    <c-icon name="share-2" class="size-5" />Compartir
+                </button>
+                <ul tabindex="0" x-show="!canShare" class="dropdown-content menu z-30 mt-2 w-56 rounded-box bg-base-100 p-2 shadow-float ring-1 ring-base-300">
+                    <li><a :href="whatsappUrl" target="_blank" rel="noopener"><c-icon name="whatsapp" class="size-4 text-[#25D366]" />WhatsApp</a></li>
+                    <li><button type="button" @click="copy()"><c-icon name="link" class="size-4" /><span x-text="copied ? '¡Enlace copiado!' : 'Copiar enlace'">Copiar enlace</span></button></li>
                 </ul>
-                <a class="widget-posts-link" href="#">Todas las publicaciones<span><i class="fa fa-angle-right"></i></span></a>   
             </div>
+            <a href="{% url 'print_property' object.id %}" class="btn btn-circle border-base-300 bg-base-100" title="Descargar afiche en PDF con código QR" aria-label="Descargar afiche en PDF">
+                <c-icon name="printer" class="size-5" />
+            </a>
         </div>
+    </header>
+
+    {# ---------- Galería ---------- #}
+    <c-property.gallery :photos="photos" :property="object" class="mt-6" />
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10">
+        {# ---------- Contenido principal ---------- #}
+        <div class="min-w-0 space-y-6">
+
+            {% if auction %}
+            <c-property.auction-box :auction="auction" />
+            {% endif %}
+
+            {% if object.description %}
+            <section class="rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60 sm:p-8">
+                <h2 class="text-xl font-bold">Descripción</h2>
+                <div class="prose-habitta mt-3 text-base-content/80" x-data="{ more: false }">
+                    <div :class="more ? '' : 'line-clamp-[8]'">{{ object.description|linebreaks }}</div>
+                    {% if object.description|length > 600 %}
+                    <button type="button" class="mt-2 inline-flex items-center gap-1 font-semibold text-primary" @click="more = !more">
+                        <span x-text="more ? 'Ver menos' : 'Leer más'">Leer más</span><span class="transition-transform" :class="more && 'rotate-180'"><c-icon name="chevron-down" class="size-4" /></span>
+                    </button>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% regroup object.get_specifications2 by group as group_list %}
+            {% for group in group_list %}
+            <section class="rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60 sm:p-8">
+                <h2 class="text-xl font-bold">{{ group.grouper }}</h2>
+                <dl class="mt-5 grid gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
+                    {% for spc in group.list %}
+                    <div class="flex items-start gap-3">
+                        <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-base-200 text-primary">
+                            {% if spc.icon %}<i class="lb-{{ spc.icon }} text-xl leading-none" aria-hidden="true"></i>{% else %}<c-icon name="check" class="size-5" />{% endif %}
+                        </span>
+                        <div class="min-w-0">
+                            <dt class="text-sm text-base-content/60">{{ spc.key }}</dt>
+                            <dd class="mt-0.5 break-words font-semibold">
+                                {% if spc.downloadable %}
+                                <a href="{% url 'download_property' object.id %}" class="inline-flex items-center gap-1.5 text-primary hover:underline"><c-icon name="download" class="size-4" />Descargar</a>
+                                {% else %}{{ spc.value|spec_value }}{% endif %}
+                            </dd>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </dl>
+            </section>
+            {% endfor %}
+
+            {% if map_point %}
+            <section class="overflow-hidden rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+                <div class="flex flex-wrap items-center justify-between gap-2 p-6 pb-4 sm:px-8">
+                    <h2 class="text-xl font-bold">{% if map_point.radius %}Zona de cobertura{% else %}Ubicación{% endif %}</h2>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ map_point.lat|unlocalize }},{{ map_point.lng|unlocalize }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+                        <c-icon name="navigation" class="size-4" />Cómo llegar
+                    </a>
+                </div>
+                <div x-data="singleMap({{ map_point.lat|unlocalize }}, {{ map_point.lng|unlocalize }}, {{ map_point.radius|unlocalize }})" class="relative h-72 bg-base-200 sm:h-96">
+                    <div x-ref="canvas" class="size-full"></div>
+                    <div x-show="status !== 'ready'" class="absolute inset-0 grid place-items-center bg-brand-mesh text-center">
+                        <div x-show="status !== 'unavailable'"><span class="loading loading-spinner text-primary"></span></div>
+                        <div x-show="status === 'unavailable'" x-cloak class="p-6">
+                            <c-icon name="map-pinned" class="mx-auto size-8 text-primary" />
+                            <p class="mt-2 font-semibold">{% if object.address %}{{ object.address }}{% else %}Mapa no disponible{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+                {% if object.address %}<p class="flex items-center gap-2 px-6 py-4 text-sm text-base-content/70 sm:px-8"><c-icon name="map-pin" class="size-4 text-primary" />{{ object.address }}</p>{% endif %}
+            </section>
+            {% endif %}
+
+            {% if object.user == user %}
+            <c-property.photo-manager :photos="photos" :property="object" :content_type_id="content_type_id" />
+            {% endif %}
+        </div>
+
+        {# ---------- Lateral: precio, contacto y anunciante ---------- #}
+        <aside class="space-y-5 lg:sticky lg:top-24 lg:h-fit">
+            <c-property.contact-card :property="object" :price="price" :purpose="purpose" />
+        </aside>
     </div>
-    <!--box-widget-item end -->
-    {% endif %}     
-</div>
+
+    {% if more_for_this_user %}
+    <section class="mt-16">
+        <c-section-header eyebrow="Del mismo anunciante" title="Más de {{ owner.first_name|default:owner.username }}" href="{{ owner.profile.get_absolute_url }}" link="Ver perfil" />
+        <c-carousel label="Más anuncios de {{ owner.first_name|default:owner.username }}">
+            {% for p in more_for_this_user %}<c-carousel.item><c-property.card :property="p" /></c-carousel.item>{% endfor %}
+        </c-carousel>
+    </section>
+    {% endif %}
+</article>
+{% endwith %}
 {% endblock %}
 
-{% block footer %}
-{{ block.super }}
-{% if user != object.user %}
-{% include 'base/chat_widget.html' with receiver=object.user %}
-{% endif %}
+{% block bottom_bar %}
+{# En móvil, la barra inferior se convierte en barra de contacto #}
+{% with price=object.get_price_value phone=object.user.profile.phone %}
+<div x-data class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
+    <div class="flex items-center gap-3">
+        <div class="min-w-0 flex-1">
+            {% if price %}<p class="text-xl font-extrabold leading-tight">{{ price|money }}</p>{% else %}<p class="font-bold leading-tight">Precio a convenir</p>{% endif %}
+            <p class="truncate text-xs text-base-content/60">{{ object.get_purpose.activity }} · {{ object.category.singular_name }}</p>
+        </div>
+        {% if object.user != user %}
+        {% with wa=phone|whatsapp_url %}{% if wa %}
+        <a href="{{ wa }}?text={{ 'Hola, vi tu anuncio en '|add:SITE_NAME|add:': '|urlencode }}{{ SITE_URL|urlencode }}{{ object.get_absolute_url|urlencode }}" target="_blank" rel="noopener"
+           class="btn btn-circle size-12 border-0 bg-[#25D366] text-white hover:bg-[#1fb858]" aria-label="Escribir por WhatsApp"><c-icon name="whatsapp" class="size-6" /></a>
+        {% endif %}{% endwith %}
+        <button type="button" class="btn btn-primary h-12 rounded-full px-6 font-bold" @click="$dispatch('open-chat')"><c-icon name="message-circle" class="size-5" />Chatear</button>
+        {% else %}
+        <c-button href="{% url 'update_property' object.id %}" icon="pencil">Editar</c-button>
+        {% endif %}
+    </div>
+</div>
+{% endwith %}
+{% endblock %}
+
+{% block body_end %}
+{% if object.user != user %}<c-chat.widget :receiver="object.user" :launcher_mobile="False" />{% endif %}
+<script type="module">
+    import PhotoSwipeLightbox from '{% static "vendor/photoswipe/photoswipe-lightbox.esm.min.js" %}';
+    const lightbox = new PhotoSwipeLightbox({
+        gallery: '#galeria',
+        children: 'a[data-pswp-width]',
+        pswpModule: () => import('{% static "vendor/photoswipe/photoswipe.esm.min.js" %}'),
+        bgOpacity: 0.92,
+        padding: { top: 24, bottom: 24, left: 16, right: 16 },
+    });
+    lightbox.init();
+</script>
 {% endblock %}

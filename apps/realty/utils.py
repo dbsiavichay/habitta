@@ -20,6 +20,11 @@ def get_category_icons():
 	return [(icon, icon.capitalize()) for icon in icons]
 
 
-def get_larbit_icons():
+def get_spec_icons():
+	"""Íconos de especificaciones (clases ``lb-*``) de la fuente subida desde el admin."""
 	icons = _read_icon_names('media/larbitfonts/style.css', 'lb')
 	return [(icon, ' '.join(icon.capitalize().split('-'))) for icon in icons]
+
+
+# Alias histórico: lo referencia la migración realty/0006 y no debe romperse.
+get_larbit_icons = get_spec_icons

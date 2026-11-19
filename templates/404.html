@@ -1,17 +1,21 @@
-{% extends 'base/base.html' %}
-{% load static %}
+{% extends 'layouts/base.html' %}
+
+{% block title %}Página no encontrada{% endblock %}
 
 {% block content %}
-<section class="parallax-section" data-scrollax-parent="true" id="sec1">
-    <div class="bg par-elem" data-bg="{% static 'images/bg/1.png' %}" data-scrollax="properties: { translateY: '30%' }"></div>
-    <div class="overlay"></div>
-    <div class="bubble-bg"></div>
-    <div class="container">
-        <div class="error-wrap">
-            <h2>404</h2>
-            <p>Lo sentimos, la página que buscas no existe o fue movida.</p>
-            <div class="clearfix"></div>
-            <a href="{% url 'home' %}" class="btn big-btn color-bg flat-btn">Volver al inicio <i class="fa fa-angle-right"></i></a>
+<section class="bg-brand-mesh">
+    <div class="container-page grid min-h-[70vh] place-items-center py-16 text-center">
+        <div class="max-w-xl">
+            <div class="relative mx-auto mb-8 w-fit">
+                <c-brand.logo mark_only class="size-24 -rotate-6 drop-shadow-xl" label="" />
+                <span class="absolute -right-4 -top-3 rounded-full bg-secondary px-3 py-1 text-sm font-extrabold text-secondary-content shadow-soft">404</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Esta puerta no lleva a ningún lado</h1>
+            <p class="mt-4 text-lg text-base-content/70">La página que buscas no existe o el anuncio ya no está disponible. Hay mucho más por descubrir.</p>
+            <div class="mt-8 flex flex-wrap justify-center gap-3">
+                <c-button href="{% url 'finder' %}" icon="compass" size="lg">Explorar anuncios</c-button>
+                <c-button href="{% url 'home' %}" variant="ghost" size="lg" icon="house">Ir al inicio</c-button>
+            </div>
         </div>
     </div>
 </section>

@@ -1,0 +1,28 @@
+{% comment %}
+Lector de códigos QR de los afiches impresos. Se abre con $dispatch('open-qr'); la librería se carga al abrirlo.
+{% endcomment %}
+{% load static %}
+<div x-data="qrScanner('{% static 'plugins/qrcode-reader/instascan.min.js' %}')" @open-qr.window="open()">
+    <dialog x-ref="dialog" class="modal modal-bottom sm:modal-middle" @close="scanner && scanner.stop()">
+        <div class="modal-box p-0 overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4">
+                <div>
+                    <h2 class="text-lg font-bold">Escanear código QR</h2>
+                    <p class="text-sm text-base-content/60">Apunta la cámara al QR del afiche de un anuncio.</p>
+                </div>
+                <button type="button" class="btn btn-ghost btn-circle btn-sm" @click="close()" aria-label="Cerrar"><c-icon name="x" /></button>
+            </div>
+            <div class="relative aspect-square bg-neutral">
+                <video x-ref="video" class="size-full object-cover" playsinline muted></video>
+                <div class="pointer-events-none absolute inset-10 rounded-3xl border-4 border-white/80 shadow-[0_0_0_999px_rgb(0_0_0/0.35)]"></div>
+                <div x-show="status !== 'scanning'" class="absolute inset-0 grid place-items-center p-8 text-center text-neutral-content">
+                    <p x-show="status === 'loading'" class="flex items-center gap-2"><span class="loading loading-spinner"></span>Iniciando la cámara…</p>
+                    <p x-show="status === 'nocamera'" x-cloak>No encontramos una cámara en este dispositivo.</p>
+                    <p x-show="status === 'denied'" x-cloak>Necesitamos permiso para usar la cámara. Revísalo en la configuración del navegador.</p>
+                    <p x-show="status === 'error'" x-cloak>No se pudo cargar el lector. Inténtalo de nuevo.</p>
+                </div>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+    </dialog>
+</div>

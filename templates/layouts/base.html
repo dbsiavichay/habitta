@@ -1,0 +1,64 @@
+{% load static tailwind_cli %}<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{% block title %}{{ SITE_TAGLINE }}{% endblock %} · {{ SITE_NAME }}</title>
+    <meta name="description" content="{% block description %}{{ SITE_NAME }}: {{ SITE_TAGLINE|lower }}. Encuentra o publica gratis en Ecuador.{% endblock %}">
+    <meta name="theme-color" content="#0B6E5F" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0F1A18" media="(prefers-color-scheme: dark)">
+    <link rel="canonical" href="{{ SITE_URL }}{{ request.path }}">
+
+    {# OpenGraph: las páginas pueden sobrescribir título, descripción e imagen #}
+    <meta property="og:site_name" content="{{ SITE_NAME }}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ SITE_URL }}{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}{{ SITE_NAME }} · {{ SITE_TAGLINE }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ SITE_TAGLINE }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ SITE_URL }}{% static 'brand/og-default.png' %}{% endblock %}">
+    <meta name="twitter:card" content="summary_large_image">
+    {% if FACEBOOK_APP_ID %}<meta property="fb:app_id" content="{{ FACEBOOK_APP_ID }}">{% endif %}
+    {# Key pública de Google Maps (restringida por dominio): habitta.loadMaps() la usa para cargar el SDK bajo demanda #}
+    {% if GOOGLE_MAPS_API_KEY %}<meta name="habitta:maps-key" content="{{ GOOGLE_MAPS_API_KEY }}">{% endif %}
+
+    <link rel="icon" href="{% static 'brand/favicon.svg' %}" type="image/svg+xml">
+    <link rel="icon" href="{% static 'brand/favicon.ico' %}" sizes="48x48">
+    <link rel="apple-touch-icon" href="{% static 'brand/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'brand/site.webmanifest' %}">
+
+    {# Tema elegido por el usuario (claro/oscuro); sin elección se sigue al sistema. Va antes del CSS para evitar parpadeos. #}
+    <script>
+        try { var t = localStorage.getItem('habitta-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    {% tailwind_css %}
+    {% if icons_url %}<link rel="stylesheet" href="{{ icons_url }}">{% endif %}
+    {% block head %}{% endblock %}
+
+    <script defer src="{% static 'vendor/htmx/htmx-2.0.11.min.js' %}"></script>
+    <script defer src="{% static 'js/habitta/app.js' %}"></script>
+    {% block scripts %}{% endblock %}
+    {# Alpine debe cargarse después de los componentes que registra cada página #}
+    <script defer src="{% static 'vendor/alpinejs/alpine-3.17.5.min.js' %}"></script>
+</head>
+<body class="min-h-dvh bg-base-200 text-base-content font-sans antialiased flex flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] btn btn-sm btn-primary">Saltar al contenido</a>
+
+    {# La home lo sobrescribe con <c-nav.navbar overlay /> para mostrarlo transparente sobre el hero #}
+    {% block navbar %}<c-nav.navbar />{% endblock %}
+
+    <main id="contenido" class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}<c-nav.footer />{% endblock %}
+    {% block bottom_bar %}<c-nav.bottom-bar />{% endblock %}
+    <c-toasts />
+    <c-qr-scanner />
+    {% block body_end %}{% endblock %}
+</body>
+</html>

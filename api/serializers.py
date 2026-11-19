@@ -5,8 +5,10 @@ class PropertySerializer(serializers.ModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
     price = serializers.CharField(source='get_price_area')
     category = serializers.SlugRelatedField(slug_field='singular_name', read_only=True)
+    kind = serializers.IntegerField(source='category.kind')
     cover = serializers.URLField(source='get_cover')
-    purpose = serializers.CharField(source='get_purpose.activity')  
+    thumbnail = serializers.URLField(source='get_thumbnail')
+    purpose = serializers.CharField(source='get_purpose.activity')
     phone = serializers.CharField(source='user.profile.phone')
     stars = serializers.IntegerField(default=5)
     reviews = serializers.IntegerField(default=11)
@@ -20,8 +22,8 @@ class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields = (
-            'url', 'price','category','address', 'purpose', 
-            'category', 'cover', 'stars', 'reviews', 'phone', 
+            'id', 'title', 'url', 'price','category', 'kind', 'address', 'purpose',
+            'cover', 'thumbnail', 'stars', 'reviews', 'phone',
             'longitude', 'latitude', 'user_avatar', 'user_url',
             'user_name', 'list_card',
         )

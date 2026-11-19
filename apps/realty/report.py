@@ -48,13 +48,13 @@ def set_cover(canvas, obj):
     img = Image(cover_path, 549.5, 350)
     img.drawOn(canvas, 23, 352)
 
-def set_qrcode(canvas, obj):
-    url = 'https://larbit.com%s' % obj.get_absolute_url()
-    qr_image = obj.get_last_image_by_code('qrcode')
-    if not qr_image or not qr_image.img or not _file_exists(qr_image.img.path):
-        qr = qrcode.make(url)
-        qr_image = obj.add_image(qr, 'qrcode')
-    img = Image(qr_image.img.path, 120, 110)
+def set_qrcode(canvas, obj, base_url):
+    # El QR se genera en memoria con la URL actual del sitio (los QR guardados apuntaban al dominio anterior).
+    url = '%s%s' % (base_url, obj.get_absolute_url())
+    buffer = BytesIO()
+    qrcode.make(url).save(buffer, 'PNG')
+    buffer.seek(0)
+    img = Image(buffer, 120, 110)
     img.drawOn(canvas, 449, 160)
     set_text(canvas, 'Ver más', 480, 280, 14)
 
@@ -159,7 +159,7 @@ def set_points_grid(canvas):
             text = str(y) if x == 0 else str(x) if y == 0 else '.' 
             canvas.drawString(x, y, text)
 
-def get_pdf(obj):    
+def get_pdf(obj, base_url=''):
     #Document settings
     buff = BytesIO()
     canvas = Canvas(buff,pagesize=A4)
@@ -175,7 +175,7 @@ def get_pdf(obj):
     set_avatar(canvas, obj)
     set_user(canvas, obj.user)
     set_socialnetworks(canvas, obj)
-    set_qrcode(canvas, obj)
+    set_qrcode(canvas, obj, base_url or settings.SITE_URL)
     #set_points_grid(canvas)
     canvas.save()
         

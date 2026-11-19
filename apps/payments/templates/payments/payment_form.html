@@ -1,9 +1,8 @@
-<form action="{% url 'select_method_payment' %}" method="POST" enctype="multipart/form-data">
- 	{% csrf_token %}
-    <div class="custom-form">                                   
-        {% for field in form %}
-        {{ field }}
-        {% endfor %}
-    </div>  
-	<button class="btn color-bg flat-btn">{{ label }} {{ form.amount.value }} <i class="fa fa-usd" aria-hidden="true"></i></button>
+{% load habitta %}
+<form action="{% url 'select_method_payment' %}" method="POST">
+    {% csrf_token %}
+    {% for field in form %}{{ field }}{% endfor %}
+    <button type="submit" class="btn btn-secondary btn-block rounded-full font-bold">
+        <c-icon name="shopping-bag" class="size-5" />{{ label }}{% with amount=form.amount.value|money %}{% if amount %} por {{ amount }}{% endif %}{% endwith %}
+    </button>
 </form>

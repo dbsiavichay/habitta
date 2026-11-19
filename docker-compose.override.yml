@@ -10,3 +10,22 @@ services:
     volumes:
       - .:/app
       - ./media:/app/media
+
+  # Recompila static/css/habitta.css al cambiar plantillas, componentes o assets/tailwind/source.css.
+  # La primera vez descarga el CLI de Tailwind en .django_tailwind_cli/ (ignorado por git).
+  tailwind:
+    image: habitta-web
+    command: ["python", "manage.py", "tailwind", "watch", "--noreload"]
+    env_file:
+      - path: .env.docker
+        required: false
+    environment:
+      DEBUG: "True"
+    entrypoint: []
+    volumes:
+      - .:/app
+    # El CLI de Tailwind termina el modo watch si stdin se cierra; así sigue vivo en segundo plano.
+    stdin_open: true
+    tty: true
+    depends_on:
+      - web

@@ -1,0 +1,41 @@
+{% comment %}
+Galería del anuncio: carrusel deslizable en móvil y mosaico en escritorio, con visor PhotoSwipe (#galeria).
+Una sola lista de enlaces sirve para ambos diseños, así el visor no duplica fotos.
+  <c-property.gallery :photos="photos" :property="object" />
+{% endcomment %}
+<c-vars photos="" property="" class="" />
+{% with total=photos|length %}
+{% if total %}
+<div id="galeria" class="relative {{ class }}">
+    <div class="-mx-4 flex snap-x snap-mandatory overflow-x-auto scrollbar-none sm:mx-0 sm:grid sm:h-[26rem] sm:grid-cols-4 sm:grid-rows-2 sm:gap-2 sm:overflow-hidden sm:rounded-box lg:h-[30rem]">
+        {% for photo in photos %}
+        <a href="{{ photo.url }}" data-pswp-width="{{ photo.width }}" data-pswp-height="{{ photo.height }}" target="_blank" rel="noopener"
+           aria-label="Ver foto {{ forloop.counter }} de {{ total }}"
+           class="group relative block aspect-[4/3] w-full shrink-0 snap-center overflow-hidden bg-base-300 sm:aspect-auto
+                  {% if forloop.first %}{% if total == 1 %}sm:col-span-4 sm:row-span-2{% else %}sm:col-span-2 sm:row-span-2{% endif %}
+                  {% elif total == 2 %}sm:col-span-2 sm:row-span-2
+                  {% elif total == 3 %}sm:col-span-2
+                  {% elif total == 4 and forloop.counter == 2 %}sm:col-span-2{% endif %}
+                  {% if forloop.counter > 5 %}sm:hidden{% endif %}">
+            <img src="{{ photo.url }}" alt="{{ property.title|lower|capfirst }}, foto {{ forloop.counter }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                 class="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+            <span class="pointer-events-none absolute bottom-3 right-3 rounded-full bg-black/55 px-2.5 py-1 text-xs font-bold text-white backdrop-blur sm:hidden">{{ forloop.counter }} / {{ total }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% if total > 1 %}
+    <button type="button" onclick="document.querySelector('#galeria a').click()"
+            class="btn btn-sm absolute bottom-4 right-4 hidden rounded-full border-0 bg-base-100/95 font-bold shadow-float backdrop-blur hover:bg-base-100 sm:inline-flex">
+        <c-icon name="images" class="size-4" />Ver las {{ total }} fotos
+    </button>
+    {% endif %}
+</div>
+{% else %}
+<div class="relative grid h-56 place-items-center overflow-hidden rounded-box bg-brand-mesh ring-1 ring-base-300/60 sm:h-72 {{ class }}">
+    <div class="text-center">
+        <c-brand.logo mark_only class="mx-auto size-16 opacity-80" label="" />
+        <p class="mt-3 font-semibold text-base-content/60">Este anuncio aún no tiene fotos</p>
+    </div>
+</div>
+{% endif %}
+{% endwith %}
