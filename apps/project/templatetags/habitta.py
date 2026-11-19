@@ -116,3 +116,69 @@ def spec_value(value):
     if lowered in ('false', 'no'):
         return 'No'
     return text
+
+
+# Íconos propios de <c-icon> para redes sociales; el resto usa un globo genérico
+SOCIAL_ICONS = {'facebook', 'instagram', 'twitter', 'x-twitter', 'whatsapp'}
+
+
+@register.filter
+def social_icon(network):
+    """Ícono de <c-icon> para una SocialNetwork (su campo `icon` venía de Font Awesome 4)."""
+    name = str(getattr(network, 'icon', network) or '').strip().lower().removeprefix('fa-')
+    return name if name in SOCIAL_ICONS else 'globe'
+
+
+@register.filter
+def badge_count(value):
+    """Contador corto para insignias: 0 → '', 12 → '9+'."""
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return ''
+    if number <= 0:
+        return ''
+    return '9+' if number > 9 else str(number)
+
+
+@register.filter
+def page_range(page_obj):
+    """Números de página con elipsis (1 … 4 5 6 … 20) para <c-pagination>."""
+    return page_obj.paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1)
+
+
+WIZARD_STEPS = ('Categoría', 'Datos', 'Ubicación', 'Portada', 'Revisar', 'Fotos')
+
+
+@register.simple_tag
+def wizard_steps():
+    """Pasos del asistente de publicación como [(1, 'Categoría'), …] para <c-panel.steps>."""
+    return list(enumerate(WIZARD_STEPS, start=1))
+
+
+@register.simple_tag(takes_context=True)
+def panel_menu(context):
+    """Secciones del menú del panel con la URL resuelta, el ítem activo y su contador."""
+    from django.urls import reverse
+
+    from apps.project.panel import PANEL_MENU
+
+    request = context.get('request')
+    match = getattr(request, 'resolver_match', None)
+    current = match.url_name if match else ''
+    sections = []
+    for title, items in PANEL_MENU:
+        sections.append({
+            'title': title,
+            'items': [
+                {
+                    'label': item.label,
+                    'url': reverse(item.url_name),
+                    'icon': item.icon,
+                    'active': item.matches(current),
+                    'badge': context.get(item.badge, 0) if item.badge else 0,
+                }
+                for item in items
+            ],
+        })
+    return sections

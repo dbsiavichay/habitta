@@ -28,3 +28,35 @@ def get_spec_icons():
 
 # Alias histórico: lo referencia la migración realty/0006 y no debe romperse.
 get_larbit_icons = get_spec_icons
+
+
+def property_photos(obj):
+	"""Portada + galería de un anuncio con sus dimensiones (las necesita el visor PhotoSwipe).
+
+	Lo usan el detalle del anuncio y el paso "Fotos" del asistente de publicación.
+	"""
+	from django.urls import reverse
+
+	photos = []
+	cover = obj.get_cover_instance()
+	images = ([cover] if cover and cover.img else []) + list(obj.get_gallery())
+	seen = set()
+	for image in images:
+		# Las imágenes generadas para el PDF (QR, mapa estático, miniatura) no son fotos del anuncio
+		if image.pk in seen or image.code in ('qrcode', 'map', 'thumbnail'):
+			continue
+		seen.add(image.pk)
+		try:
+			width, height = image.img.width, image.img.height
+		except (OSError, ValueError):
+			# La imagen no existe en el almacenamiento: no se muestra
+			continue
+		photos.append({
+			'id': image.pk,
+			'url': image.img.url,
+			'width': width,
+			'height': height,
+			'is_cover': image.is_cover,
+			'delete_url': reverse('delete_image', args=[image.pk]),
+		})
+	return photos

@@ -35,6 +35,21 @@ class Payment(models.Model):
 	def get_object(self):
 		return self.content_type.get_object_for_this_type(pk=self.object_id)
 
+	def get_object_or_none(self):
+		"""Lo que se pagó, o None si ya no existe (p. ej. el anuncio se eliminó)."""
+		try:
+			return self.get_object()
+		except self.content_type.model_class().DoesNotExist:
+			return None
+
+	def get_method(self):
+		"""'Transferencia · Banco X' o 'PayPal', según la tabla hija."""
+		if hasattr(self, 'bankpayment'):
+			return 'Transferencia · %s' % self.bankpayment.bank.name
+		if hasattr(self, 'paypalpayment'):
+			return 'PayPal'
+		return 'Pago'
+
 	def get_status(self):
 		return dict(self.STATUS_CHOICES).get(self.status)
 

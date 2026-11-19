@@ -1,42 +1,43 @@
-{% extends 'base/base_list.html' %}
+{% extends 'layouts/app.html' %}
+{% load static habitta %}
 
-{% block breadcrumbs %}
-<h2>Descargas</h2>
-<div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Descargas</span></div>
-{% endblock %}
+{% block title %}Descargas{% endblock %}
+{% block panel_title %}Descargas{% endblock %}
+{% block panel_lead %}Los archivos que compraste (planos, catálogos…). Se habilitan cuando confirmamos el pago.{% endblock %}
 
-{% block list %}
-{% for payment in object_list %}
-{% with payment.get_object as object %}
-<!-- dashboard-list end-->    
-<div class="dashboard-list">
-    <div class="dashboard-message">
-        <span class="new-dashboard-item">{{ object.category }}</span>
-        <div class="dashboard-listing-table-image">
-            <a href="{% url 'detail_property' object.id %}"><img src="{{ object.get_cover }}" alt=""></a>
-        </div>
-        <div class="dashboard-listing-table-text">
-            <h4><a href="listing-single.html">{{ object.title }}</a></h4>
-            <span class="dashboard-listing-table-address"><i class="fa fa-map-marker"></i><a  href="#">{{ object.address }}</a></span>
-            <div class="listing-rating card-popup-rainingvis fl-wrap" data-starrating2="5">
-                <span>(2 comentarios)</span>
+{% block panel_body %}
+{% if object_list %}
+<ul class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    {% for payment in object_list %}
+    {% with obj=payment.get_object_or_none %}
+    <li class="flex flex-col overflow-hidden rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+        <figure class="aspect-video bg-base-300">
+            {% if obj.get_thumbnail %}<img src="{{ obj.get_thumbnail }}" alt="" loading="lazy" class="size-full object-cover" onerror="this.onerror=null;this.src='{% static 'brand/placeholder.svg' %}'">{% endif %}
+        </figure>
+        <div class="flex flex-1 flex-col p-4">
+            {% if obj.category %}<p class="text-xs font-bold uppercase tracking-wide text-primary">{{ obj.category.singular_name }}</p>{% endif %}
+            <h2 class="mt-1 truncate font-bold">{% if obj %}<a href="{{ obj.get_absolute_url }}" class="hover:text-primary">{{ obj }}</a>{% else %}<span class="text-base-content/55">Anuncio no disponible</span>{% endif %}</h2>
+            <p class="mt-1 text-sm text-base-content/60">Comprado {{ payment.date|ago }} · {{ payment.amount|money }}</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-4">
+                {% if payment.is_confirmed and obj %}
+                <c-status-badge tone="success">Listo</c-status-badge>
+                <c-button size="sm" icon="download" href="{% url 'download' payment.pk %}">Descargar</c-button>
+                {% else %}
+                <c-status-badge tone="warning">Pago en revisión</c-status-badge>
+                <a href="{% url 'list_bank_payment' %}" class="text-sm font-semibold text-primary hover:underline">Ver estado</a>
+                {% endif %}
             </div>
-            <ul class="dashboard-listing-table-opt fl-wrap">
-                <li><a href="{% url 'download' payment.id %}"><i class="fa fa-download"></i></a></li>                                        
-            </ul>
         </div>
-    </div>
+    </li>
+    {% endwith %}
+    {% endfor %}
+</ul>
+<c-pagination :page_obj="page_obj" />
+{% else %}
+<div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    <c-empty-state icon="download" title="No tienes descargas" text="Algunos anuncios venden archivos como planos o catálogos. Los que compres aparecerán aquí.">
+        <c-button icon="compass" href="{% url 'finder' %}">Explorar anuncios</c-button>
+    </c-empty-state>
 </div>
-<!-- dashboard-list end-->
-{% endwith %}
-{% empty %}
-<div class="dashboard-list">
-    <div class="dashboard-message">      
-        <div class="dashboard-listing-table-text">
-            <h4><a href="#">Sin registros.</a></h4>
-            
-        </div>
-    </div>
-</div>
-{% endfor %} 
+{% endif %}
 {% endblock %}

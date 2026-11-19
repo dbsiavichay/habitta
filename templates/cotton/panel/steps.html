@@ -1,0 +1,30 @@
+{% comment %}
+Pasos del asistente de publicación: Categoría · Datos · Ubicación · Portada · Revisar · Fotos.
+  <c-panel.steps :current="1" />   páginas del servidor (1 categoría, 6 fotos)
+  <c-panel.steps live="1" />       dentro de publishWizard: sigue a `step` (1 datos … 4 revisar) y
+                                   permite volver a un paso anterior con clic
+{% endcomment %}
+<c-vars current="1" live="" />
+{% load habitta %}
+{% wizard_steps as steps %}
+<nav aria-label="Pasos para publicar" class="mb-7">
+    <div class="sm:hidden">
+        <p class="text-sm font-semibold">
+            <span class="text-primary">Paso <span {% if live %}x-text="step + 1"{% endif %}>{{ current }}</span> de {{ steps|length }}</span>
+            <span class="text-base-content/40">·</span>
+            <span {% if live %}x-text="labels[step]"{% endif %}>{% for n, label in steps %}{% if n == current %}{{ label }}{% endif %}{% endfor %}</span>
+        </p>
+        <progress class="progress progress-primary mt-2 h-1.5 w-full" max="{{ steps|length }}" value="{{ current }}" {% if live %}:value="step + 1"{% endif %}></progress>
+    </div>
+    <ul class="steps hidden w-full text-sm font-semibold sm:grid">
+        {% for n, label in steps %}
+        {% if live %}
+        <li class="step" :class="{ 'step-primary': step + 1 >= {{ n }}, 'cursor-pointer hover:text-primary': {{ n }} > 1 && {{ n }} < step + 1 }"
+            :data-content="step + 1 > {{ n }} ? '✓' : '{{ n }}'" {% if n > 1 and n < 6 %}@click="{{ n }} < step + 1 && goTo({{ n }} - 1)"{% endif %}
+            :aria-current="step + 1 === {{ n }} ? 'step' : null">{{ label }}</li>
+        {% else %}
+        <li class="step {% if n <= current %}step-primary{% endif %}" {% if n < current %}data-content="✓"{% endif %} {% if n == current %}aria-current="step"{% endif %}>{{ label }}</li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</nav>

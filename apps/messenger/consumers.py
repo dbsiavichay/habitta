@@ -5,6 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from .models import Conversation, Message
 
@@ -28,6 +29,8 @@ class MessageConsumer(WebsocketConsumer):
         self.room_group_name = f'chat_{self.conversation.id}'
         async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
         self.accept()
+        # Abrir el chat equivale a leer lo que había llegado
+        self.conversation.mark_read(sender)
 
     def disconnect(self, close_code):
         if self.room_group_name:
@@ -48,11 +51,6 @@ class MessageConsumer(WebsocketConsumer):
         if conversation is None:
             conversation = Conversation.objects.create(owner=sender, member=receiver)
         return conversation
-
-    def render_message(self, message):
-        # HTML del diseño anterior (página de conversaciones, aún sin migrar)
-        template = 'messenger/chat_message_receiver.html'
-        return render_to_string(template, context={'message': message})
 
     def render_bubble(self, message):
         # Burbuja del diseño nuevo, renderizada para quien la recibe (propia o ajena)
@@ -84,8 +82,11 @@ class MessageConsumer(WebsocketConsumer):
         message = Message.objects.select_related('sender__profile').filter(pk=event['message_id']).first()
         if message is None:
             return
+        own = message.sender_id == self.scope['user'].id
+        if not own and message.read_at is None:
+            # Quien lo recibe tiene el chat abierto: ya lo está leyendo
+            Message.objects.filter(pk=message.pk, read_at__isnull=True).update(read_at=timezone.now())
         self.send(text_data=json.dumps({
-            'message': self.render_message(message),
             'bubble': self.render_bubble(message),
-            'own': message.sender_id == self.scope['user'].id,
+            'own': own,
         }))

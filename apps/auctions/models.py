@@ -1,6 +1,12 @@
 from django.utils import timezone
 from django.db import models
  
+class AuctionQuerySet(models.QuerySet):
+    def close_expired(self):
+        """Cierra las subastas abiertas cuya fecha de fin ya pasó (el cierre es perezoso)."""
+        return self.filter(stage=Auction.OPEN, ending_date__lte=timezone.now()).update(stage=Auction.CLOSED)
+
+
 class Auction(models.Model):
     OPEN, CLOSED, CANCELED = (1,2,3)
     STAGE_CHOICES = ((OPEN, 'Abierto'),(CLOSED, 'Finalizado'),(CANCELED, 'Cancelado'))
@@ -10,6 +16,8 @@ class Auction(models.Model):
     ending_date = models.DateTimeField()
     base_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='monto base')   
     stage = models.PositiveSmallIntegerField(default=OPEN, choices=STAGE_CHOICES)
+
+    objects = AuctionQuerySet.as_manager()
 
     def __str__(self):
         return 'Subasta de %s' % str(self.property)

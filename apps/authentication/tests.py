@@ -2,16 +2,22 @@
 
     docker compose exec web python manage.py test apps.authentication.tests
 """
+import base64
 import re
+import shutil
+import tempfile
 from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+
+from apps.authentication.models import SocialNetwork, SocialNetworkProfile
 
 PASSWORD = 'Casa-con-jardin-2026'
 NEW_PASSWORD = 'Terraza-y-patio-77'
@@ -41,13 +47,16 @@ class AuthPagesTests(TestCase):
 
     def test_account_pages_use_auth_layout(self):
         self.client.force_login(self.user)
-        for url in (
-            reverse('complete_register', args=[self.user.profile.pk]),
-            reverse('change_password'),
-            reverse('change_password_done'),  # antes incluía una plantilla inexistente
-        ):
+        self.assert_auth_page(reverse('complete_register', args=[self.user.profile.pk]))
+
+    def test_password_pages_live_in_the_panel(self):
+        self.client.force_login(self.user)
+        for url in (reverse('change_password'), reverse('change_password_done')):
             with self.subTest(url=url):
-                self.assert_auth_page(url)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, 'layouts/app.html')
+                self.assertContains(response, f'href="{reverse("change_password")}" aria-current="page"')
 
     def test_register_with_open_session_offers_logout(self):
         self.client.force_login(self.user)
@@ -203,3 +212,82 @@ class PasswordTests(TestCase):
         self.assertRedirects(response, reverse('change_password_done'))
         self.assertContains(response, 'Tu contraseña se cambió')
         self.assertEqual(response.context['user'], self.user)  # la sesión sigue abierta
+
+
+class ProfilePanelTests(TestCase):
+    """Mi perfil (fase 3): datos, celular, redes sociales y foto."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user('ana', 'ana@example.com', PASSWORD, first_name='Ana', last_name='Pérez')
+        cls.facebook = SocialNetwork.objects.create(name='Facebook', icon='facebook', url='https://www.facebook.com/')
+        cls.youtube = SocialNetwork.objects.create(name='Youtube', icon='youtube', url='https://www.youtube.com/')
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        self.media = tempfile.mkdtemp(prefix='habitta-tests-')
+        self.addCleanup(shutil.rmtree, self.media, ignore_errors=True)
+
+    def data(self, **overrides):
+        data = {
+            'first_name': 'Ana', 'last_name': 'Pérez', 'email': 'ana@example.com', 'username': 'ana', 'phone': '0991234567',
+            'socialnetworkprofile_set-TOTAL_FORMS': '2', 'socialnetworkprofile_set-INITIAL_FORMS': '0',
+            'socialnetworkprofile_set-MIN_NUM_FORMS': '0', 'socialnetworkprofile_set-MAX_NUM_FORMS': '1000',
+            'socialnetworkprofile_set-0-social_network': self.facebook.pk, 'socialnetworkprofile_set-0-username': '',
+            'socialnetworkprofile_set-1-social_network': self.youtube.pk, 'socialnetworkprofile_set-1-username': '',
+        }
+        data.update(overrides)
+        return data
+
+    def test_profile_page(self):
+        response = self.client.get(reverse('update_profile'))
+        self.assertTemplateUsed(response, 'layouts/app.html')
+        self.assertContains(response, 'Redes sociales')
+        self.assertContains(response, 'facebook.com/')
+        self.assertContains(response, reverse('upload_avatar_profile'))
+
+    def test_save_profile_and_social_network(self):
+        response = self.client.post(reverse('update_profile'), self.data(**{
+            'first_name': 'Ana María',
+            'socialnetworkprofile_set-0-username': 'https://www.facebook.com/ana.perez/',
+        }), follow=True)
+        self.assertRedirects(response, reverse('update_profile'))
+        self.assertContains(response, 'Guardamos los cambios de tu perfil')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'Ana María')
+        self.assertEqual(self.user.profile.phone, '0991234567')
+        # Se guarda sólo el usuario aunque se pegue el enlace completo
+        self.assertEqual(SocialNetworkProfile.objects.get(profile=self.user.profile).username, 'ana.perez')
+
+    def test_clearing_a_social_network_removes_it(self):
+        SocialNetworkProfile.objects.create(profile=self.user.profile, social_network=self.facebook, username='ana')
+        existing = SocialNetworkProfile.objects.get()
+        data = self.data(**{
+            'socialnetworkprofile_set-TOTAL_FORMS': '2', 'socialnetworkprofile_set-INITIAL_FORMS': '1',
+            'socialnetworkprofile_set-0-id': existing.pk, 'socialnetworkprofile_set-0-username': '',
+        })
+        self.assertEqual(self.client.post(reverse('update_profile'), data).status_code, 302)
+        self.assertFalse(SocialNetworkProfile.objects.exists())
+
+    def test_names_and_email_are_required(self):
+        response = self.client.post(reverse('update_profile'), self.data(first_name='', email=''))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.context['user_form'].errors), {'first_name', 'email'})
+
+    def test_upload_avatar(self):
+        with override_settings(MEDIA_ROOT=self.media):
+            image = SimpleUploadedFile('yo.png', base64.b64decode(
+                'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='), 'image/png')
+            response = self.client.post(reverse('upload_avatar_profile'), {'image': image}, follow=True)
+            self.assertRedirects(response, reverse('update_profile'))
+            self.assertContains(response, 'Actualizamos tu foto de perfil')
+            self.user.profile.refresh_from_db()
+            self.assertTrue(self.user.profile.image.name.startswith('users/profiles/'))
+
+            previous = self.user.profile.image.name
+            fake = SimpleUploadedFile('yo.png', b'no soy una imagen', 'image/png')
+            response = self.client.post(reverse('upload_avatar_profile'), {'image': fake}, follow=True)
+            self.assertRedirects(response, reverse('update_profile'))
+            self.assertEqual([m.level_tag for m in response.context['messages']], ['error'])
+            self.user.profile.refresh_from_db()
+            self.assertEqual(self.user.profile.image.name, previous)

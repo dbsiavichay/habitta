@@ -1,78 +1,81 @@
-{% extends 'base/base_form.html' %}
+{% extends 'layouts/app.html' %}
+{% load habitta hydra %}
 
-{% block breadcumbs %}
-<div class="profile-edit-page-header">
-    <h2>Editar perfil</h2>
-    <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Editar perfil</span></div>
-</div>
-{% endblock %}
+{% block title %}Mi perfil{% endblock %}
+{% block panel_title %}Mi perfil{% endblock %}
+{% block panel_lead %}Así te ven quienes visitan tus anuncios y tu perfil público.{% endblock %}
+{% block panel_actions %}<c-button variant="ghost" icon="external-link" href="{% url 'detail_profile' user.username %}">Ver mi perfil público</c-button>{% endblock %}
 
-{% block form %}
-<div class="row">
-    <div class="col-xs-9">
-        {% include 'hydra/form.html' with form=user_form %}
-        {{ block.super }}
-    </div>
-    <div class="col-xs-3">
-        <div class="edit-profile-photo fl-wrap">
-            <img src="{{ object.get_avatar }}" class="respimg" alt="">
-            <div class="change-photo-btn">
-                <div class="photoUpload">
-                    <span><i class="fa fa-upload"></i> Subir foto</span>
-                    <div id="upload_avatar" data-action="{% url 'upload_avatar_profile' %}">
-                        <input name="image" type="file" class="upload">
-                    </div>
+{% block panel_body %}
+<div class="grid items-start gap-6 lg:grid-cols-[17rem_minmax(0,1fr)]">
+    {# ============================== Foto (formulario aparte) ============================== #}
+    <section class="rounded-box bg-base-100 p-6 text-center shadow-soft ring-1 ring-base-300/60" aria-labelledby="foto-title">
+        <h2 id="foto-title" class="sr-only">Foto de perfil</h2>
+        <c-avatar :user="user" size="size-28" ring="1" class="mx-auto text-3xl ring-4" />
+        <p class="mt-4 truncate text-lg font-bold">{{ user.get_full_name|default:user.username }}</p>
+        <p class="truncate text-sm text-base-content/60">@{{ user.username }}</p>
+        <form method="post" action="{% url 'upload_avatar_profile' %}" enctype="multipart/form-data" class="mt-5"
+              x-data="{ sending: false }" @change="if ($event.target.files.length) { sending = true; $el.submit(); }">
+            {% csrf_token %}
+            <label class="btn btn-soft btn-primary btn-sm rounded-full" :class="sending && 'btn-disabled'">
+                <span x-show="sending" x-cloak class="loading loading-spinner loading-xs"></span>
+                <span x-show="!sending"><c-icon name="camera" class="size-4" /></span>
+                {% if user|has_avatar %}Cambiar foto{% else %}Subir foto{% endif %}
+                <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="sr-only">
+            </label>
+            <p class="mt-2 text-xs text-base-content/55">JPG, PNG o WEBP de hasta 5 MB.</p>
+        </form>
+    </section>
+
+    {# ============================== Datos y redes ============================== #}
+    <form method="post" novalidate class="space-y-5">
+        {% csrf_token %}
+        {% with hydra_theme="v2" %}
+        <section class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7" aria-labelledby="datos-title">
+            <h2 id="datos-title" class="text-lg font-bold">Datos personales</h2>
+            {% if user_form.non_field_errors %}<div role="alert" class="alert alert-error mt-4 rounded-box"><c-icon name="circle-alert" /><div>{% for error in user_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div></div>{% endif %}
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                {% render_field user_form.first_name %}
+                {% render_field user_form.last_name %}
+                {% render_field user_form.email icon="mail" %}
+                {% render_field form.phone icon="smartphone" %}
+                <div class="sm:col-span-2">{% render_field user_form.username icon="at-sign" %}</div>
+            </div>
+        </section>
+
+        {% with formset=socialnetworkprofile_formset %}
+        {% if formset.forms %}
+        <section class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7" aria-labelledby="redes-title">
+            <h2 id="redes-title" class="text-lg font-bold">Redes sociales</h2>
+            <p class="mt-1 text-sm text-base-content/65">Escribe sólo tu usuario (o pega el enlace). Déjalo vacío para no mostrarla.</p>
+            {{ formset.management_form }}
+            {% for error in formset.non_form_errors %}<p class="mt-3 text-sm text-error">{{ error }}</p>{% endfor %}
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                {% for f in formset %}
+                {{ f.id }}{{ f.social_network }}
+                {% with network=f.network %}
+                <div class="fieldset p-0">
+                    <label for="{{ f.username.id_for_label }}" class="fieldset-legend pt-0 pb-1.5 text-sm font-semibold">
+                        <span class="inline-flex items-center gap-1.5"><c-icon name="{{ network|social_icon }}" class="size-4 text-primary" />{{ network.name }}</span>
+                    </label>
+                    <label class="input w-full rounded-field {% if f.username.errors %}input-error{% endif %}">
+                        {% if network.url %}<span class="max-w-[55%] shrink-0 truncate text-sm text-base-content/45">{{ network.url|cut:"https://"|cut:"www." }}</span>{% endif %}
+                        {{ f.username|add_class:"min-w-0 grow" }}
+                    </label>
+                    {% for error in f.username.errors %}<p class="mt-1 text-sm text-error">{{ error }}</p>{% endfor %}
                 </div>
+                {% endwith %}
+                {% endfor %}
             </div>
+        </section>
+        {% endif %}
+        {% endwith %}
+        {% endwith %}
+
+        <div class="flex flex-wrap items-center justify-end gap-2">
+            <a href="{% url 'change_password' %}" class="btn btn-ghost rounded-full mr-auto"><c-icon name="key-round" class="size-4" />Cambiar contraseña</a>
+            <c-button type="submit" icon="check">Guardar cambios</c-button>
         </div>
-    </div>
+    </form>
 </div>
-{% endblock %}
-
-{% block extra_forms %}
-<div class="profile-edit-container">
-    <div class="profile-edit-header fl-wrap">
-        <h4>Redes sociales</h4>
-    </div>
-    <div class="custom-form">
-        {{ socialnetworkprofile_formset.management_form }}
-
-        {% for form in socialnetworkprofile_formset %}
-            {{ form.id }}
-            {% if form.instance.pk is None %}                                    
-            <label>{{ form.social_network.initial }} 
-                <i class="fa fa-{{ form.social_network.initial.icon }}"></i>
-            </label>
-            {% else %}
-            <label>{{ form.instance.social_network }} 
-                <i class="fa fa-{{ form.instance.social_network.icon }}"></i>
-            </label>
-            {% endif %}
-            <div class="input-prepend"> 
-            <span>
-                {% if form.instance.pk is None %}
-                {{ form.social_network.initial.url }}
-                {% else%}
-                {{ form.instance.social_network.url }}
-                {% endif %}
-            </span>                               
-            {{ form.username }}
-            </div>
-            {{ form.social_network }}
-        {% endfor %} 
-    </div>
-</div>
-{% endblock %}
-
-{% block js %}
-    {{ block.super }}
-    <script type="text/javascript">
-        var input = document.querySelector('input[name=image]');
-        input.addEventListener('change', function(event){
-            var action = document.getElementById('upload_avatar').dataset.action;
-            form = document.getElementById('upload_avatar').closest('form');
-            form.action = action;
-            form.submit();
-        });
-    </script>
 {% endblock %}

@@ -43,23 +43,8 @@
         $('.listing-item').on('click', function () {
             window.location.href = $(this).data('url');
         });
-        /* Forms */
-        function render_details_form() {
-            $.get('/realty/render/detalles-de-categoria/' + this.value + '/', function (data) {
-                var container = document.getElementById('details-form');
-                container.innerHTML = '';
-                container.insertAdjacentHTML('afterbegin', data.form);
-                $(container).find('.chosen-select').niceSelect();
-            });
-        }
-
-        $('#id_category').on('change', render_details_form);
     });
 </script>
-
-{% if user.is_authenticated %}
-<script type="text/javascript" src="{% static 'js/chat.js' %}"></script>
-{% endif %}
 
 <!-- QR Code Reader -->
 <script type="text/javascript" src="{% static 'plugins/qrcode-reader/instascan.min.js' %}"></script>

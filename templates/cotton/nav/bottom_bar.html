@@ -1,6 +1,7 @@
 {% comment %}
 Navegación inferior para móvil (oculta desde lg). El botón central publica.
 {% endcomment %}
+{% load habitta %}
 {% url 'home' as home_url %}{% url 'finder' as finder_url %}{% url 'favorite_properties' as fav_url %}{% url 'conversations' as msg_url %}
 <nav aria-label="Navegación móvil"
      class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-base-300 bg-base-100/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
@@ -28,9 +29,14 @@ Navegación inferior para móvil (oculta desde lg). El botón central publica.
         </li>
         <li>
             {% if user.is_authenticated %}
-            <a href="{{ msg_url }}" class="flex h-full flex-col items-center justify-center gap-1 {% if '/messenger/' in request.path %}text-primary{% else %}text-base-content/60{% endif %}">
-                <c-icon name="message-circle" class="size-[1.35rem]" />Mensajes
+            {% with unread=unread_messages|badge_count %}
+            <a href="{{ msg_url }}" class="flex h-full flex-col items-center justify-center gap-1 {% if '/messenger/' in request.path %}text-primary{% else %}text-base-content/60{% endif %}" {% if unread %}aria-label="Mensajes, {{ unread_messages }} sin leer"{% endif %}>
+                <span class="relative">
+                    <c-icon name="message-circle" class="size-[1.35rem]" />
+                    {% if unread %}<span class="absolute -right-2.5 -top-1.5 grid min-w-[1.1rem] place-items-center rounded-full bg-secondary px-1 text-[0.65rem] font-bold leading-[1.1rem] text-secondary-content ring-2 ring-base-100">{{ unread }}</span>{% endif %}
+                </span>Mensajes
             </a>
+            {% endwith %}
             {% else %}
             <a href="{% url 'login' %}" class="flex h-full flex-col items-center justify-center gap-1 text-base-content/60">
                 <c-icon name="circle-user-round" class="size-[1.35rem]" />Ingresar

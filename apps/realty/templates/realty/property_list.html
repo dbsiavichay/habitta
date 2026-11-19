@@ -1,55 +1,62 @@
-{% extends 'base/base_list.html' %}
+{% extends 'layouts/app.html' %}
+{% load static habitta %}
 
-{% block list %}
-{% for property in object_list %}
-<!-- dashboard-list--> 
-<div class="dashboard-list">
-    <div class="dashboard-message">
-        <span class="new-dashboard-item">{{ property.category }}</span>
-        <div class="dashboard-listing-table-image">
-            <a href="{% url 'detail_property' property.id %}"><img src="{{ property.get_cover }}" alt=""></a>
+{% block title %}Mis publicaciones{% endblock %}
+{% block panel_title %}Mis publicaciones{% endblock %}
+{% block panel_lead %}{% if paginator.count %}Tienes {{ paginator.count }} anuncio{{ paginator.count|pluralize }} publicado{{ paginator.count|pluralize }}.{% else %}Aquí verás los anuncios que publiques.{% endif %}{% endblock %}
+{% block panel_actions %}<c-button variant="secondary" icon="plus" href="{% url 'choose_category' %}">Publicar</c-button>{% endblock %}
+
+{% block panel_body %}
+{% if object_list %}
+<ul class="grid gap-3">
+    {% for p in object_list %}
+    {% with price=p.get_price_value purpose=p.get_purpose %}
+    <li class="flex flex-col gap-4 rounded-box bg-base-100 p-3 shadow-soft ring-1 ring-base-300/60 sm:flex-row sm:items-center sm:p-4">
+        <a href="{{ p.get_absolute_url }}" class="shrink-0">
+            <img src="{{ p.get_thumbnail }}" alt="" loading="lazy" width="320" height="180"
+                 class="aspect-video w-full rounded-xl bg-base-300 object-cover sm:w-44"
+                 onerror="this.onerror=null;this.src='{% static 'brand/placeholder.svg' %}'">
+        </a>
+        <div class="min-w-0 flex-1">
+            <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold uppercase tracking-wide text-primary">
+                <span class="inline-flex items-center gap-1"><c-icon name="{{ p.category.kind|kind_icon }}" class="size-3.5" />{{ p.category.singular_name }}</span>
+                {% if purpose.activity %}<span class="rounded-full bg-base-200 px-2 py-0.5 normal-case tracking-normal text-base-content/70">{{ purpose.activity }}</span>{% endif %}
+            </p>
+            <h2 class="mt-1 truncate text-lg font-bold"><a href="{{ p.get_absolute_url }}" class="hover:text-primary">{{ p.title|lower|capfirst|default:p.category.singular_name }}</a></h2>
+            {% if p.address %}<p class="mt-0.5 flex items-center gap-1.5 truncate text-sm text-base-content/65"><c-icon name="map-pin" class="size-4 shrink-0" /><span class="truncate">{{ p.address }}</span></p>{% endif %}
+            <p class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-base-content/60">
+                {% if price %}<span class="text-base font-extrabold text-base-content">{{ price|money }}</span>{% endif %}
+                <span class="inline-flex items-center gap-1"><c-icon name="calendar" class="size-4" />{{ p.pub_date|ago }}</span>
+                <span class="inline-flex items-center gap-1" title="Personas que lo guardaron en favoritos"><c-icon name="heart" class="size-4" />{{ p.likes }}</span>
+            </p>
         </div>
-        <div class="dashboard-listing-table-text">
-            <h4><a href="listing-single.html">{{ property.title }}</a></h4>
-            <span class="dashboard-listing-table-address"><i class="fa fa-map-marker"></i><a  href="#">{{ property.address }}</a></span>
-            <div class="listing-rating card-popup-rainingvis fl-wrap" data-starrating2="5">
-                <span>(2 comentarios)</span>
+        <div class="flex shrink-0 items-center gap-1.5 sm:flex-col sm:items-stretch lg:flex-row lg:items-center">
+            <c-button variant="soft" size="sm" icon="pencil" href="{% url 'update_property' p.pk %}">Editar</c-button>
+            <c-button variant="ghost" size="sm" icon="images" href="{% url 'property_photos' p.pk %}">Fotos</c-button>
+            <div class="dropdown dropdown-end ml-auto sm:ml-0">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-sm btn-circle" aria-label="Más acciones para {{ p.title|default:p.category.singular_name }}"><c-icon name="ellipsis" class="size-5" /></div>
+                <ul tabindex="0" class="dropdown-content menu z-30 mt-1 w-56 rounded-box bg-base-100 p-2 shadow-float ring-1 ring-base-300">
+                    <li><a href="{{ p.get_absolute_url }}"><c-icon name="eye" class="size-4" />Ver anuncio</a></li>
+                    <li><a href="{% url 'print_property' p.pk %}"><c-icon name="file-down" class="size-4" />Descargar PDF</a></li>
+                    <li><a href="{% url 'add_auction' %}?id={{ p.pk }}"><c-icon name="gavel" class="size-4" />Subastar</a></li>
+                    <li>
+                        <c-confirm-button action="{% url 'delete_property' p.pk %}" title="¿Eliminar este anuncio?"
+                                          text="«{{ p.title|default:p.category.singular_name }}» dejará de verse y no podrás recuperarlo."
+                                          button="Eliminar anuncio" class="text-error">Eliminar</c-confirm-button>
+                    </li>
+                </ul>
             </div>
-            <ul class="dashboard-listing-table-opt fl-wrap">
-                <li><a href="{% url 'update_property' property.id %}"><i class="fa fa-pencil-square-o"></i></a></li>
-                <li><a href="{% url 'print_property' property.id %}"><i class="fa fa-print"></i></a></li>
-                <li>
-                    <a href="#" data-pk="{{ property.id }}" class="del-btn"><i class="fa fa-trash-o"></i></a>
-                </li>
-            </ul>
         </div>
-    </div>
+    </li>
+    {% endwith %}
+    {% endfor %}
+</ul>
+<c-pagination :page_obj="page_obj" />
+{% else %}
+<div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    <c-empty-state icon="megaphone" title="Aún no publicas nada" text="Publicar es gratis: elige una categoría, cuenta lo que ofreces y suma fotos y ubicación.">
+        <c-button variant="secondary" icon="plus" href="{% url 'choose_category' %}">Publicar mi primer anuncio</c-button>
+    </c-empty-state>
 </div>
-<!-- dashboard-list end-->
-{% empty %}
-<div class="dashboard-list">
-    <div class="dashboard-message">        
-        <div class="dashboard-listing-table-text">
-            <h4><a href="#">Sin registros.</a></h4>            
-        </div>
-    </div>
-</div>
-{% endfor %}
-{% endblock %}
-
-{% block js %}
-{{ block.super }}
-<script>
-    $('.del-btn').on('click', function (e) {
-        e.preventDefault()
-        var base_url = '/realty/property/';
-        var pk = this.dataset.pk
-        $('#del-form').attr('action', base_url+pk+'/delete/')
-        $('#delete-modal').fadeIn();
-    });
-
-    $('.close-reg').on('click', function () {
-        $(this).parents('.modal').fadeOut();
-    });
-</script>
+{% endif %}
 {% endblock %}

@@ -1,48 +1,17 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/app.html' %}
+{% load habitta %}
 
-{% load static %}
+{% block title %}Pago confirmado{% endblock %}
+{% block panel_header %}{% endblock %}
 
-{% block content %}
-<div>
-    <!--  content  --> 
-    <div class="content">
-        <!--  section  --> 
-        <section class="parallax-section" data-scrollax-parent="true" id="sec1">
-            <div class="bg par-elem "  data-bg="{% static 'images/bg/bg.jpg' %}" data-scrollax="properties: { translateY: '30%' }"></div>
-            <div class="overlay"></div>
-            <div class="bubble-bg"></div>
-            <div class="container">
-                <div class="error-wrap">
-                    <h2>Éxito</h2>
-                    <p>Tu pago ha sido procesado correctamente.</p>                    
-                    <div class="clearfix"></div> 
-                    <a href="{{ object.get_absolute_url }}" class="btn big-btn color-bg flat-btn">
-                        Regresar
-                        <i class="fa fa-check"></i>
-                    </a>                                                           
-                </div>
-            </div>
-        </section>
-        <!--  section  end--> 
-        <!--  section  --> 
-        <section class="gradient-bg">
-            <div class="cirle-bg">
-                <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-            </div>
-            <div class="container">
-                <div class="join-wrap fl-wrap">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h3>Debes cerrar sesión</h3>                            
-                        </div>
-                        <div class="col-md-4"><a href="{% url 'logout' %}" data-logout class="join-wrap-btn">Salir <i class="fa fa-sign-out"></i></a></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!--  section end --> 
-        <div class="limit-box"></div>
+{% block panel_body %}
+<div class="-mt-6 rounded-box bg-base-100 p-6 text-center shadow-soft ring-1 ring-base-300/60 sm:p-10">
+    <c-icon-badge icon="circle-check" tone="success" class="mx-auto" />
+    <h1 class="mt-6 text-2xl font-extrabold tracking-tight sm:text-3xl">¡Pago confirmado!</h1>
+    <p class="mx-auto mt-2 max-w-md text-base-content/70">PayPal procesó tu pago de <strong class="text-base-content">{{ object.amount|money }}</strong>. Ya puedes descargar los archivos.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-2">
+        <c-button icon="download" href="{% url 'downloads' %}">Ir a mis descargas</c-button>
+        {% with obj=object.get_object_or_none %}{% if obj %}<c-button variant="ghost" icon="arrow-left" href="{{ obj.get_absolute_url }}">Volver al anuncio</c-button>{% endif %}{% endwith %}
     </div>
-    <!--  content end  --> 
 </div>
 {% endblock %}

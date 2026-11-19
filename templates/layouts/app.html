@@ -1,0 +1,53 @@
+{% extends 'layouts/base.html' %}
+{% comment %}
+Layout del panel del usuario: menú lateral desde lg (chips con scroll en móvil) y contenido.
+El menú sale de apps/project/panel.py y marca solo el ítem activo según la vista.
+Bloques:
+  breadcrumbs    migas opcionales para subpáginas (<c-breadcrumbs :items="crumbs" />)
+  panel_title    título de la página (h1)
+  panel_lead     texto guía bajo el título
+  panel_actions  botones a la derecha del título
+  panel_body     contenido
+  panel_header   todo el encabezado (para reemplazarlo, p. ej. en el asistente de publicación)
+Las páginas que sobrescriban `head` o `scripts` deben incluir {{ block.super }}.
+{% endcomment %}
+{% load habitta %}
+
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+{% panel_menu as panel_sections %}
+<div class="container-page grid gap-x-10 pb-12 pt-5 lg:grid-cols-[15rem_minmax(0,1fr)] lg:pt-10">
+    <aside class="hidden lg:block">
+        <div class="sticky top-24 space-y-6">
+            <a href="{% url 'detail_profile' user.username %}" class="flex items-center gap-3 rounded-box p-2 transition-colors hover:bg-base-100">
+                <c-avatar :user="user" size="size-11" />
+                <span class="min-w-0">
+                    <span class="block truncate font-bold">{{ user.get_full_name|default:user.username }}</span>
+                    <span class="block text-sm text-base-content/60">Ver perfil público</span>
+                </span>
+            </a>
+            <c-panel.menu :sections="panel_sections" />
+        </div>
+    </aside>
+
+    <div class="min-w-0">
+        <c-panel.menu :sections="panel_sections" chips="1" />
+        {% block panel_header %}
+        {% block breadcrumbs %}{% endblock %}
+        <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+            <div class="min-w-0">
+                <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{% block panel_title %}{% endblock %}</h1>
+                <p class="mt-1.5 text-base-content/65 text-pretty empty:hidden">{% block panel_lead %}{% endblock %}</p>
+            </div>
+            <div class="flex flex-wrap gap-2 empty:hidden">{% block panel_actions %}{% endblock %}</div>
+        </header>
+        {% endblock %}
+        <div class="mt-6">
+            {% block panel_body %}{% endblock %}
+        </div>
+    </div>
+</div>
+<c-confirm-dialog />
+{% endblock %}

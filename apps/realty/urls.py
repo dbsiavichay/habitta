@@ -3,9 +3,8 @@ from django.contrib.auth.decorators import login_required
 from .views import (
     ChooseCategoryListView, 
     PropertyListView, PropertyCreateView, PropertyUpdateView, PropertyDetailView, PropertyPrintView, PropertyDeleteView,
-    PropertyFavoriteListView, PropertyDownloadView,
+    PropertyFavoriteListView, PropertyDownloadView, PropertyPhotosView,
     FinderMapView, FinderListView, filter_category_by_purpose,
-    PropertyDetailsRenderer
 )
 
 urlpatterns = [
@@ -15,7 +14,8 @@ urlpatterns = [
     path('property/add/category/<int:category>/', login_required(PropertyCreateView.as_view()), name='add_property'),
     #path('publicacion/crear/', login_required(PropertyCreateView.as_view()), name='add_property'),
     
-    path('property/<int:pk>/update/', PropertyUpdateView.as_view(), name='update_property'),    
+    path('property/<int:pk>/update/', PropertyUpdateView.as_view(), name='update_property'),
+    path('property/<int:pk>/fotos/', PropertyPhotosView.as_view(), name='property_photos'),
     path('property/<int:pk>/detail/', PropertyDetailView.as_view(), name='detail_property'),        
     path('property/<int:pk>/print/', PropertyPrintView.as_view(), name='print_property'),       
     path('property/<int:pk>/delete/', PropertyDeleteView.as_view(), name='delete_property'),        
@@ -27,5 +27,4 @@ urlpatterns = [
     path('explorador/lista/', FinderListView.as_view(), name='finder_without_map'),
     ## Ajax components
     path('finder/purpose/<int:pk>/<slug:klass>/', filter_category_by_purpose, name='finder_by_purpose'),
-    path('render/detalles-de-categoria/<int:category>/', PropertyDetailsRenderer.as_view() , name='render_details'),
 ]

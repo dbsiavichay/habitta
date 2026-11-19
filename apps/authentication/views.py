@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
 from .models import Profile, SocialNetwork, SocialNetworkProfile
 from .forms import (
-	UserCreationForm, UserForm, ProfileForm, CompleteRegisterForm, AuthenticationForm,
+	UserCreationForm, UserForm, ProfileForm, AvatarForm, CompleteRegisterForm, AuthenticationForm,
 	SocialNetworkProfileForm, SocialNetworkProfileFormset
 )
 
@@ -78,14 +78,16 @@ class CompleteRegisterView(UpdateView):
 		return context
 
 class ProfileUpdateView(UpdateView):
+	"""Mi perfil: datos de la cuenta, celular y redes sociales en un solo formulario."""
 	model = Profile
 	form_class = ProfileForm
+	template_name = 'authentication/profile_form.html'
 	success_url = reverse_lazy('update_profile')
 
 	def form_valid(self, form):
 		user_form = self.get_user_form()
 		socialnetworkprofile_formset = self.get_socialnetworkprofile_formset()
-		if not user_form.is_valid() or not socialnetworkprofile_formset.is_valid():
+		if not all([user_form.is_valid(), socialnetworkprofile_formset.is_valid()]):
 			return self.form_invalid(form)
 
 		self.object = form.save()
@@ -93,12 +95,11 @@ class ProfileUpdateView(UpdateView):
 
 		socialnetworkprofile_formset.instance = self.object
 		socialnetworkprofile_formset.save()
-		
+		messages.success(self.request, 'Guardamos los cambios de tu perfil.')
 		return redirect(self.success_url)
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		social_networks = SocialNetwork.objects.all()		
 		context.update({
 			'user_form': self.get_user_form(),
 			'socialnetworkprofile_formset': self.get_socialnetworkprofile_formset(),
@@ -106,37 +107,53 @@ class ProfileUpdateView(UpdateView):
 		return context
 
 	def get_user_form(self):
-		post_data = self.request.POST if self.request.method == 'POST' else None		
-		form = UserForm(post_data, instance=self.request.user)
-		return form
+		if not hasattr(self, '_user_form'):
+			post_data = self.request.POST if self.request.method == 'POST' else None
+			self._user_form = UserForm(post_data, instance=self.request.user)
+		return self._user_form
 
 	def get_socialnetworkprofile_formset(self):
+		if hasattr(self, '_socialnetwork_formset'):
+			return self._socialnetwork_formset
 		post_data = self.request.POST if self.request.method == 'POST' else None
-		social_networks = [s for s in SocialNetwork.objects.all()]
+		social_networks = list(SocialNetwork.objects.all())
 
 		Formset = inlineformset_factory(
-			Profile, SocialNetworkProfile, 		
+			Profile, SocialNetworkProfile,
 			form = SocialNetworkProfileForm,
 			formset = SocialNetworkProfileFormset,
-			extra= len(social_networks) - self.object.social_networks.count(),
+			extra= max(len(social_networks) - self.object.social_networks.count(), 0),
 		)
-		
-		formset = Formset(post_data, instance=self.object, form_kwargs={'social_networks':social_networks})
-		return formset
+		self._socialnetwork_formset = Formset(post_data, instance=self.object, form_kwargs={'social_networks':social_networks})
+		return self._socialnetwork_formset
 
-	def get_object(self, queryset=None):		
+	def get_object(self, queryset=None):
 		return self.request.user.profile
 
 class ProfileUploadImageView(UpdateView):
+	"""Cambia la foto de perfil (formulario aparte en Mi perfil) y borra la anterior."""
 	model = Profile
-	fields = ('image',)
+	form_class = AvatarForm
 	success_url = reverse_lazy('update_profile')
-
-	def get_object(self, queryset=None):		
-		return self.request.user.profile
 
 	# Sólo se puede enviar la imagen con POST
 	http_method_names = ['post']
+
+	def get_object(self, queryset=None):
+		return self.request.user.profile
+
+	def form_valid(self, form):
+		previous = Profile.objects.filter(pk=self.object.pk).values_list('image', flat=True).first()
+		response = super().form_valid(form)
+		if previous and previous != self.object.image.name:
+			self.object.image.storage.delete(previous)
+		messages.success(self.request, 'Actualizamos tu foto de perfil.')
+		return response
+
+	def form_invalid(self, form):
+		for error in form.errors.get('image', ['No pudimos usar esa foto.']):
+			messages.error(self.request, error)
+		return redirect(self.success_url)
 
 
 class ProfileDetailView(DetailView):

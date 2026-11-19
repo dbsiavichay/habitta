@@ -106,6 +106,7 @@ TEMPLATES = [
                 'apps.realty.context_processors.search_bar',
                 'apps.project.context_processors.integrations',
                 'apps.project.context_processors.brand',
+                'apps.messenger.context_processors.unread_messages',
             ],
         },
     },

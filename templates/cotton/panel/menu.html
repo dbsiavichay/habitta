@@ -1,0 +1,48 @@
+{% comment %}
+Menú del panel. Recibe las secciones de {% panel_menu as panel_sections %} (apps/project/panel.py).
+  <c-panel.menu :sections="panel_sections" />            lista con títulos (sidebar de escritorio)
+  <c-panel.menu :sections="panel_sections" chips="1" />  fila de chips con scroll (móvil, oculta desde lg)
+{% endcomment %}
+<c-vars sections="" chips="" />
+{% load habitta %}
+{% if chips %}
+<nav aria-label="Secciones de tu cuenta" class="-mx-4 mb-6 sm:-mx-6 lg:hidden">
+    <ul x-data x-init="const a = $el.querySelector('[aria-current]'); if (a) $el.scrollLeft = a.offsetLeft - 16"
+        class="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:px-6">
+        {% for section in sections %}{% for item in section.items %}
+        <li class="shrink-0">
+            <a href="{{ item.url }}" {% if item.active %}aria-current="page"{% endif %}
+               class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold ring-1 transition-colors {% if item.active %}bg-primary text-primary-content ring-primary{% else %}bg-base-100 ring-base-300 hover:ring-primary/50{% endif %}">
+                <c-icon name="{{ item.icon }}" class="size-4" />{{ item.label }}
+                {% with count=item.badge|badge_count %}{% if count %}<span class="grid min-w-5 place-items-center rounded-full bg-secondary px-1 text-[0.7rem] font-bold leading-5 text-secondary-content">{{ count }}</span>{% endif %}{% endwith %}
+            </a>
+        </li>
+        {% endfor %}{% endfor %}
+    </ul>
+</nav>
+{% else %}
+<nav aria-label="Panel de tu cuenta" class="space-y-5">
+    {% for section in sections %}
+    <div>
+        <p class="px-3 text-xs font-bold uppercase tracking-wider text-base-content/45">{{ section.title }}</p>
+        <ul class="mt-1.5 space-y-0.5">
+            {% for item in section.items %}
+            <li>
+                <a href="{{ item.url }}" {% if item.active %}aria-current="page"{% endif %}
+                   class="flex items-center gap-3 rounded-xl px-3 py-2 font-semibold transition-colors {% if item.active %}bg-primary/10 text-primary{% else %}text-base-content/75 hover:bg-base-100 hover:text-base-content{% endif %}">
+                    <c-icon name="{{ item.icon }}" class="size-[1.1rem]" /><span class="flex-1">{{ item.label }}</span>
+                    {% with count=item.badge|badge_count %}{% if count %}<span class="grid min-w-5 place-items-center rounded-full bg-secondary px-1.5 text-xs font-bold leading-5 text-secondary-content" aria-label="{{ item.badge }} sin leer">{{ count }}</span>{% endif %}{% endwith %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+    <form method="post" action="{% url 'logout' %}" class="border-t border-base-300 pt-4">
+        {% csrf_token %}
+        <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 font-semibold text-error transition-colors hover:bg-error/10">
+            <c-icon name="log-out" class="size-[1.1rem]" />Cerrar sesión
+        </button>
+    </form>
+</nav>
+{% endif %}

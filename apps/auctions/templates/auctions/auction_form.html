@@ -1,1 +1,40 @@
-{% extends 'base/base_form.html' %}
+{% extends 'layouts/app.html' %}
+
+{% block title %}Nueva subasta{% endblock %}
+{% block breadcrumbs %}
+<c-breadcrumbs class="mb-3">
+    <li><a href="{% url 'auctions' %}">Subastas</a></li>
+    <li><span aria-current="page" class="opacity-65">Nueva</span></li>
+</c-breadcrumbs>
+{% endblock %}
+{% block panel_title %}Nueva subasta{% endblock %}
+{% block panel_lead %}Elige el anuncio, el monto base y cuánto tiempo recibirás ofertas.{% endblock %}
+
+{% block panel_body %}
+{% if form.fields.property.queryset.exists %}
+<div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+    <form method="post" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
+        {% csrf_token %}
+        {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+        <div class="mt-7 flex flex-wrap justify-end gap-2">
+            <c-button variant="ghost" href="{% url 'auctions' %}">Cancelar</c-button>
+            <c-button type="submit" icon="gavel">Abrir subasta</c-button>
+        </div>
+    </form>
+    <aside class="rounded-box bg-base-100 p-5 text-sm shadow-soft ring-1 ring-base-300/60">
+        <h2 class="flex items-center gap-2 font-bold"><c-icon name="info" class="size-4 text-primary" />Cómo funciona</h2>
+        <ul class="mt-3 space-y-2.5 text-base-content/70">
+            <li class="flex gap-2"><c-icon name="timer" class="mt-0.5 size-4 shrink-0 text-accent" />La subasta empieza ahora y termina sola al cumplirse la duración.</li>
+            <li class="flex gap-2"><c-icon name="shield-check" class="mt-0.5 size-4 shrink-0 text-accent" />Quien quiera ofertar deja una garantía del 10 % del monto base.</li>
+            <li class="flex gap-2"><c-icon name="ban" class="mt-0.5 size-4 shrink-0 text-accent" />Puedes cancelarla desde Subastas mientras esté abierta.</li>
+        </ul>
+    </aside>
+</div>
+{% else %}
+<div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    <c-empty-state icon="gavel" title="No tienes anuncios para subastar" text="Necesitas un anuncio publicado que no esté ya en una subasta abierta.">
+        <c-button variant="secondary" icon="plus" href="{% url 'choose_category' %}">Publicar un anuncio</c-button>
+    </c-empty-state>
+</div>
+{% endif %}
+{% endblock %}

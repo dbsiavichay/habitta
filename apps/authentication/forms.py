@@ -65,9 +65,17 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['first_name'].require = True
-        self.fields['last_name'].require = True        
-        self.fields['email'].require = True        
+        for name in ('first_name', 'last_name', 'email'):
+            self.fields[name].required = True
+        self.fields['first_name'].label = 'Nombres'
+        self.fields['last_name'].label = 'Apellidos'
+        self.fields['email'].label = 'Correo'
+        self.fields['username'].label = 'Usuario'
+        self.fields['username'].help_text = 'Aparece en la dirección de tu perfil público. Letras, números y @ . + - _'
+        self.fields['first_name'].widget.attrs.update({'autocomplete': 'given-name'})
+        self.fields['last_name'].widget.attrs.update({'autocomplete': 'family-name'})
+        self.fields['email'].widget.attrs.update({'autocomplete': 'email'})
+        self.fields['username'].widget.attrs.update({'autocomplete': 'username'})
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -80,7 +88,27 @@ class UserForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        exclude = ('user', 'social_networks', 'image')    
+        exclude = ('user', 'social_networks', 'image')
+        labels = {'phone': 'Celular'}
+        help_texts = {'phone': 'Lo mostramos en tus anuncios para que te escriban por WhatsApp.'}
+        widgets = {'phone': forms.TextInput(attrs={'placeholder': '0991234567', 'inputmode': 'tel', 'autocomplete': 'tel'})}
+
+
+MAX_AVATAR_BYTES = 5 * 1024 * 1024
+
+
+class AvatarForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('image',)
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if not image:
+            raise forms.ValidationError('Elige una foto.')
+        if image.size > MAX_AVATAR_BYTES:
+            raise forms.ValidationError('La foto supera el tamaño máximo de 5 MB.')
+        return image
 
 class CompleteRegisterForm(ProfileForm):
     first_name = forms.CharField(label='Nombres', max_length=150,
@@ -192,8 +220,12 @@ class SocialNetworkProfileForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        social_networks = kwargs.pop('social_networks', None)       
+        social_networks = kwargs.pop('social_networks', None)
         super().__init__(*args, **kwargs)
+        # Vacío en una red ya guardada = quitarla (lo resuelve SocialNetworkProfileFormset.clean)
+        self.fields['username'].required = False
+        self.fields['username'].widget.attrs.update({'placeholder': 'tu-usuario', 'autocomplete': 'off'})
+        self.network = self.instance.social_network if self.instance.pk else None
         if social_networks is None:
             return
 
@@ -201,8 +233,17 @@ class SocialNetworkProfileForm(forms.ModelForm):
             for i in range(len(social_networks)):
                 if social_networks[i].pk == self.instance.social_network.pk:
                     social_networks.pop(i)
-                    break;
-        else:
-            social_network = social_networks.pop(0)
-            self.fields['social_network'].initial = social_network
-            self.fields['username'].widget.attrs.update({'placeholder': 'Complete la url con su nombre de usuario unicamente.'})
+                    break
+        elif social_networks:
+            self.network = social_networks.pop(0)
+            self.fields['social_network'].initial = self.network
+
+    def clean_username(self):
+        """Acepta el usuario o el enlace completo y guarda sólo el usuario."""
+        username = (self.cleaned_data.get('username') or '').strip()
+        prefix = getattr(self.network, 'url', '') or ''
+        for candidate in (prefix, prefix.replace('https://', 'http://'), prefix.replace('https://www.', 'https://')):
+            if candidate and username.lower().startswith(candidate.lower()):
+                username = username[len(candidate):]
+                break
+        return username.strip('/').lstrip('@')

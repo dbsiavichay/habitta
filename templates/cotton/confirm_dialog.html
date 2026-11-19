@@ -1,0 +1,21 @@
+{% comment %}
+Diálogo de confirmación para acciones destructivas (un solo diálogo por página; lo incluye layouts/app.html).
+Se abre con <c-confirm-button> o con $dispatch('confirm', {action, title, text, button}) y envía un POST a `action`.
+{% endcomment %}
+<dialog x-data="confirmDialog" @confirm.window="show($event.detail)" class="modal modal-bottom sm:modal-middle" aria-labelledby="confirm-title">
+    <div class="modal-box rounded-t-box sm:rounded-box">
+        <div class="flex gap-4">
+            <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-error/10 text-error"><c-icon name="triangle-alert" /></span>
+            <div class="min-w-0">
+                <h2 id="confirm-title" class="text-lg font-bold" x-text="title">¿Seguro?</h2>
+                <p class="mt-1 text-base-content/70 text-pretty" x-text="text" x-show="text"></p>
+            </div>
+        </div>
+        <form method="post" :action="action" class="modal-action">
+            {% csrf_token %}
+            <button type="button" class="btn btn-ghost rounded-full" @click="close()">Cancelar</button>
+            <button type="submit" class="btn btn-error rounded-full px-5" x-text="button">Eliminar</button>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button type="submit">Cerrar</button></form>
+</dialog>

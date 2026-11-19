@@ -4,7 +4,9 @@ import zipfile
 from decimal import Decimal, InvalidOperation
 from io import BytesIO
 
+from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -35,9 +37,27 @@ class SelectMethodPaymentView(ListView):
 		request.session['content_type'] = self.kwargs.get('ct')
 		return super().get(request, *args, **kwargs)
 
+def get_pending_payment(request):
+	"""Lo que el usuario está por pagar (lo guarda MethodPaymentListView en la sesión), o None."""
+	object_id = request.session.get('object_id')
+	content_type_id = request.session.get('content_type')
+	if not object_id or not content_type_id:
+		return None
+	try:
+		obj = ContentType.objects.get_for_id(content_type_id).get_object_for_this_type(pk=object_id)
+	except (ObjectDoesNotExist, AttributeError):
+		return None
+	return {'object': obj, 'amount': request.session.get('amount')}
+
+
 class MethodPaymentListView(ListView):
 	model = Bank
 	template_name = 'payments/select_method_payment.html'
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['pending'] = get_pending_payment(self.request)
+		return context
 
 	def post(self, request, *args, **kwargs):
 		form = PaymentForm(self.request.POST)
@@ -61,15 +81,34 @@ class MethodPaymentListView(ListView):
 		return super().get(request, *args, **kwargs)
 
 class BankPaymentListView(ListView):
-	model = BankPayment
+	"""Mis pagos: transferencias y PayPal, con su estado."""
+	model = Payment
+	template_name = 'payments/bankpayment_list.html'
+	paginate_by = 12
 
 	def get_queryset(self):
-		return super().get_queryset().filter(user=self.request.user)
+		return (
+			Payment.objects.filter(user=self.request.user)
+			.select_related('content_type', 'bankpayment__bank', 'paypalpayment')
+			.order_by('-date', '-pk')
+		)
 
 class BankPaymentCreateView(CreateView):
 	model = BankPayment
 	form_class = BankPaymentForm
 	success_url = reverse_lazy('list_bank_payment')
+
+	def get_initial(self):
+		initial = super().get_initial()
+		# El monto lo calculó el servidor al elegir el método de pago
+		if self.request.session.get('amount'):
+			initial['amount'] = self.request.session['amount']
+		return initial
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['pending'] = get_pending_payment(self.request)
+		return context
 
 	def form_valid(self, form):
 		object_id = self.request.session.pop('object_id', None)
@@ -82,6 +121,7 @@ class BankPaymentCreateView(CreateView):
 		self.object.object_id = object_id
 		self.object.content_type_id = content_type
 		self.object.save()
+		messages.success(self.request, 'Registramos tu pago. Te avisaremos cuando lo confirmemos.')
 		return redirect(self.get_success_url())
 
 class PaypalPaymentExecuteView(DetailView):
@@ -170,12 +210,18 @@ class PaypalPaymentCreateView(RedirectView):
 		return approve_url
 
 class DownloadListView(ListView):
+	"""Archivos comprados: se descargan cuando el pago está confirmado."""
 	model = Payment
 	template_name = 'payments/download_list.html'
+	paginate_by = 12
 
 	def get_queryset(self):
-		queryset = super().get_queryset()
-		return queryset.filter(user=self.request.user)
+		return (
+			Payment.objects.filter(user=self.request.user)
+			.exclude(status=Payment.REJECTED)
+			.select_related('content_type')
+			.order_by('-date', '-pk')
+		)
 
 class DownloadView(DetailView):
 	model = Payment

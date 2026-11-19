@@ -1,0 +1,11 @@
+{% comment %}
+Botón que pide confirmación antes de enviar un POST (abre <c-confirm-dialog>).
+  <c-confirm-button action="{% url 'delete_property' p.pk %}" title="¿Eliminar este anuncio?"
+                    text="No se puede deshacer." button="Eliminar" class="btn btn-ghost btn-sm">Eliminar</c-confirm-button>
+{% endcomment %}
+<c-vars action="" title="¿Seguro?" text="" button="Eliminar" icon="trash-2" class="" />
+<button type="button" x-data @click="$dispatch('confirm', Object.assign({}, $el.dataset))"
+        data-action="{{ action }}" data-title="{{ title }}" data-text="{{ text }}" data-button="{{ button }}"
+        class="{{ class }}" {{ attrs }}>
+    {% if icon %}<c-icon name="{{ icon }}" class="size-4" />{% endif %}{{ slot }}
+</button>

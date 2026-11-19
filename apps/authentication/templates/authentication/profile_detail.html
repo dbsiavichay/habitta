@@ -23,7 +23,7 @@
                         <span class="inline-flex items-center gap-1.5 rounded-full bg-base-100 px-3 py-1 text-sm font-bold shadow-soft"><c-icon name="layout-grid" class="size-4 text-primary" />{{ properties|length }} anuncio{{ properties|length|pluralize }}</span>
                         {% for social in object.socialnetworkprofile_set.all %}
                         <a href="{{ social.get_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-full bg-base-100 px-3 py-1 text-sm font-semibold shadow-soft hover:text-primary">
-                            {% if social.social_network.icon in "facebook,instagram,twitter,whatsapp" %}<c-icon name="{{ social.social_network.icon }}" class="size-4" />{% else %}<c-icon name="globe" class="size-4" />{% endif %}{{ social.social_network.name }}
+                            <c-icon name="{{ social.social_network|social_icon }}" class="size-4" />{{ social.social_network.name }}
                         </a>
                         {% endfor %}
                     </div>
