@@ -1,0 +1,35 @@
+{% comment %}
+Botones para entrar con redes sociales (sólo las configuradas) y un divisor hacia el formulario de correo.
+  <c-social-login next="{{ next }}" />
+Facebook necesita el SDK (static/js/habitta/auth.js, lo carga layouts/auth.html); X/Twitter es un POST simple.
+{% endcomment %}
+<c-vars next="" divider="o con tu correo" />
+{% if FACEBOOK_LOGIN_ENABLED or TWITTER_LOGIN_ENABLED %}
+<div class="grid gap-3">
+    {% if FACEBOOK_LOGIN_ENABLED %}
+    <form method="post" action="{% url 'social_login' %}" x-data="facebookLogin('{{ FACEBOOK_APP_ID|escapejs }}')" @submit.prevent="login()">
+        {% csrf_token %}
+        <input type="hidden" name="provider" value="facebook">
+        <input type="hidden" name="token" x-ref="token">
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn btn-block h-12 rounded-full border-base-300 bg-base-100 font-semibold shadow-none hover:border-base-content/25 hover:bg-base-200" :disabled="busy">
+            <c-icon name="facebook" class="size-5" />
+            <span x-show="!busy">Continuar con Facebook</span>
+            <span x-show="busy" x-cloak class="loading loading-spinner loading-sm"></span>
+        </button>
+        <p x-show="error" x-cloak x-text="error" class="mt-2 text-center text-sm text-error" role="alert"></p>
+    </form>
+    {% endif %}
+    {% if TWITTER_LOGIN_ENABLED %}
+    <form method="post" action="{% url 'social_login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" name="provider" value="twitter" class="btn btn-block h-12 rounded-full border-base-300 bg-base-100 font-semibold shadow-none hover:border-base-content/25 hover:bg-base-200">
+            <c-icon name="x-twitter" class="size-4" />
+            Continuar con X
+        </button>
+    </form>
+    {% endif %}
+</div>
+<div class="divider my-7 text-sm text-base-content/50">{{ divider }}</div>
+{% endif %}

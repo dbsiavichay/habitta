@@ -141,6 +141,18 @@
             };
         });
 
+        /* Mostrar u ocultar una contraseña (plantilla hydra/v2/forms/passwordinput.html) */
+        Alpine.data('passwordToggle', function () {
+            return {
+                show: false,
+                toggle: function () {
+                    this.show = !this.show;
+                    var input = this.$root.querySelector('input');
+                    if (input) input.type = this.show ? 'text' : 'password';
+                },
+            };
+        });
+
         /* Toast que se cierra solo */
         Alpine.data('toast', function (delay) {
             return {

@@ -6,5 +6,5 @@
     </label>
     {% block control %}{% endblock %}
     {% if field.help_text %}<p id="{{ field.auto_id }}_help" class="label mt-1 whitespace-normal text-xs text-base-content/60">{{ field.help_text|safe }}</p>{% endif %}
-    {% if field.errors %}<div id="{{ field.auto_id }}_error">{% for error in field.errors %}<p class="mt-1 flex items-center gap-1 text-sm text-error"><c-icon name="circle-alert" class="size-4" />{{ error }}</p>{% endfor %}</div>{% endif %}
+    {% if field.errors %}<div id="{{ field.auto_id }}_error">{% for error in field.errors %}<p class="mt-1 flex items-start gap-1.5 text-sm text-error"><c-icon name="circle-alert" class="mt-0.5 size-4 shrink-0" />{{ error }}</p>{% endfor %}</div>{% endif %}
 </div>

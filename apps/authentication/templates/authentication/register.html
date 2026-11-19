@@ -1,55 +1,27 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/auth.html' %}
 
-{% load static hydra %}
+{% block title %}Crea tu cuenta{% endblock %}
+{% block description %}Crea gratis tu cuenta de {{ SITE_NAME }}: publica inmuebles, servicios y empleos, y conversa directo con quien publica.{% endblock %}
+{% block robots %}{% endblock %}
 
-{% block content %}
-<!--section -->
-<section>
-    <!-- container -->
-    <div class="container">        
-        <!--register form -->
-        <div class="main-register register">
-            <h3>Regístrate en <span>{{ SITE_NAME }}</span></h3>    
-            <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
-            <div class="soc-log fl-wrap half">
-                <p>Facilmente puedes registrarte usando tus redes sociales.</p>
-                {% if FACEBOOK_LOGIN_ENABLED %}<a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Regístrate con Facebook</a>{% endif %}
-                {% if TWITTER_LOGIN_ENABLED %}<a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Regístrate con Twitter</a>{% endif %}
-                <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" id="socialProvider" name="provider">
-                    <input type="hidden" id="socialToken" name="token">                    
-                </form>
-            </div>
-            <div class="half" id="tabs-container" style="border-left: 3px solid #2F3B59">
-                <ul class="tabs-menu">
-                    <li class="current"><a href="#tab-1">Regístrate con tu email</a></li>            
-                </ul>
-                <div class="tab">
-                    <div id="tab-1" class="tab-content">
-                        <div class="custom-form">
-                            {{form.errors}}
-                            <form method="POST" class="main-register-form" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                {% render_field form.email %}
+{% block auth_title %}Crea tu cuenta gratis{% endblock %}
+{% block auth_lead %}Publica tus anuncios, conversa con quienes publican y guarda tus favoritos.{% endblock %}
 
-                                {% render_field form.username %}
+{% block auth_body %}
+<c-social-login next="{{ next }}" divider="o regístrate con tu correo" />
 
-                                {% render_field form.password %}
+<form method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+    <p class="mt-6 text-sm text-base-content/60">
+        Al crear tu cuenta aceptas los <a href="{% url 'terms' %}" class="link font-semibold text-base-content/80 hover:text-primary">términos de uso</a> de {{ SITE_NAME }}.
+    </p>
+    <c-button type="submit" size="lg" block icon_end="arrow-right" class="mt-5">Crear cuenta</c-button>
+</form>
 
-                                <button type="submit" class="log-submit-btn"><span>Registrarse</span></button>
-                            </form>
-                        </div>
-                    </div>            
-                </div>
-            </div>
-        </div>
-        <!--register form end --> 
-    </div>
-    <!--container end -->
-</section>
-<!-- section end -->    
-<div class="limit-box fl-wrap"></div>
-{% include 'base/have_a_questions.html' %}
+<p class="mt-8 text-center text-base-content/70">
+    ¿Ya tienes cuenta?
+    <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="link link-hover font-semibold text-primary">Inicia sesión</a>
+</p>
 {% endblock %}
-

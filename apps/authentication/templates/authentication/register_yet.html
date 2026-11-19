@@ -1,45 +1,26 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/auth.html' %}
 
-{% load static %}
+{% block title %}Ya tienes una sesión abierta{% endblock %}
 
-{% block content %}
-<div>
-    <!--  content  --> 
-    <div class="content">
-        <!--  section  --> 
-        <section class="parallax-section" data-scrollax-parent="true" id="sec1">
-            <div class="bg par-elem "  data-bg="{% static 'images/bg/bg.jpg' %}" data-scrollax="properties: { translateY: '30%' }"></div>
-            <div class="overlay"></div>
-            <div class="bubble-bg"></div>
-            <div class="container">
-                <div class="error-wrap">
-                    <h2>Ooops!</h2>
-                    <p>Ya estas registrado, debes cerrar sesión primero.</p>
-                    <div class="clearfix"></div>                    
-                    <p>ó</p>
-                    <a href="{% url 'home' %}" class="btn big-btn color-bg flat-btn">Regresa a la página de inicio<i class="fa fa-angle-right"></i></a>
-                </div>
-            </div>
-        </section>
-        <!--  section  end--> 
-        <!--  section  --> 
-        <section class="gradient-bg">
-            <div class="cirle-bg">
-                <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-            </div>
-            <div class="container">
-                <div class="join-wrap fl-wrap">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h3>Deber cerrar sesión</h3>                            
-                        </div>
-                        <div class="col-md-4"><a href="{% url 'logout' %}" data-logout class="join-wrap-btn">Salir <i class="fa fa-sign-out"></i></a></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!--  section end --> 
+{% block auth_icon %}<c-icon-badge icon="user-round-check" />{% endblock %}
+{% block auth_title %}Ya tienes una sesión abierta{% endblock %}
+{% block auth_lead %}Para crear otra cuenta, primero cierra la sesión actual.{% endblock %}
+
+{% block auth_body %}
+<div class="flex items-center gap-3 rounded-box border border-base-300 bg-base-200/50 p-4">
+    <c-avatar :user="user" size="size-12" />
+    <div class="min-w-0">
+        <p class="truncate font-bold">{{ user.get_full_name|default:user.username }}</p>
+        <p class="truncate text-sm text-base-content/60">{{ user.email|default:user.username }}</p>
     </div>
-    <!--  content end  --> 
+</div>
+
+<div class="mt-8 grid gap-3">
+    <c-button href="{% url 'home' %}" size="lg" block icon="house">Ir al inicio</c-button>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'register' %}">
+        <c-button type="submit" variant="ghost" block icon="log-out" class="text-error">Cerrar sesión y crear otra cuenta</c-button>
+    </form>
 </div>
 {% endblock %}

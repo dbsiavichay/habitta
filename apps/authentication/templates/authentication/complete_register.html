@@ -1,66 +1,27 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/auth.html' %}
 
-{% load static %}
-{% load hydra %}
+{% block title %}Completa tu perfil{% endblock %}
 
-{% block content %}
-<!--section -->
-<section>
-    <!-- container -->
-    <div class="container">        
-        <!-- profile-edit-wrap -->
-        <div class="profile-edit-wrap">
-            <div class="profile-edit-page-header">
-                <h2>Cuentanos un poco más</h2>
-                <div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Add Listing</span></div>
-            </div>
-            {{ form.errors }}
-            {{ details_form.errors }}
-            <form id="mainform" action="" method="POST" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-                <!-- profile-edit-container--> 
-                <div class="profile-edit-container add-list-container">
-                    <div class="profile-edit-header fl-wrap">
-                        <h4>Información básica</h4>
-                    </div>
-                    <div class="custom-form">
-                        {% render_field form.first_name icon='address-card-o' %}
-
-                        {% render_field form.last_name icon='address-card-o' %}
-
-                        {% render_field form.phone icon='phone' %}
-
-                        {% render_field form.website icon='globe' %}
-                    </div>
-                </div>
-                <!-- profile-edit-container end-->
-                <button type="submit" class="btn big-btn color-bg flat-btn">Guardar
-                    <i class="fa fa-angle-right"></i>
-                </button>                    
-            </form>
-        </div>
-        <!--profile-edit-wrap end -->
+{% block auth_icon %}
+<div class="flex items-center gap-3">
+    <c-avatar :user="user" size="size-14" class="text-xl" />
+    <div class="min-w-0">
+        <p class="text-sm font-semibold text-success inline-flex items-center gap-1.5"><c-icon name="circle-check" class="size-4" />Cuenta creada</p>
+        <p class="truncate text-sm text-base-content/60">{{ user.email|default:user.username }}</p>
     </div>
-    <!--container end -->
-</section>
-<!-- section end -->    
-<div class="limit-box fl-wrap"></div>
-<!--section -->
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
+</div>
+{% endblock %}
+{% block auth_title %}Cuéntanos un poco más{% endblock %}
+{% block auth_lead %}Así te reconocerán quienes vean tus anuncios. Puedes cambiarlo cuando quieras desde tu perfil.{% endblock %}
+
+{% block auth_body %}
+<form method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+    <div class="mt-8 grid gap-3">
+        <c-button type="submit" size="lg" block icon_end="arrow-right">Guardar y continuar</c-button>
+        <c-button href="{{ next }}" variant="ghost" block>Completar después</c-button>
     </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>¿Tienes preguntas o dudas?</h3>
-                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
-                </div>
-                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+</form>
 {% endblock %}
