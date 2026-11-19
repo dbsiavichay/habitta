@@ -18,7 +18,7 @@
 <form method="post" novalidate>
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ next }}">
-    {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+    {% include 'hydra/form.html' %}
     <div class="mt-8 grid gap-3">
         <c-button type="submit" size="lg" block icon_end="arrow-right">Guardar y continuar</c-button>
         <c-button href="{{ next }}" variant="ghost" block>Completar después</c-button>

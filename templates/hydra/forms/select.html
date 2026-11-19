@@ -1,1 +1,2 @@
-{% extends './textinput.html' %}
+{% extends './_field.html' %}{% load hydra %}
+{% block control %}{{ field|add_class:"select w-full rounded-field focus:border-primary focus:outline-none" }}{% endblock %}

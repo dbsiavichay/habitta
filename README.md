@@ -118,8 +118,8 @@ Sin Node: todo se instala con pip y se compila con el binario standalone de Tail
 - **Nombre y contacto:** `SITE_NAME`, `SITE_URL`, `CONTACT_*` y `SOCIAL_*` (ver `.env.example`).
 - **Layouts:** `templates/layouts/base.html` (páginas públicas), `auth.html` (login, registro y
   recuperación) y `app.html` (panel del usuario, con el menú definido en `apps/project/panel.py`).
-  Los formularios usan `{% with hydra_theme="v2" %}` para renderizarse con `templates/hydra/v2/`.
-  La plantilla anterior (CityBook, `templates/base/`) ya no la usa ninguna página.
+  Los formularios se pintan con `{% include 'hydra/form.html' %}` o `{% render_field campo %}`
+  (`{% load hydra %}`), que usa la plantilla del widget en `templates/hydra/forms/`.
 
 ## Estructura
 

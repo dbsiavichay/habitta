@@ -44,18 +44,17 @@ devuelve errores, el asistente se abre en el primer paso con errores (initial_st
     </div>
     {% endif %}
 
-    {% with hydra_theme="v2" %}
     {# ============================== 1. Datos ============================== #}
     <section data-step="1" x-show="step === 1" {% if initial_step != 1 %}x-cloak{% endif %} class="mt-6 space-y-5" aria-labelledby="paso-1">
         <div data-summary="Lo básico" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
             <h2 id="paso-1" tabindex="-1" class="text-xl font-bold outline-none">Lo básico</h2>
             <p class="mt-1 text-sm text-base-content/65">Un buen título y una descripción clara ayudan a que te encuentren.</p>
-            <div class="mt-5">{% include 'hydra/v2/form.html' with form=form %}</div>
+            <div class="mt-5">{% include 'hydra/form.html' with form=form %}</div>
         </div>
         {% for dform in details_forms %}{% if dform.fields %}
         <div data-summary="{{ dform.group.name }}" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
             <h3 class="text-lg font-bold">{{ dform.group.name }}</h3>
-            <div class="mt-5">{% include 'hydra/v2/form.html' with form=dform %}</div>
+            <div class="mt-5">{% include 'hydra/form.html' with form=dform %}</div>
         </div>
         {% endif %}{% endfor %}
     </section>
@@ -176,7 +175,6 @@ devuelve errores, el asistente se abre en el primer paso con errores (initial_st
             </dialog>
         </div>
     </section>
-    {% endwith %}
 
     {# ============================== 4. Revisar ============================== #}
     <section data-step="4" x-show="step === 4" x-cloak class="mt-6" aria-labelledby="paso-4">

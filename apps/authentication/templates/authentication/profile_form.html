@@ -30,7 +30,6 @@
     {# ============================== Datos y redes ============================== #}
     <form method="post" novalidate class="space-y-5">
         {% csrf_token %}
-        {% with hydra_theme="v2" %}
         <section class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7" aria-labelledby="datos-title">
             <h2 id="datos-title" class="text-lg font-bold">Datos personales</h2>
             {% if user_form.non_field_errors %}<div role="alert" class="alert alert-error mt-4 rounded-box"><c-icon name="circle-alert" /><div>{% for error in user_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div></div>{% endif %}
@@ -69,7 +68,6 @@
             </div>
         </section>
         {% endif %}
-        {% endwith %}
         {% endwith %}
 
         <div class="flex flex-wrap items-center justify-end gap-2">

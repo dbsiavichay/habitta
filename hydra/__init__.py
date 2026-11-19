@@ -1,3 +1,1 @@
-from .base import site, ModelSite
-
-__all__ = ["site", "ModelSite"]
+"""Templatetags para renderizar formularios con las plantillas de templates/hydra/."""

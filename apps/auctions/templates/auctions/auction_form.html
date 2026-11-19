@@ -15,7 +15,7 @@
 <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
     <form method="post" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
         {% csrf_token %}
-        {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+        {% include 'hydra/form.html' %}
         <div class="mt-7 flex flex-wrap justify-end gap-2">
             <c-button variant="ghost" href="{% url 'auctions' %}">Cancelar</c-button>
             <c-button type="submit" icon="gavel">Abrir subasta</c-button>

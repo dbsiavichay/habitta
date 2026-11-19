@@ -1,5 +1,4 @@
 from django.http import HttpResponse, JsonResponse, Http404
-from hydra.utils import is_ajax
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -9,6 +8,12 @@ from .models import Image
 from .forms import (
 	ImageForm, 
 )
+
+
+def is_ajax(request):
+	"""Reemplazo de HttpRequest.is_ajax() (removido en Django 4.0)."""
+	return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
 
 class Base64ImageUploadView(CreateView):
 	model = Image	

@@ -1,39 +1,18 @@
+{% comment %}
+Formulario completo con el diseño Habitta (daisyUI). Uso:
+  {% include 'hydra/form.html' %}  ·  {% include 'hydra/form.html' with form=otro_form %}
+Cada campo se pinta con `{% render_field %}` y la plantilla de su widget en hydra/forms/.
+Los formularios con `columns` (especificaciones dinámicas) se muestran en dos columnas.
+{% endcomment %}
 {% load hydra %}
-
-{% for field in form.hidden_fields %}
-{{ field }}
-{% endfor %}
-
-
-{% if form.columns %}
-
-{% for range, width in form.columns %}
-<div class="row">
-    {% for field in form.visible_fields|slice:range %}
-    <div class="col-md-{{ width }}">
-        {% if field|widget_type == 'select' %}
-        {% render_field field class="chosen-select" %}
-        {% else %}
-        {% render_field field %}
-        {% endif %}
-    </div>
-    {% endfor %}
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}
+{% if form.non_field_errors %}
+<div role="alert" class="alert alert-error mb-5 rounded-box">
+    <c-icon name="circle-alert" />
+    <div>{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
 </div>
-{% endfor %}
-
-
-{% else %}
-
-
-{% for field in form.visible_fields %}
-
-{% if field|widget_type == 'select' %}
-{% render_field field class="chosen-select" %}
-{% else %}
-{% render_field field %}
 {% endif %}
-
-{% endfor %}
-
-
-{% endif %}
+{# Sin columnas va en flex: en un grid de una columna, los campos `sm:col-span-2` crearían una segunda columna implícita #}
+<div class="{% if form.columns %}grid gap-5 sm:grid-cols-2{% else %}flex flex-col gap-5{% endif %}">
+    {% for field in form.visible_fields %}{% render_field field %}{% endfor %}
+</div>
