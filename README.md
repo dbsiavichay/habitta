@@ -65,7 +65,7 @@ opcionales: si se dejan vacías, la funcionalidad correspondiente se oculta o se
 |---|---|
 | `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` | Django |
 | `DATABASE_URL`, `REDIS_URL` | Base de datos (PostGIS) y capa de canales. Ya los define `docker-compose.yml`. |
-| `GOOGLE_MAPS_API_KEY`, `GOOGLE_GEOCODING_API_KEY` | Mapas, autocompletado y geocodificación |
+| `GOOGLE_MAPS_API_KEY` | Mapas, autocompletado, geocodificación y mapa estático del PDF |
 | `PAYPAL_MODE`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | Pagos con PayPal (Orders v2) |
 | `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `TWITTER_API_KEY`, `TWITTER_API_SECRET` | Login social |
 | `TINIFY_API_KEY` | Compresión de imágenes con Tinify (sin key se usa Pillow) |

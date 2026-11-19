@@ -28,15 +28,6 @@ def get_server_price(obj):
 	return price if price > 0 else None
 
 
-class SelectMethodPaymentView(ListView):
-	model = Bank
-	template_name = 'payments/select_method_payment.html'
-
-	def get(self, request, *args, **kwargs):
-		request.session['object_id'] = self.kwargs.get('pk')
-		request.session['content_type'] = self.kwargs.get('ct')
-		return super().get(request, *args, **kwargs)
-
 def get_pending_payment(request):
 	"""Lo que el usuario está por pagar (lo guarda MethodPaymentListView en la sesión), o None."""
 	object_id = request.session.get('object_id')

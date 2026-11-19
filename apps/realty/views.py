@@ -1,19 +1,16 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, OuterRef, Q, Subquery
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 
-from django.template.loader import render_to_string
-
 from apps.multimedia.forms import ImageForm
 
 
-from .models import Category, Property, Purpose
-from .forms import FinderForm
+from .models import Category, Property
 from .mixins import PropertyViewMixin
 from .search import search_data
 from .utils import property_photos
@@ -282,12 +279,4 @@ class FinderMapView(TemplateView):
 
 class FinderListView(FinderMapView):
     initial_view = 'list'
-
-
-def filter_category_by_purpose(request, pk, klass): 
-    purpose = get_object_or_404(Purpose, pk=pk)
-    form = FinderForm(initial={'search_purpose': purpose})
-    r = render_to_string('hydra/search_select.html', context={'form':form, 'klass':klass})
-    
-    return JsonResponse({'select': r}, status=200)
 
