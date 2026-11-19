@@ -28,7 +28,7 @@ section {
 }
 
 .box-cat:hover{
-    background-color: #4DB7FE;
+    background-color: #0B6E5F;
     color: #FFF; 
 }
 /* end choose category*/
@@ -91,7 +91,7 @@ section {
 
 .list-single-info strong {
     display: block;
-    color: #4DB7FE;
+    color: #0B6E5F;
 
     font-weight: 600;
     margin-bottom: 3px;
@@ -137,7 +137,7 @@ section {
 .card-listing .geodir-category-content p {
     font-size: 24px;
     font-weight: 600;
-    color: #4DB7FE;
+    color: #0B6E5F;
     margin-bottom: 12px;
 }
 .card-listing .geodir-category-content p i {
@@ -146,7 +146,7 @@ section {
     vertical-align: top;
 }
 .card-listing .listing-geodir-category {
-    background: #EFB810;
+    background: #F2B544;
     padding: 10px;
 }
 .card-listing .geodir-category-location {
@@ -164,7 +164,7 @@ section {
 .card-listing .geodir-category-date i {
     padding-right: 10px;
     font-size: 14px;
-    color:#4DB7FE;
+    color:#0B6E5F;
 }
 .card-specification {
     color: #797d8a;
@@ -222,7 +222,7 @@ section {
 }
 
 #qr-reader {
-    border: 1px solid #4DB7FE;
+    border: 1px solid #0B6E5F;
     width: 100%; 
     height: 250px;
     position: relative;

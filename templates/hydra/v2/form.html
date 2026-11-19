@@ -1,0 +1,16 @@
+{% comment %}
+Formulario completo con el diseño Habitta (daisyUI). Uso:
+  {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+Los formularios con `columns` (especificaciones dinámicas) se muestran en dos columnas.
+{% endcomment %}
+{% load hydra %}
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}
+{% if form.non_field_errors %}
+<div role="alert" class="alert alert-error mb-5 rounded-box">
+    <c-icon name="circle-alert" />
+    <div>{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
+</div>
+{% endif %}
+<div class="grid gap-x-5 gap-y-5 {% if form.columns %}sm:grid-cols-2{% endif %}">
+    {% for field in form.visible_fields %}{% render_field field %}{% endfor %}
+</div>

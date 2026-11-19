@@ -1,38 +1,32 @@
 {% load static %}
-<!--footer -->
-<footer class="main-footer dark-footer  ">
+{# Footer del diseño anterior: lo usan las páginas de cuenta y panel hasta que se migren (fases 2 y 3). #}
+<footer class="main-footer dark-footer">
     <div class="container">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="footer-widget fl-wrap">
-                    <h3>Sobre Nosotros</h3>
+                    <h3>{{ SITE_NAME }}</h3>
                     <div class="footer-contacts-widget fl-wrap">
-                        <p>Somos una empresa creada y establecida en la ciudad Macas, Ecuador por un grupo de emprendedores innovadores, con el objetivo de brindar iguales oportunidades a todas las personas y empresas que oferten bienes y servicios inmobiliarios, siendo un medio para acercar a proveedores y clientes.</p>
-                        <ul  class="footer-contacts fl-wrap">
-                            <li><span><i class="fa fa-envelope-o"></i> Email :</span><a href="#" target="_blank">larbitecuador@gmail.com</a></li>
-                            <li> <span><i class="fa fa-map-marker"></i> Dirección :</span><a href="#" target="_blank">Quito - Ecuador</a></li>
-                            <li><span><i class="fa fa-phone"></i> Telefono :</span><a href="#">+(593) 960967818</a></li>
+                        <p>{{ SITE_NAME }} conecta a quienes ofrecen inmuebles, servicios y empleos con quienes los buscan, cerca de ti.</p>
+                        {% if CONTACT_EMAIL or CONTACT_PHONE or CONTACT_ADDRESS %}
+                        <ul class="footer-contacts fl-wrap">
+                            {% if CONTACT_EMAIL %}<li><span><i class="fa fa-envelope-o"></i> Email :</span><a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></li>{% endif %}
+                            {% if CONTACT_ADDRESS %}<li><span><i class="fa fa-map-marker"></i> Dirección :</span><a href="#">{{ CONTACT_ADDRESS }}</a></li>{% endif %}
+                            {% if CONTACT_PHONE %}<li><span><i class="fa fa-phone"></i> Teléfono :</span><a href="tel:{{ CONTACT_PHONE }}">{{ CONTACT_PHONE }}</a></li>{% endif %}
                         </ul>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="footer-widget fl-wrap">
-                    <h3>Siguenos en Twitter</h3>
-                    <div id="footer-twiit"></div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="footer-widget fl-wrap">
-                    <h3>Desarrollo</h3>
+                    <h3>Enlaces</h3>
                     <div class="footer-contacts-widget fl-wrap">
-                        <p>Ing. Denis Siavichay</p>                        
-                        <ul  class="footer-contacts fl-wrap">
-                            <li><span><i class="fa fa-envelope-o"></i> Email :</span><a href="#" target="_blank">dbsiavichay@gmail.com</a></li>
-                            <li><span><i class="fa fa-phone"></i> Celular :</span><a href="#">+(593) 979987040</a></li>
-                            <li><span><i class="fa fa-globe"></i> Página web :</span><a href="http://dbsiavichay.com" target="_blank">dbsiavichay.com</a></li>
-                            <li><span><i class="fa fa-facebook"></i></span><a href="http://www.facebook.com/dbsiavichay" target="_blank">/dbsiavichay</a></li>
-                            <li><span><i class="fa fa-twitter"></i></span><a href="http://twitter.com/dbsiavichay" target="_blank">@dbsiavichay</a></li>
+                        <ul class="footer-contacts fl-wrap">
+                            <li><a href="{% url 'finder' %}">Explorar anuncios</a></li>
+                            <li><a href="{% url 'choose_category' %}">Publicar</a></li>
+                            <li><a href="{% url 'help' %}">Ayuda</a></li>
+                            <li><a href="{% url 'terms' %}">Términos y condiciones</a></li>
                         </ul>
                     </div>
                 </div>
@@ -44,23 +38,24 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="about-widget">
-                        <img src="{% static 'images/logo.png' %}" alt="">
+                        <img src="{% static 'brand/habitta-logo-light.svg' %}" alt="{{ SITE_NAME }}" style="height:34px;width:auto">
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="copyright"> &#169; Larbit 2019.  Todos los derechos reservados.</div>
+                    <div class="copyright">&#169; {% now "Y" %} {{ SITE_NAME }}. Todos los derechos reservados.</div>
                 </div>
                 <div class="col-md-4">
+                    {% if SOCIAL_LINKS %}
                     <div class="footer-social">
                         <ul>
-                            <li><a href="https://www.facebook.com/Larbitecuador" target="_blank" ><i class="fa fa-facebook-official"></i></a></li>
-                            <li><a href="https://twitter.com/@LarbitEcuador" target="_blank"><i class="fa fa-twitter"></i></a></li>
-                            <li><a href="https://www.instagram.com/larbit_ecuador/" target="_blank" ><i class="fa fa-instagram"></i></a></li>
+                            {% for social in SOCIAL_LINKS %}
+                            <li><a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.label }}"><i class="fa fa-{% if social.network == 'x-twitter' %}twitter{% else %}{{ social.network }}{% endif %}"></i></a></li>
+                            {% endfor %}
                         </ul>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </footer>
-<!--footer end  -->

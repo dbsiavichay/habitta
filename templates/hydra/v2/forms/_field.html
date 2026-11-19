@@ -1,0 +1,10 @@
+{% comment %}Envoltura común: etiqueta, control (bloque `control`), ayuda y errores.{% endcomment %}
+<div class="fieldset p-0 {% block span %}{% endblock %}">
+    <label for="{{ field.id_for_label }}" class="fieldset-legend pt-0 pb-1.5 text-sm font-semibold text-base-content">
+        <span class="inline-flex items-center gap-1.5">{% if icon %}<c-icon name="{{ icon }}" class="size-4 text-primary" />{% endif %}{{ field.label }}</span>
+        {% if field.field.required %}<span class="text-error" aria-hidden="true">*</span>{% else %}<span class="text-xs font-normal text-base-content/45">Opcional</span>{% endif %}
+    </label>
+    {% block control %}{% endblock %}
+    {% if field.help_text %}<p id="{{ field.auto_id }}_help" class="label mt-1 whitespace-normal text-xs text-base-content/60">{{ field.help_text|safe }}</p>{% endif %}
+    {% if field.errors %}<div id="{{ field.auto_id }}_error">{% for error in field.errors %}<p class="mt-1 flex items-center gap-1 text-sm text-error"><c-icon name="circle-alert" class="size-4" />{{ error }}</p>{% endfor %}</div>{% endif %}
+</div>

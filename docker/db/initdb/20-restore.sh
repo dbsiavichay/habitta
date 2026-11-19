@@ -3,7 +3,7 @@
 # Lo ejecuta la imagen de PostGIS después de crear las extensiones (10_postgis.sh).
 set -euo pipefail
 
-DUMP_FILE="${DUMP_FILE:-/dump/larbit.pgsql}"
+DUMP_FILE="${DUMP_FILE:-/dump/initial.pgsql}"
 
 if [ ! -s "$DUMP_FILE" ]; then
     echo "[restore] No hay dump en $DUMP_FILE; se usará una base vacía (migrate creará el esquema)."

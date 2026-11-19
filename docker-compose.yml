@@ -1,22 +1,22 @@
 # Stack base (sirve como punto de partida para producción).
 # En desarrollo se combina automáticamente con docker-compose.override.yml.
-name: larbit
+name: habitta
 
 services:
   db:
     # Imagen multi-arquitectura (amd64/arm64) mantenida por el equipo de docker-postgis.
     image: imresamu/postgis:17-3.5
     environment:
-      POSTGRES_DB: larbit
-      POSTGRES_USER: larbit
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-larbit}
+      POSTGRES_DB: habitta
+      POSTGRES_USER: habitta
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-habitta}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/db/initdb/20-restore.sh:/docker-entrypoint-initdb.d/20-restore.sh:ro
       # Dump opcional: si no existe, la base arranca vacía.
-      - ${DUMP_PATH:-./backups/larbit27042020.pgsql}:/dump/larbit.pgsql:ro
+      - ${DUMP_PATH:-./backups/seed-2020-04-27.pgsql}:/dump/initial.pgsql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U larbit -d larbit"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U habitta -d habitta"]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -33,12 +33,12 @@ services:
 
   web:
     build: .
-    image: larbit-web
+    image: habitta-web
     env_file:
       - path: .env.docker
         required: false
     environment:
-      DATABASE_URL: postgis://larbit:${POSTGRES_PASSWORD:-larbit}@db:5432/larbit
+      DATABASE_URL: postgis://habitta:${POSTGRES_PASSWORD:-habitta}@db:5432/habitta
       REDIS_URL: redis://redis:6379/0
     volumes:
       - ./media:/app/media

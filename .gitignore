@@ -9,3 +9,7 @@ backups/
 .env.*
 !.env.example
 .DS_Store
+
+# Frontend: CSS generado por Tailwind y binario descargado del CLI
+static/css/habitta.css
+.django_tailwind_cli/

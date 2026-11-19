@@ -1,0 +1,86 @@
+{% url 'finder' as finder_url %}
+<footer class="text-neutral-content mt-auto">
+    {# Banda de llamada a la acción, a caballo entre el contenido y el footer #}
+    <div class="bg-[linear-gradient(to_bottom,var(--color-base-200)_50%,var(--color-neutral)_50%)] pt-10">
+    <div class="container-page">
+        <div class="relative overflow-hidden rounded-[1.75rem] bg-primary text-primary-content px-6 py-8 sm:px-10 sm:py-10 shadow-float">
+            <div class="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-accent/25 blur-2xl"></div>
+            <div class="pointer-events-none absolute -bottom-24 left-1/3 size-56 rounded-full bg-secondary/30 blur-3xl"></div>
+            <div class="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">¿Tienes algo que ofrecer?</h2>
+                    <p class="mt-2 text-primary-content/80 max-w-xl">Publica tu inmueble, servicio o empleo en minutos. Es gratis y te encuentran quienes buscan cerca de ti.</p>
+                </div>
+                <c-button variant="white" size="lg" icon="plus" href="{% url 'choose_category' %}" class="shrink-0">Publica gratis</c-button>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <div class="bg-neutral">
+    <div class="container-page pt-12 pb-10">
+        <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-12">
+            <div class="lg:col-span-4">
+                <a href="{% url 'home' %}" class="inline-block text-neutral-content" aria-label="{{ SITE_NAME }}">
+                    <c-brand.logo class="h-9 w-auto" />
+                </a>
+                <p class="mt-4 max-w-sm text-neutral-content/70 leading-relaxed">
+                    {{ SITE_NAME }} conecta a quienes ofrecen inmuebles, servicios y empleos con quienes los buscan, cerca de ti.
+                </p>
+                {% if SOCIAL_LINKS %}
+                <ul class="mt-6 flex gap-2">
+                    {% for social in SOCIAL_LINKS %}
+                    <li>
+                        <a href="{{ social.url }}" target="_blank" rel="noopener" class="btn btn-circle btn-sm border-0 bg-neutral-content/10 text-neutral-content hover:bg-primary hover:text-primary-content" aria-label="{{ SITE_NAME }} en {{ social.label }}">
+                            <c-icon name="{{ social.network }}" class="size-4" />
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+            <nav class="lg:col-span-2" aria-label="Explorar">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-content/50">Explora</h3>
+                <ul class="mt-4 space-y-2.5">
+                    <li><a class="link link-hover" href="{{ finder_url }}?kind=1">Inmuebles</a></li>
+                    <li><a class="link link-hover" href="{{ finder_url }}?kind=2">Servicios</a></li>
+                    <li><a class="link link-hover" href="{{ finder_url }}?kind=3">Empleos</a></li>
+                    <li><a class="link link-hover" href="{{ finder_url }}">Mapa</a></li>
+                </ul>
+            </nav>
+
+            <nav class="lg:col-span-2" aria-label="Tu cuenta">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-content/50">{{ SITE_NAME }}</h3>
+                <ul class="mt-4 space-y-2.5">
+                    <li><a class="link link-hover" href="{% url 'choose_category' %}">Publicar</a></li>
+                    <li><a class="link link-hover" href="{% url 'home' %}#planes">Planes</a></li>
+                    <li><a class="link link-hover" href="{% url 'help' %}">Ayuda</a></li>
+                    <li><a class="link link-hover" href="{% url 'terms' %}">Términos y condiciones</a></li>
+                </ul>
+            </nav>
+
+            <div class="lg:col-span-4">
+                {% if CONTACT_EMAIL or CONTACT_PHONE or CONTACT_ADDRESS %}
+                <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-content/50">Contacto</h3>
+                <ul class="mt-4 space-y-3 text-neutral-content/85">
+                    {% if CONTACT_EMAIL %}<li><a class="inline-flex items-center gap-3 link link-hover" href="mailto:{{ CONTACT_EMAIL }}"><c-icon name="mail" class="size-4 text-accent" />{{ CONTACT_EMAIL }}</a></li>{% endif %}
+                    {% if CONTACT_PHONE %}<li><a class="inline-flex items-center gap-3 link link-hover" href="tel:{{ CONTACT_PHONE }}"><c-icon name="phone" class="size-4 text-accent" />{{ CONTACT_PHONE }}</a></li>{% endif %}
+                    {% if CONTACT_ADDRESS %}<li class="inline-flex items-center gap-3"><c-icon name="map-pin" class="size-4 text-accent" />{{ CONTACT_ADDRESS }}</li>{% endif %}
+                </ul>
+                {% else %}
+                <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-content/50">¿Necesitas ayuda?</h3>
+                <p class="mt-4 text-neutral-content/70">Revisa las preguntas frecuentes o escríbele directo al anunciante desde su publicación.</p>
+                <a href="{% url 'help' %}" class="mt-4 inline-flex items-center gap-2 font-semibold text-accent hover:gap-3 transition-all">Centro de ayuda <c-icon name="arrow-right" class="size-4" /></a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-12 flex flex-col-reverse gap-3 border-t border-neutral-content/10 pt-6 text-sm text-neutral-content/55 sm:flex-row sm:items-center sm:justify-between">
+            <p>&copy; {% now "Y" %} {{ SITE_NAME }}. Todos los derechos reservados.</p>
+            <p>Hecho en Ecuador · <a class="link link-hover" href="https://dbsiavichay.com" target="_blank" rel="noopener">dbsiavichay.com</a></p>
+        </div>
+    </div>
+    </div>
+</footer>

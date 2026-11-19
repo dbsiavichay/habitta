@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.contrib import admin
 from .models import Profile, SocialProfile, SocialNetwork, SocialNetworkProfile
 
-admin.site.site_header = 'Administración de Larbit'
+admin.site.site_header = f'Administración de {settings.SITE_NAME}'
+admin.site.site_title = settings.SITE_NAME
 
 class SocialNetworkProfileInline(admin.TabularInline):
 	model = SocialNetworkProfile

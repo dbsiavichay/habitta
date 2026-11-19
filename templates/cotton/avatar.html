@@ -1,0 +1,15 @@
+{% comment %}
+Avatar de usuario: foto de perfil o, si no tiene, sus iniciales sobre el color de la marca.
+  <c-avatar :user="object.user" size="size-12" />
+{% endcomment %}
+<c-vars user="" size="size-10" class="" ring="" />
+{% load static habitta %}
+{% if user|has_avatar %}
+<img src="{{ user.profile.get_avatar }}" alt="{{ user.get_full_name|default:user.username }}" loading="lazy"
+     class="{{ size }} shrink-0 rounded-full object-cover bg-base-300 {% if ring %}ring-2 ring-base-100{% endif %} {{ class }}"
+     onerror="this.onerror=null;this.src='{% static 'brand/avatar.svg' %}'">
+{% else %}
+<span class="{{ size }} shrink-0 grid place-items-center rounded-full bg-primary/12 text-primary font-bold {% if ring %}ring-2 ring-base-100{% endif %} {{ class }}" aria-hidden="true">
+    <span class="text-[0.8em] leading-none">{{ user|initials }}</span>
+</span>
+{% endif %}

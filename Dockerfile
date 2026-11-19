@@ -33,8 +33,11 @@ COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
 COPY --chown=app:app . .
 
-# collectstatic no necesita base de datos ni secretos reales
-RUN SECRET_KEY=build-only-key DEBUG=False python manage.py collectstatic --noinput \
+# Compila el CSS (Tailwind + daisyUI) y recopila los estáticos: no necesitan base de datos ni secretos reales.
+# El binario standalone de Tailwind (~110 MB) sólo hace falta aquí: se descarga en /tmp y se borra en la misma capa.
+RUN TAILWIND_CLI_PATH=/tmp/tailwind SECRET_KEY=build-only-key DEBUG=False python manage.py tailwind build \
+    && rm -rf /tmp/tailwind /tmp/.django-tailwind-cli \
+    && SECRET_KEY=build-only-key DEBUG=False python manage.py collectstatic --noinput \
     && mkdir -p /app/media \
     && chown -R app:app /app/staticfiles /app/media
 

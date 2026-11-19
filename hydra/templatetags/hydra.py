@@ -238,9 +238,14 @@ class FieldNode(Node):
             context.update({"field": bounded_field})
             widget = widget_type(bounded_field)
 
-            template_name = "hydra/forms/{widget}.html".format(widget=widget)
+            # Con {% with hydra_theme="v2" %} se usan las plantillas del diseño nuevo
+            # (templates/hydra/v2/forms/); si un widget no tiene, se cae a las de siempre.
+            template_names = ["hydra/forms/{widget}.html".format(widget=widget)]
+            theme = context.get("hydra_theme")
+            if theme:
+                template_names.insert(0, "hydra/{theme}/forms/{widget}.html".format(theme=theme, widget=widget))
             try:
-                t = context.template.engine.get_template(template_name)
+                t = context.template.engine.select_template(template_names)
             except TemplateDoesNotExist:
                 # Widgets sin plantilla propia (hidden, url, file...) se renderizan tal cual.
                 return bounded_field
