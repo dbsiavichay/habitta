@@ -32,12 +32,13 @@ class ImageMixin(object):
 		return settings.STATIC_URL + 'brand/placeholder.svg'
 
 	def get_cover_path(self):
+		"""Ruta del archivo de la portada, o None si no tiene."""
 		instance = self.get_cover_instance()
 
 		if instance and instance.img:
 			return instance.img.path
 
-		return settings.BASE_DIR + '/static/images/bg/1.png'
+		return None
 
 	def get_gallery(self):
 		instances = Image.objects.get_gallery(self)

@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, OuterRef, Q, Subquery
 from django.urls import reverse, reverse_lazy
+from django.utils.text import slugify
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 
 from apps.multimedia.forms import ImageForm
@@ -184,14 +185,10 @@ class PropertyPrintView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        response = HttpResponse(content_type='application/pdf')
-        # Para visualizar en el navegador
-        #response['Content-Disposition'] = 'inline; filename=report.pdf'
-        # Para descargar
-        response['Content-Disposition'] = 'attachment; filename="property.pdf"' 
         pdf = get_pdf(self.object, base_url=settings.SITE_URL or request.build_absolute_uri('/').rstrip('/'))
-        # Get the value of the StringIO buffer and write it to the response.
-        response.write(pdf)
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = '%s-anuncio-%s.pdf' % (slugify(settings.SITE_NAME) or 'anuncio', self.object.pk)
+        response['Content-Disposition'] = 'attachment; filename="%s"' % filename
         return response
 
 class PropertyDeleteView(OwnerQuerysetMixin, DeleteView):

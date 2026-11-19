@@ -6,15 +6,16 @@ import base64
 import shutil
 import tempfile
 from io import BytesIO
+from unittest.mock import MagicMock, patch
 
 from django.test import TestCase, override_settings
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from PIL import Image as PILImage
 
 from apps.logs.models import Log
 from apps.multimedia.models import Image
 from apps.project.testing import create_category, create_listing, create_user
-from apps.realty.models import Category, Property, Specification
+from apps.realty.models import Category, GroupCategory, Property, Specification
 
 MEDIA_ROOT = tempfile.mkdtemp(prefix='habitta-tests-')
 
@@ -227,3 +228,93 @@ class PublishWizardTests(TestCase):
         self.assertTrue(response.context['is_new'])
         self.assertEqual(response.context['photos'], [])
         self.assertContains(response, 'galleryManager(')
+
+
+def png_bytes(size=(160, 90), color=(11, 110, 95)):
+    buffer = BytesIO()
+    PILImage.new('RGB', size, color).save(buffer, format='PNG')
+    return buffer.getvalue()
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT, TINIFY_API_KEY='', GOOGLE_MAPS_API_KEY='', SITE_URL='https://habitta.test')
+class PropertyPdfTests(TestCase):
+    """Afiche en PDF (apps/realty/report.py)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = create_user('ana', last_name='Torres')
+        cls.listing = create_listing(cls.owner)
+
+    def get_pdf(self, listing=None):
+        listing = listing or self.listing
+        response = self.client.get(reverse('print_property', args=[listing.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertTrue(response.content.startswith(b'%PDF'))
+        return response
+
+    def test_pdf_without_cover_or_map(self):
+        response = self.get_pdf()
+        self.assertIn('filename="habitta-anuncio-%s.pdf"' % self.listing.pk, response['Content-Disposition'])
+
+    def test_pdf_with_cover_avatar_socials_and_saved_map(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.authentication.models import SocialNetwork, SocialNetworkProfile
+
+        cover = self.listing.add_image(PILImage.new('RGB', (1600, 900), (200, 80, 46)))
+        cover.is_cover = True
+        cover.save()
+        self.listing.add_image(PILImage.new('RGB', (800, 680), (230, 230, 230)), 'map')
+        profile = self.owner.profile
+        profile.phone = '0991234567'
+        profile.image = SimpleUploadedFile('ana.png', png_bytes((200, 200)), content_type='image/png')
+        profile.save()
+        network = SocialNetwork.objects.create(name='Instagram', icon='instagram', url='https://instagram.com/')
+        SocialNetworkProfile.objects.create(social_network=network, profile=profile, username='ana.casas')
+
+        with patch('apps.realty.report.requests.get') as fetch:
+            self.get_pdf()
+        fetch.assert_not_called()  # el mapa guardado ya tiene buena resolución
+
+    @override_settings(GOOGLE_MAPS_API_KEY='key')
+    def test_low_resolution_map_is_replaced(self):
+        old = self.listing.add_image(PILImage.new('RGB', (274, 203)), 'map')
+        old_path = old.img.path
+        response = MagicMock(content=png_bytes((800, 680)))
+        with patch('apps.realty.report.requests.get', return_value=response) as fetch:
+            self.get_pdf()
+        fetch.assert_called_once()
+        self.assertEqual(fetch.call_args.kwargs['params']['markers'].split('|')[0], 'color:0x0B6E5F')
+        old.refresh_from_db()
+        self.assertEqual(old.img.width, 800)
+
+    @override_settings(GOOGLE_MAPS_API_KEY='key')
+    def test_service_without_location_does_not_ask_for_a_map(self):
+        service = create_listing(self.owner, kind=Category.SERVICE, name='Plomeros', title='Plomería')
+        Category.objects.filter(pk=service.category_id).update(require_location=False)
+        with patch('apps.realty.report.requests.get') as fetch:
+            self.get_pdf(Property.objects.get(pk=service.pk))
+        fetch.assert_not_called()
+
+    def test_features_skip_price_files_and_negative_values(self):
+        from apps.realty.models import Group
+        from apps.realty.report import _features, _title
+
+        group = Group.objects.create(name='Interior', internal_name='interior')
+        GroupCategory.objects.create(group=group, category=self.listing.category, sequence=2)
+        rooms = Specification.objects.create(name='Habitaciones', internal_name='habitaciones', field_type='IntegerField')
+        pool = Specification.objects.create(name='Piscina', internal_name='piscina', field_type='ChoiceField')
+        garden = Specification.objects.create(name='Jardín', internal_name='jardin', field_type='ChoiceField')
+        plans = Specification.objects.create(name='Planos', internal_name='planos', field_type='FileField')
+        group.specifications.add(rooms, pool, garden, plans)
+        self.listing.details['specifications'].update({
+            str(rooms.pk): '3', str(pool.pk): 'no', str(garden.pk): 'si', str(plans.pk): '/tmp/planos.pdf',
+        })
+        self.listing.title = 'CASA CON JARDÍN'
+
+        self.assertEqual(_features(self.listing), [('Habitaciones', '3'), ('Jardín', 'Sí')])
+        self.assertEqual(_title(self.listing), 'Casa con jardín')
+
+    def test_finder_by_purpose_was_removed(self):
+        with self.assertRaises(NoReverseMatch):
+            reverse('finder_by_purpose', args=[1, 'x'])
