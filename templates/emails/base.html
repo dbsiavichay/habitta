@@ -1,0 +1,45 @@
+{% load static %}{% comment %}
+Base de los correos HTML de Habitta. Los clientes de correo no leen Tailwind ni variables CSS:
+todo va en estilos en línea, con los hex de la paleta (assets/tailwind/source.css, tema claro).
+Contexto esperado: site_name y site_url (URL absoluta sin barra final).
+Bloques: preheader (texto de vista previa), content y footer.
+{% endcomment %}<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>{{ site_name }}</title>
+</head>
+<body style="margin:0;padding:0;background:#f7f4ef;color:#13211e;font-family:'Plus Jakarta Sans',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">{% block preheader %}{% endblock %}</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f4ef;">
+        <tr>
+            <td align="center" style="padding:32px 16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+                    <tr>
+                        <td style="padding:0 4px 24px;">
+                            <a href="{{ site_url }}/" style="text-decoration:none;">
+                                <img src="{{ site_url }}{% static 'brand/habitta-logo.png' %}" width="148" height="37" alt="{{ site_name }}"
+                                     style="display:block;border:0;outline:none;font-size:24px;font-weight:800;color:#0b6e5f;">
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:#ffffff;border:1px solid #eae4da;border-radius:20px;padding:40px 32px;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:24px 4px 0;font-size:13px;line-height:20px;color:#6b7774;">
+                            {% block footer %}{% endblock %}
+                            <p style="margin:12px 0 0;">© {% now "Y" %} <a href="{{ site_url }}/" style="color:#0b6e5f;text-decoration:none;font-weight:600;">{{ site_name }}</a></p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

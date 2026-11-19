@@ -66,7 +66,7 @@ Barra de navegación principal. Con `overlay` empieza transparente sobre el hero
             </div>
             {% else %}
             <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-ghost rounded-full font-semibold px-4 text-current">Ingresar</a>
-            <c-button href="{% url 'register' %}" variant="primary" class="hidden sm:inline-flex">Crear cuenta</c-button>
+            <c-button href="{% url 'register' %}?next={{ request.get_full_path|urlencode }}" variant="primary" class="hidden sm:inline-flex">Crear cuenta</c-button>
             {% endif %}
         </div>
     </nav>

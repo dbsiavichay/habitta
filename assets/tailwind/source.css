@@ -178,6 +178,12 @@
   .prose-habitta a { color: var(--color-primary); text-decoration: underline; }
 }
 
+/* Foco de los campos con el color de la marca (daisyUI usa base-content). Va fuera de las capas porque
+   la de daisyUI gana a las utilidades: `focus:border-primary` en la plantilla no tendría efecto. */
+:is(.input, .select, .textarea):is(:focus, :focus-within):not(.input-error, .select-error, .textarea-error) {
+  --input-color: var(--color-primary);
+}
+
 /* Transiciones suaves entre páginas (Chrome, Edge y Safari 18.2+; el resto las ignora) */
 @view-transition { navigation: auto; }
 @media (prefers-reduced-motion: reduce) {

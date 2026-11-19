@@ -1,0 +1,13 @@
+{% comment %}
+Ícono dentro de una insignia redondeada, para encabezar páginas de estado (correo enviado, éxito, error…).
+  <c-icon-badge icon="mail-check" />
+  <c-icon-badge icon="circle-check" tone="success" />
+tone: primary | success | error | warning
+{% endcomment %}
+<c-vars icon="sparkles" tone="primary" class="" />
+<div class="relative w-fit {{ class }}">
+    <div class="absolute inset-0 rounded-2xl blur-xl {% if tone == 'success' %}bg-success/25{% elif tone == 'error' %}bg-error/20{% elif tone == 'warning' %}bg-warning/25{% else %}bg-primary/20{% endif %}"></div>
+    <div class="relative grid size-14 place-items-center rounded-2xl ring-1 {% if tone == 'success' %}bg-success/12 text-success ring-success/25{% elif tone == 'error' %}bg-error/10 text-error ring-error/25{% elif tone == 'warning' %}bg-warning/15 text-warning ring-warning/30{% else %}bg-primary/10 text-primary ring-primary/20{% endif %}">
+        <c-icon name="{{ icon }}" class="size-7" />
+    </div>
+</div>

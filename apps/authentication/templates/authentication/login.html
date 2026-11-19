@@ -1,72 +1,27 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/auth.html' %}
 
-{% load static hydra %}
+{% block title %}Inicia sesión{% endblock %}
+{% block description %}Entra a tu cuenta de {{ SITE_NAME }} para publicar anuncios, conversar con anunciantes y ver tus favoritos.{% endblock %}
+{% block robots %}{% endblock %}
 
-{% block content %}
-<!--section -->
-<section>
-    <!-- container -->
-    <div class="container">        
-        <!--register form -->
-        <div class="main-register register">
-            <h3>Bienvenido a <span>{{ SITE_NAME }}</span></h3>                
-            <div class="soc-log fl-wrap half">
-                <p>Ingresa con tus redes sociales.</p>
-                {% if FACEBOOK_LOGIN_ENABLED %}<a href="#" id="facebook" class="facebook-log"><i class="fa fa-facebook-official"></i>Entra con Facebook</a>{% endif %}
-                {% if TWITTER_LOGIN_ENABLED %}<a href="#" id="twitter" class="twitter-log"><i class="fa fa-twitter"></i>Entra con Twitter</a>{% endif %}
-                <form id="socialForm" action="{% url 'social_login' %}" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" id="socialProvider" name="provider">
-                    <input type="hidden" id="socialToken" name="token">
-                    <input type="hidden" name="next" value="{{ next }}">
-                </form>
-            </div>
-            <div class="half" id="tabs-container" style="border-left: 3px solid #2F3B59">
-                <ul class="tabs-menu">
-                    <li class="current"><a href="#tab-1">Entra con tus datos</a></li>            
-                </ul>
-                <div class="tab">
-                    <div id="tab-1" class="tab-content">
-                        <div class="custom-form">
-                            {{form.errors}}
-                            <form method="POST" class="main-register-form" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                
-                                {% include 'hydra/form.html' with form=form %}
+{% block auth_title %}Hola de nuevo{% endblock %}
+{% block auth_lead %}Entra a tu cuenta para publicar, conversar con anunciantes y ver tus favoritos.{% endblock %}
 
-                                <button type="submit" class="log-submit-btn"><span>Iniciar sesión</span></button>
-                            </form>
-                        </div>
-                    </div>            
-                </div>
-            </div>
+{% block auth_body %}
+<c-social-login next="{{ next }}" />
 
-            <p>¿Aún no tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
-            <p><a href="{% url 'password_reset' %}">¿Olvidáste tu contraseña?</a></p>
-        </div>
-        <!--register form end --> 
+<form method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+    <div class="mt-3 flex justify-end">
+        <a href="{% url 'password_reset' %}" class="link link-hover text-sm font-semibold text-primary">¿Olvidaste tu contraseña?</a>
     </div>
-    <!--container end -->
-</section>
-<!-- section end -->    
-<div class="limit-box fl-wrap"></div>
-<!--section -->
-<section class="gradient-bg">
-    <div class="cirle-bg">
-        <div class="bg" data-bg="{% static 'images/bg/circle.png' %}"></div>
-    </div>
-    <div class="container">
-        <div class="join-wrap fl-wrap">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3>¿Tienes preguntas o dudas?</h3>
-                    <p>Nosotros te ayudamos en lo que necesites, visita la sección de ayuda.</p>
-                </div>
-                <div class="col-md-4"><a href="{% url 'help' %}" class="join-wrap-btn">Ir a Ayuda <i class="fa fa-envelope-o"></i></a></div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- section end -->
+    <c-button type="submit" size="lg" block icon_end="arrow-right" class="mt-6">Iniciar sesión</c-button>
+</form>
+
+<p class="mt-8 text-center text-base-content/70">
+    ¿Aún no tienes cuenta?
+    <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="link link-hover font-semibold text-primary">Crea una gratis</a>
+</p>
 {% endblock %}
-

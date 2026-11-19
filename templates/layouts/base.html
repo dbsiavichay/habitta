@@ -44,7 +44,8 @@
     {# Alpine debe cargarse después de los componentes que registra cada página #}
     <script defer src="{% static 'vendor/alpinejs/alpine-3.17.5.min.js' %}"></script>
 </head>
-<body class="min-h-dvh bg-base-200 text-base-content font-sans antialiased flex flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0"
+{# body_padding deja sitio a la barra inferior móvil; los layouts sin ella (auth) lo vacían #}
+<body class="min-h-dvh bg-base-200 text-base-content font-sans antialiased flex flex-col {% block body_padding %}pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0{% endblock %}"
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] btn btn-sm btn-primary">Saltar al contenido</a>
 
