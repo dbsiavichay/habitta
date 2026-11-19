@@ -50,8 +50,15 @@ class MessageConsumer(WebsocketConsumer):
         return conversation
 
     def render_message(self, message):
+        # HTML del diseño anterior (página de conversaciones, aún sin migrar)
         template = 'messenger/chat_message_receiver.html'
         return render_to_string(template, context={'message': message})
+
+    def render_bubble(self, message):
+        # Burbuja del diseño nuevo, renderizada para quien la recibe (propia o ajena)
+        return render_to_string(
+            'messenger/chat_bubble.html', context={'message': message, 'viewer': self.scope['user']}
+        )
 
     # Mensaje recibido desde el WebSocket
     def receive(self, text_data=None, bytes_data=None):
@@ -69,9 +76,16 @@ class MessageConsumer(WebsocketConsumer):
         )
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
-            {'type': 'chat.message', 'message': self.render_message(message)},
+            {'type': 'chat.message', 'message_id': message.id},
         )
 
-    # Mensaje recibido desde el grupo
+    # Mensaje recibido desde el grupo: cada conexión lo renderiza para su propio usuario
     def chat_message(self, event):
-        self.send(text_data=json.dumps({'message': event['message']}))
+        message = Message.objects.select_related('sender__profile').filter(pk=event['message_id']).first()
+        if message is None:
+            return
+        self.send(text_data=json.dumps({
+            'message': self.render_message(message),
+            'bubble': self.render_bubble(message),
+            'own': message.sender_id == self.scope['user'].id,
+        }))

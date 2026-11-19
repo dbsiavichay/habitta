@@ -29,7 +29,7 @@ class ImageMixin(object):
 		if instance and instance.img:
 			return instance.img.url
 
-		return settings.STATIC_URL + 'images/bg/1.png'
+		return settings.STATIC_URL + 'brand/placeholder.svg'
 
 	def get_cover_path(self):
 		instance = self.get_cover_instance()

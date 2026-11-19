@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.template.loader import render_to_string
 from apps.multimedia.mixins import ImageMixin
 
-from .utils import get_category_icons, get_larbit_icons
+from .utils import get_category_icons, get_spec_icons
 
 
 #Lo que se pretende hacer con la propiedad ej: vender, rentar
@@ -36,7 +36,7 @@ class Specification(models.Model):
     field_type = models.CharField(max_length=64, choices=FIELD_CHOICES, verbose_name='tipo de campo')
     attributes = models.CharField(max_length=128, blank=True, null=True, verbose_name='atributos')
     choices = models.CharField(max_length=256, blank=True, null=True, verbose_name='elecciones')    
-    icon = models.CharField(max_length=32, blank=True, null=True, choices=get_larbit_icons, verbose_name='ícono')
+    icon = models.CharField(max_length=32, blank=True, null=True, choices=get_spec_icons, verbose_name='ícono')
     is_required = models.BooleanField(default=False, verbose_name='requerido?') 
 
     def __str__(self):
@@ -134,6 +134,11 @@ class Property(ImageMixin, models.Model):
 
         return r
 
+    def get_price_value(self):
+        """Precio numérico, o None si la publicación no tiene precio (p. ej. servicios a convenir)."""
+        price = self.get_price_area()
+        return price if isinstance(price, float) else None
+
     def get_purpose(self):
         try:
             pk = self.details['purpose']
@@ -149,10 +154,15 @@ class Property(ImageMixin, models.Model):
         params = Q()
         for name in names:
             params = params | Q(internal_name__iexact=name)
+        negative = {'', '0', 'no', 'false', 'no disponible', 'ninguno', 'ninguna'}
+        values = (self.details or {}).get('specifications', {})
         for spc in Specification.objects.filter(params):
             key = str(spc.id)
-            if len(specifications) == 2: break
-            if key in self.details['specifications'] and not 'FileField' in spc.field_type:
+            if len(specifications) == 3: break
+            value = values.get(key)
+            if value is None or str(value).strip().lower() in negative:
+                continue
+            if not 'FileField' in spc.field_type:
                 item = {
                     'key': spc.name,
                     'value': self.details['specifications'][key],
@@ -214,7 +224,7 @@ class Property(ImageMixin, models.Model):
         if image and image.img:
             return image.img.url
 
-        return settings.STATIC_URL + 'images/bg/1.png'
+        return settings.STATIC_URL + 'brand/placeholder.svg'
 
     #Usado para el serializer en api
     def get_longitude(self):

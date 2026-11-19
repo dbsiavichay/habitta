@@ -1,34 +1,39 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/base.html' %}
+
+{% block title %}Términos y condiciones{% endblock %}
+{% block description %}Términos y condiciones de uso de {{ SITE_NAME }}.{% endblock %}
 
 {% block content %}
-<!--section -->
-<section class="parallax-section parallax-sm" data-scrollax-parent="true" id="sec1">
-    <div class="bg par-elem " data-bg="{% if project.term_cover %} {{ project.term_cover.url }} {% endif %}" data-scrollax="properties: { translateY: '30%' }"></div>
-    <div class="overlay"></div>
-    <div class="container">
-        <div class="section-title center-align no-padding">
-            <h2><span>Términos y condiciones de servicio</span></h2>
-            <div class="breadcrumbs fl-wrap"><a href="{% url 'home' %}">Inicio</a><span>Términos y condiciones</span></div>
-            <span class="section-separator"></span>
-        </div>
-    </div>
-</section>
-<!-- section end -->
-<!--section -->
-<section class="terms-container">
-    <div class="container">        
-        <!--about-wrap --> 
-        {% for term in object_list %}
-        <div class="about-wrap">
-        	<div class="list-single-main-item-title fl-wrap">
-                <h3>{{ term.title }}</h3>                
-                <span class="section-separator fl-sec-sep"></span>
+<c-page-header title="Términos y condiciones" icon="scroll-text" :cover="project.term_cover"
+               description="Las reglas que nos permiten ofrecer un espacio seguro y confiable para todos."
+               :breadcrumbs="[('Términos y condiciones', '')]" />
+
+<section class="container-page py-12 sm:py-16">
+    {% if object_list %}
+    <div class="grid gap-10 lg:grid-cols-[17rem_1fr]">
+        <nav aria-label="Índice" class="hidden lg:block">
+            <div class="sticky top-24 rounded-box bg-base-100 p-4 shadow-soft ring-1 ring-base-300/60">
+                <p class="px-2 pb-2 text-xs font-bold uppercase tracking-wider text-base-content/50">Contenido</p>
+                <ol class="space-y-0.5 text-sm">
+                    {% for term in object_list %}
+                    <li><a href="#termino-{{ forloop.counter }}" class="flex gap-2 rounded-lg px-2 py-1.5 hover:bg-base-200 hover:text-primary transition-colors"><span class="tabular-nums text-base-content/40">{{ forloop.counter }}.</span>{{ term.title }}</a></li>
+                    {% endfor %}
+                </ol>
             </div>
-            <p>{{ term.description|linebreaks }}</p>                               
+        </nav>
+        <div class="rounded-box bg-base-100 p-6 sm:p-10 shadow-soft ring-1 ring-base-300/60 space-y-10">
+            {% for term in object_list %}
+            <article id="termino-{{ forloop.counter }}" class="scroll-mt-24">
+                <h2 class="flex items-baseline gap-3 text-xl font-bold">
+                    <span class="text-sm font-extrabold text-secondary tabular-nums">{{ forloop.counter|stringformat:"02d" }}</span>{{ term.title }}
+                </h2>
+                <div class="prose-habitta mt-3 text-base-content/80">{{ term.description|linebreaks }}</div>
+            </article>
+            {% endfor %}
         </div>
-        {% endfor %}
-        <!-- about-wrap end  -->         
     </div>
+    {% else %}
+    <c-empty-state icon="scroll-text" title="Aún no hay términos publicados" text="Vuelve pronto para conocer nuestras condiciones de uso." />
+    {% endif %}
 </section>
-<!-- section end -->
 {% endblock %}

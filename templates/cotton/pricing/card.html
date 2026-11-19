@@ -1,0 +1,29 @@
+{% comment %}
+Tarjeta de plan.
+  <c-pricing.card name="Pro" price="2.99" featured :features="['...']" :missing="['...']" />
+{% endcomment %}
+<c-vars name="" price="0" period="al mes" description="" features="" missing="" featured="" />
+<article class="relative flex flex-col rounded-box p-7 {% if featured %}bg-neutral text-neutral-content shadow-float md:-my-4 md:py-11{% else %}bg-base-200/60 ring-1 ring-base-300{% endif %}">
+    {% if featured %}
+    <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1 text-xs font-extrabold uppercase tracking-wide text-accent-content shadow-soft">
+        <c-icon name="sparkles" class="size-3.5" />Recomendado
+    </span>
+    {% endif %}
+    <h3 class="text-lg font-bold">{{ name }}</h3>
+    <p class="mt-1 text-sm {% if featured %}text-neutral-content/70{% else %}text-base-content/65{% endif %}">{{ description }}</p>
+    <p class="mt-6 flex items-baseline gap-1">
+        <span class="text-5xl font-extrabold tracking-tight">${{ price }}</span>
+        <span class="text-sm font-semibold {% if featured %}text-neutral-content/60{% else %}text-base-content/55{% endif %}">{{ period }}</span>
+    </p>
+    <ul class="mt-7 space-y-3 text-sm">
+        {% for feature in features %}
+        <li class="flex items-start gap-2.5"><c-icon name="circle-check" class="mt-px size-[1.1rem] shrink-0 {% if featured %}text-accent{% else %}text-primary{% endif %}" />{{ feature }}</li>
+        {% endfor %}
+        {% for feature in missing %}
+        <li class="flex items-start gap-2.5 opacity-45"><c-icon name="circle-minus" class="mt-px size-[1.1rem] shrink-0" /><span class="line-through">{{ feature }}</span></li>
+        {% endfor %}
+    </ul>
+    <div class="mt-auto pt-8">
+        <c-button href="{% url 'choose_category' %}" variant="{% if featured %}secondary{% else %}outline{% endif %}" block>Elegir {{ name|lower }}</c-button>
+    </div>
+</article>

@@ -1,0 +1,79 @@
+{% comment %}
+Tarjeta lateral del detalle: precio, acciones de contacto (chat, WhatsApp, llamada), compra y anunciante.
+  <c-property.contact-card :property="object" :price="price" :purpose="purpose" />
+{% endcomment %}
+<c-vars property="" price="" purpose="" />
+{% load habitta payments %}
+{% with owner=property.user profile=property.user.profile %}
+<div class="rounded-box bg-base-100 p-6 shadow-lift ring-1 ring-base-300/60">
+    <p class="text-sm font-semibold text-base-content/60">{{ purpose.activity }}</p>
+    {% if price %}
+    <p class="mt-1 text-4xl font-extrabold tracking-tight">{{ price|money }}</p>
+    {% else %}
+    <p class="mt-1 text-2xl font-extrabold tracking-tight">Precio a convenir</p>
+    {% endif %}
+
+    {% if owner == user %}
+    <div class="mt-5 rounded-2xl bg-primary/8 p-4">
+        <p class="flex items-center gap-2 font-bold text-primary"><c-icon name="badge-check" class="size-5" />Este es tu anuncio</p>
+        <div class="mt-3 grid grid-cols-2 gap-2">
+            <c-button href="{% url 'update_property' property.id %}" icon="pencil" size="sm">Editar</c-button>
+            <c-button href="{% url 'add_auction' %}?id={{ property.id }}" icon="gavel" size="sm" variant="outline">Subastar</c-button>
+        </div>
+    </div>
+    {% else %}
+    <div class="mt-5 grid gap-2.5">
+        <button type="button" x-data @click="$dispatch('open-chat')" class="btn btn-primary btn-lg h-13 rounded-full text-base font-bold">
+            <c-icon name="message-circle" class="size-5" />Chatear con {{ owner.first_name|default:"el anunciante" }}
+        </button>
+        {% with wa=profile.phone|whatsapp_url %}
+        <div class="grid {% if wa %}grid-cols-2{% endif %} gap-2.5">
+            {% if wa %}
+            <a href="{{ wa }}?text={{ 'Hola, vi tu anuncio en '|add:SITE_NAME|add:': '|urlencode }}{{ SITE_URL|urlencode }}{{ property.get_absolute_url|urlencode }}" target="_blank" rel="noopener"
+               class="btn rounded-full border-0 bg-[#25D366] font-bold text-white hover:bg-[#1fb858]"><c-icon name="whatsapp" class="size-5" />WhatsApp</a>
+            {% endif %}
+            {% if profile.phone %}
+            <a href="tel:{{ profile.phone }}" class="btn rounded-full border-base-300 bg-base-100 font-bold"><c-icon name="phone" class="size-5" />Llamar</a>
+            {% endif %}
+        </div>
+        {% endwith %}
+        {% if property.category.is_salable %}
+        <div class="mt-1">{% check_payment property user label="Comprar" %}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="divider my-5"></div>
+
+    <a href="{{ profile.get_absolute_url }}" class="group flex items-center gap-3">
+        <c-avatar :user="owner" size="size-14" />
+        <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-wide text-base-content/50">Publicado por</p>
+            <p class="truncate text-lg font-bold group-hover:text-primary">{{ owner.get_full_name|default:owner.username }}</p>
+            <p class="text-sm text-base-content/60">En {{ SITE_NAME }} desde {{ owner.date_joined|date:"F Y"|lower }}</p>
+        </div>
+        <c-icon name="chevron-right" class="ml-auto size-5 opacity-40 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
+    </a>
+    {% with socials=profile.socialnetworkprofile_set.all %}
+    {% if socials or owner.email %}
+    <div class="mt-4 flex flex-wrap gap-2">
+        {% for social in socials %}
+        <a href="{{ social.get_url }}" target="_blank" rel="noopener" class="btn btn-circle btn-sm border-base-300 bg-base-100" aria-label="{{ social.social_network.name }}">
+            {% if social.social_network.icon in "facebook,instagram,twitter,whatsapp" %}<c-icon name="{{ social.social_network.icon }}" class="size-4" />{% else %}<c-icon name="globe" class="size-4" />{% endif %}
+        </a>
+        {% endfor %}
+        {% if owner.email and owner != user %}
+        <a href="mailto:{{ owner.email }}" class="btn btn-sm rounded-full border-base-300 bg-base-100 font-semibold"><c-icon name="mail" class="size-4" />Correo</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+{% if owner != user %}
+<p class="flex gap-3 rounded-box bg-accent/15 p-4 text-sm text-base-content/80">
+    <c-icon name="shield-check" class="size-5 shrink-0 text-warning-content" />
+    <span><strong>Consejo de seguridad:</strong> visita el lugar o conoce a la persona antes de pagar, y nunca envíes dinero por adelantado.</span>
+</p>
+{% endif %}
+{% endwith %}

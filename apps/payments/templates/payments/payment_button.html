@@ -2,9 +2,7 @@
 {% if not payment %}
 {% payment_form obj=object amount=price label=label %}
 {% elif payment.is_confirmed %}
-<a href="{% url 'download' payment.id %}" class="btn color-bg flat-btn">Descargar
-    <i class="fa fa-download"></i>
-</a>
+<a href="{% url 'download' payment.id %}" class="btn btn-secondary btn-block rounded-full font-bold"><c-icon name="download" class="size-5" />Descargar archivos</a>
 {% else %}
-<a href="{% url 'list_bank_payment' %}" class="btn color-bg flat-btn">Ver pago</a>
+<a href="{% url 'list_bank_payment' %}" class="btn btn-block rounded-full border-warning/40 bg-warning/15 font-bold"><c-icon name="hourglass" class="size-5" />Pago en revisión · ver estado</a>
 {% endif %}

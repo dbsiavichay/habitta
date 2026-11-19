@@ -1,8 +1,11 @@
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import CreateView, DeleteView
-from .models import Log
+
 from .forms import LogForm
+from .models import Log
+from .templatetags.logs import render_like
+
 
 class LogCreateView(CreateView):
 	model = Log
@@ -10,17 +13,17 @@ class LogCreateView(CreateView):
 
 	def form_valid(self, form):
 		property = form.cleaned_data['property']
-		count = self.model.objects.filter(
+		exists = self.model.objects.filter(
 			type=form.cleaned_data['type'], property=property, user=self.request.user
-		).count()
+		).exists()
 
-		if count:
-			return redirect(property.get_absolute_url())
+		if not exists:
+			self.object = form.save(commit=False)
+			self.object.user = self.request.user
+			self.object.save()
 
-		self.object = form.save(commit=False)
-		self.object.user = self.request.user
-		self.object.save()
-
+		if self.request.htmx:
+			return HttpResponse(render_like(property, self.request.user, self.request))
 		return redirect(property.get_absolute_url())
 
 	def get(self, request, *args, **kwargs):
@@ -34,6 +37,8 @@ class LogDeleteView(DeleteView):
 		return super().get_queryset().filter(user=self.request.user)
 
 	def form_valid(self, form):
-		success_url = self.object.property.get_absolute_url()
+		property = self.object.property
 		self.object.delete()
-		return redirect(success_url)
+		if self.request.htmx:
+			return HttpResponse(render_like(property, self.request.user, self.request))
+		return redirect(property.get_absolute_url())

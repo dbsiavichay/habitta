@@ -1,100 +1,229 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/base.html' %}
+{% load static %}
 
-{% load static hydra comments %}
+{% block title %}Explorar anuncios{% endblock %}
+{% block description %}Busca inmuebles, servicios y empleos en el mapa de {{ SITE_NAME }}. Filtra por categoría, precio y zona.{% endblock %}
+
+{% block scripts %}
+<script defer src="{% static 'vendor/markerclusterer/markerclusterer-2.6.2.umd.min.js' %}"></script>
+<script defer src="{% static 'js/habitta/explorer.js' %}"></script>
+{% endblock %}
+
+{% block footer %}{% endblock %}
 
 {% block content %}
-<!-- Map -->
-<div class="map-container column-map right-pos-map">
-    <div id="map-main"></div>
-    <ul class="mapnavigation">
-        <li><a href="#" class="prevmap-nav">Atrás</a></li>
-        <li><a href="#" class="nextmap-nav">Siguiente</a></li>
-    </ul>
-</div>
-<!-- Map end -->          
-<!--col-list-wrap -->   
-<div class="col-list-wrap left-list">
-    <div class="listsearch-options fl-wrap" id="lisfw" >
-        <div class="container">
-            <div class="listsearch-header fl-wrap">
-                <h3>Resultados de búsqueda</h3>
-                <div class="listing-view-layout">
-                    <ul>
-                        <li><a class="grid active" href="{% url 'finder_without_map' %}"><i class="fa fa-th-large"></i></a></li>
-                    </ul>
-                </div>
-            </div>
-            <!-- listsearch-input-wrap  -->  
-            <div class="listsearch-input-wrap fl-wrap">
-                <!-- <div class="listsearch-input-item">
-                    <i class="mbri-key single-i"></i>
-                    <input type="text" placeholder="Palabras clave?" value=""/>
-                </div> -->
-                <div class="listsearch-input-item">
-                    {{ form.search_purpose|add_class:"chosen-select" }}                    
-                </div>
-                <div id="search-category" class="listsearch-input-item">
-                    {{ form.search_category|add_class:"chosen-select" }}                    
-                </div>
-                <div class="listsearch-input-text" id="autocomplete-container">
-                    <label><i class="mbri-map-pin"></i>Ingrese una dirección </label>
-                    {{ form.search_address|attr:"id:ac_address"|add_class:"qodef-archive-places-search"|append_attr:"placeholder:Destino, cuidad, área" }}                    
-                    <a  href="#" class="loc-act qodef-archive-current-location"><i class="fa fa-dot-circle-o"></i></a>
+{{ search_data|json_script:"search-data" }}
+{{ initial_filters|json_script:"explorer-initial" }}
+
+<div x-data="explorer" class="lg:flex lg:h-[calc(100dvh-4.5rem)]" @keydown.escape.window="filtersOpen = false; priceOpen = false">
+
+    {# ======================= LISTA + FILTROS ======================= #}
+    <section aria-label="Resultados" class="relative min-w-0 lg:overflow-y-auto"
+             :class="view === 'list' ? 'lg:w-full' : 'lg:w-[56%] xl:w-[52%]'">
+
+        {# Sin backdrop-filter: crearía un bloque contenedor y la hoja de filtros (position: fixed) quedaría atrapada aquí #}
+        <div class="sticky top-16 border-b border-base-300/70 bg-base-200/95 lg:top-0" :class="filtersOpen ? 'z-[70]' : 'z-30'">
+            <div class="px-4 py-3 sm:px-6 lg:px-8">
+                {# Ubicación #}
+                <div class="flex items-center gap-2">
+                    <form class="relative flex-1" @submit.prevent="submitAddress()" role="search">
+                        <c-icon name="map-pin" class="pointer-events-none absolute left-4 top-1/2 z-10 size-5 -translate-y-1/2 text-primary" />
+                        <label for="explorer-address" class="sr-only">Ciudad, sector o dirección</label>
+                        <input id="explorer-address" x-ref="address" type="search" x-model="filters.address" autocomplete="off"
+                               :placeholder="placeLabel ? 'Cambiar zona…' : 'Ciudad, sector o dirección'"
+                               class="input h-12 w-full rounded-full border-base-300 bg-base-100 pl-11 pr-12 text-[0.95rem] font-medium shadow-soft focus:border-primary focus:outline-none">
+                        <button type="button" @click="locateMe()" class="btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2 text-primary" aria-label="Buscar cerca de mí" title="Cerca de mí">
+                            <span x-show="locating" class="loading loading-spinner loading-xs"></span>
+                            <span x-show="!locating"><c-icon name="locate-fixed" class="size-5" /></span>
+                        </button>
+                    </form>
+                    <button type="button" @click="filtersOpen = true" class="btn h-12 rounded-full border-base-300 bg-base-100 px-4 shadow-soft lg:hidden" aria-label="Abrir filtros">
+                        <c-icon name="sliders-horizontal" class="size-5" />
+                        <span x-show="activeCount" x-text="activeCount" class="badge badge-sm badge-secondary rounded-full"></span>
+                    </button>
                 </div>
 
-                <div class="listsearch-input-text">
-                    <label style="width: 100%;"><i class="mbri-map-pin"></i>Rango de precios </label>
-                    <div class="row">
-                        <div class="col-xs-5"><input type="number" id="minPrice" placeholder="Desde Ej. 1.00"></div>
-                        <div class="col-xs-2" style="line-height: 45px;">a</div>
-                        <div class="col-xs-5"><input type="number" id="maxPrice" placeholder="Hasta Ej. 500000"></div>
+                {# Panel de filtros: hoja inferior en móvil, fila fija en escritorio #}
+                <div x-show="filtersOpen" x-transition.opacity class="fixed inset-0 z-[55] bg-black/40 lg:hidden" @click="filtersOpen = false" x-cloak></div>
+                <div :class="filtersOpen ? 'fixed inset-x-0 bottom-0 z-[60] max-h-[85dvh] overflow-y-auto rounded-t-[1.75rem] bg-base-100 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-float flex' : 'hidden lg:flex'"
+                     class="flex-col gap-4 lg:mt-3 lg:flex-row lg:flex-wrap lg:items-center lg:gap-2"
+                     role="group" aria-label="Filtros">
+                    <div class="flex items-center justify-between lg:hidden">
+                        <h2 class="text-lg font-bold">Filtros</h2>
+                        <button type="button" class="btn btn-ghost btn-circle btn-sm" @click="filtersOpen = false" aria-label="Cerrar filtros"><c-icon name="x" /></button>
                     </div>
-                </div>
-                <!-- hidden-listing-filter -->
-                <div class="hidden-listing-filter fl-wrap">
-                    <div class="distance-input fl-wrap">
-                        <div class="distance-title"> Radio alrededor del destino seleccionado <span></span> km</div>
-                        <div class="distance-radius-wrap fl-wrap">
-                            <input id="range" class="distance-radius rangeslider--horizontal" type="range" min="1" max="200" step="1" value="15" data-title="Radius around selected destination">
+
+                    <div class="flex gap-1 overflow-x-auto rounded-full bg-base-100 p-1 ring-1 ring-base-300 scrollbar-none lg:shadow-soft" role="radiogroup" aria-label="Tipo de anuncio">
+                        <template x-for="opt in [['', 'Todo'], ['1', 'Inmuebles'], ['2', 'Servicios'], ['3', 'Empleos']]" :key="opt[0]">
+                            <button type="button" role="radio" :aria-checked="filters.kind === opt[0]" @click="filters.kind = opt[0]"
+                                    :class="filters.kind === opt[0] ? 'bg-neutral text-neutral-content' : 'text-base-content/70 hover:bg-base-200'"
+                                    class="shrink-0 rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors" x-text="opt[1]"></button>
+                        </template>
+                    </div>
+
+                    <label class="lg:w-auto">
+                        <span class="mb-1 block text-xs font-bold text-base-content/60 lg:sr-only">Quiero</span>
+                        <select x-model="filters.purpose" class="select h-10 w-full rounded-full border-base-300 bg-base-100 font-semibold lg:w-44 lg:shadow-soft" aria-label="Propósito">
+                            <option value="">Cualquier propósito</option>
+                            <template x-for="p in visiblePurposes" :key="p.id"><option :value="String(p.id)" x-text="p.name" :selected="String(p.id) === filters.purpose"></option></template>
+                        </select>
+                    </label>
+                    <label class="lg:w-auto">
+                        <span class="mb-1 block text-xs font-bold text-base-content/60 lg:sr-only">Categoría</span>
+                        <select x-model="filters.category" class="select h-10 w-full rounded-full border-base-300 bg-base-100 font-semibold lg:w-48 lg:shadow-soft" aria-label="Categoría">
+                            <option value="">Todas las categorías</option>
+                            <template x-for="c in visibleCategories" :key="c.id"><option :value="String(c.id)" x-text="c.name" :selected="String(c.id) === filters.category"></option></template>
+                        </select>
+                    </label>
+
+                    <div class="relative" @click.outside="priceOpen = false">
+                        <span class="mb-1 block text-xs font-bold text-base-content/60 lg:hidden">Precio</span>
+                        <button type="button" @click="priceOpen = !priceOpen" :aria-expanded="priceOpen"
+                                :class="(filters.minPrice || filters.maxPrice) ? 'border-primary text-primary bg-primary/8' : 'border-base-300 bg-base-100'"
+                                class="btn h-10 min-h-0 w-full justify-between rounded-full font-semibold lg:w-auto lg:shadow-soft">
+                            <span x-text="priceLabel">Precio</span><c-icon name="chevron-down" class="size-4 opacity-60" />
+                        </button>
+                        <div x-show="priceOpen" x-transition.origin.top x-cloak
+                             class="z-40 mt-2 w-full rounded-box bg-base-100 p-4 shadow-float ring-1 ring-base-300 lg:absolute lg:left-0 lg:w-72">
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="text-xs font-bold text-base-content/60">Mínimo
+                                    <input type="number" min="0" inputmode="numeric" x-model="filters.minPrice" placeholder="$0" class="input input-sm mt-1 w-full rounded-field">
+                                </label>
+                                <label class="text-xs font-bold text-base-content/60">Máximo
+                                    <input type="number" min="0" inputmode="numeric" x-model="filters.maxPrice" placeholder="Sin límite" class="input input-sm mt-1 w-full rounded-field">
+                                </label>
+                            </div>
+                            <div class="mt-4 flex justify-between gap-2">
+                                <button type="button" class="btn btn-ghost btn-sm rounded-full" @click="clearPrice()">Limpiar</button>
+                                <button type="button" class="btn btn-primary btn-sm rounded-full px-5" @click="priceOpen = false; search()">Aplicar</button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- <div class=" fl-wrap filter-tags">
-                        <h4>Filtrar por tags</h4>
-                        <input id="check-aa" type="checkbox" name="check">
-                        <label for="check-aa">Elevator in building</label>
-                        <input id="check-b" type="checkbox" name="check">
-                        <label for="check-b">Friendly workspace</label>
-                        <input id="check-c" type="checkbox" name="check">
-                        <label for="check-c">Instant Book</label>
-                        <input id="check-d" type="checkbox" name="check">
-                        <label for="check-d">Wireless Internet</label>
-                    </div> -->
-                </div>
-                <!-- hidden-listing-filter end -->
-                <button id="search" class="button fs-map-btn">Actualizar</button>
-                <div class="more-filter-option">Más filtros <span></span></div>
-            </div>
-            <!-- listsearch-input-wrap end -->
-        </div>
-    </div>
-    <!-- list-main-wrap-->
-    <div class="list-main-wrap fl-wrap card-listing">
-        <a class="custom-scroll-link back-to-filters btf-l" href="#lisfw"><i class="fa fa-angle-double-up"></i><span>Volver a los filtros</span></a> 
- 
-        <div id="locations" class="container"></div>
-        <a class="load-more-button" href="#">Cargar más <i class="fa fa-circle-o-notch"></i> </a>  
-    </div>
-    <!-- list-main-wrap end-->
-</div>
-<!--col-list-wrap -->  
-<div class="limit-box fl-wrap"></div>
-{% include 'base/join_our.html' %}
-{% endblock %}
+                    <label x-show="center" x-cloak class="lg:w-auto">
+                        <span class="mb-1 block text-xs font-bold text-base-content/60 lg:sr-only">Distancia</span>
+                        <select x-model="filters.radius" class="select h-10 w-full rounded-full border-base-300 bg-base-100 font-semibold lg:w-36 lg:shadow-soft" aria-label="Distancia">
+                            <option value="2">A 2 km</option><option value="5">A 5 km</option><option value="15">A 15 km</option>
+                            <option value="50">A 50 km</option><option value="200">A 200 km</option>
+                        </select>
+                    </label>
 
-{% block js %}
-    {{ block.super }}    
-    <script type="text/javascript" src="{% static 'js/map_infobox.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/markerclusterer.js' %}"></script>
-    <script src="{% static 'js/explorer.js' %}"></script>
+                    <button type="button" x-show="activeCount" x-cloak @click="clearAll()" class="btn btn-ghost btn-sm rounded-full text-base-content/70">
+                        <c-icon name="rotate-ccw" class="size-4" />Limpiar todo
+                    </button>
+                    <button type="button" class="btn btn-primary btn-block rounded-full lg:hidden" @click="filtersOpen = false">
+                        Ver <span x-text="results.length"></span> resultados
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10">
+            {# Encabezado de resultados #}
+            <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 class="text-xl font-extrabold sm:text-2xl" aria-live="polite">
+                        <span x-show="loading">Buscando…</span>
+                        <span x-show="!loading" x-cloak><span x-text="results.length"></span> <span x-text="results.length === 1 ? 'anuncio' : 'anuncios'"></span></span>
+                    </h1>
+                    <div class="mt-2 flex flex-wrap gap-1.5" x-show="placeLabel || filters.category || filters.purpose" x-cloak>
+                        <button type="button" x-show="placeLabel" @click="clearPlace()" class="badge badge-lg gap-1.5 rounded-full border-0 bg-primary/12 font-semibold text-primary">
+                            <c-icon name="map-pin" class="size-3.5" /><span x-text="placeLabel + ' · ' + filters.radius + ' km'"></span><c-icon name="x" class="size-3.5" />
+                        </button>
+                        <button type="button" x-show="filters.purpose" @click="filters.purpose = ''" class="badge badge-lg gap-1.5 rounded-full border-0 bg-base-100 font-semibold ring-1 ring-base-300">
+                            <span x-text="nameOf(purposes, filters.purpose)"></span><c-icon name="x" class="size-3.5" />
+                        </button>
+                        <button type="button" x-show="filters.category" @click="filters.category = ''" class="badge badge-lg gap-1.5 rounded-full border-0 bg-base-100 font-semibold ring-1 ring-base-300">
+                            <span x-text="nameOf(categories, filters.category)"></span><c-icon name="x" class="size-3.5" />
+                        </button>
+                    </div>
+                </div>
+                <div class="hidden rounded-full bg-base-100 p-1 ring-1 ring-base-300 lg:flex" role="radiogroup" aria-label="Vista">
+                    <button type="button" role="radio" :aria-checked="view === 'map'" @click="setView('map')" :class="view === 'map' ? 'bg-neutral text-neutral-content' : 'text-base-content/70'" class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-bold"><c-icon name="map" class="size-4" />Mapa</button>
+                    <button type="button" role="radio" :aria-checked="view === 'list'" @click="setView('list')" :class="view === 'list' ? 'bg-neutral text-neutral-content' : 'text-base-content/70'" class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-bold"><c-icon name="layout-grid" class="size-4" />Lista</button>
+                </div>
+            </div>
+
+            {# Esqueletos mientras carga #}
+            <div x-show="loading" class="grid gap-5 sm:grid-cols-2" :class="view === 'list' && 'lg:grid-cols-3 xl:grid-cols-4'">
+                <template x-for="i in 6" :key="i">
+                    <div class="overflow-hidden rounded-box bg-base-100 ring-1 ring-base-300/60">
+                        <div class="skeleton aspect-[16/10] rounded-none"></div>
+                        <div class="space-y-3 p-5"><div class="skeleton h-3 w-24"></div><div class="skeleton h-5 w-3/4"></div><div class="skeleton h-3 w-1/2"></div><div class="skeleton mt-6 h-6 w-28"></div></div>
+                    </div>
+                </template>
+            </div>
+
+            {# Resultados #}
+            <div x-show="!loading && results.length" x-cloak @mouseover="hoverCard($event)" @mouseleave="setActive(null)"
+                 class="grid gap-5 sm:grid-cols-2" :class="view === 'list' ? 'lg:grid-cols-3 xl:grid-cols-4' : '2xl:grid-cols-3'">
+                <template x-for="item in results" :key="item.id">
+                    <div x-html="item.list_card" class="h-full animate-fade-up"></div>
+                </template>
+            </div>
+
+            {# Sin resultados / error #}
+            <div x-show="!loading && !results.length && !error" x-cloak>
+                <c-empty-state icon="search-x" title="No encontramos anuncios con esos filtros"
+                               text="Prueba ampliar la distancia, quitar algún filtro o buscar en otra zona.">
+                    <button type="button" class="btn btn-primary rounded-full px-5" @click="clearAll()"><c-icon name="rotate-ccw" class="size-4" />Limpiar filtros</button>
+                    <c-button variant="ghost" href="{% url 'choose_category' %}" icon="plus">Publica el primero</c-button>
+                </c-empty-state>
+            </div>
+            <div x-show="error" x-cloak>
+                <c-empty-state icon="wifi-off" title="No pudimos cargar los anuncios" text="Revisa tu conexión e inténtalo de nuevo.">
+                    <button type="button" class="btn btn-primary rounded-full px-5" @click="search()">Reintentar</button>
+                </c-empty-state>
+            </div>
+        </div>
+    </section>
+
+    {# ======================= MAPA ======================= #}
+    <aside aria-label="Mapa de resultados"
+           :class="mobileMap ? 'fixed inset-x-0 top-16 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 block' : (view === 'list' ? 'hidden' : 'relative hidden lg:block')"
+           class="lg:static lg:flex-1 lg:p-3 lg:pl-0">
+        <div class="relative size-full overflow-hidden bg-base-300 lg:rounded-box lg:ring-1 lg:ring-base-300">
+            <div x-ref="map" class="size-full"></div>
+
+            <div x-show="mapStatus === 'loading'" class="absolute inset-0 grid place-items-center bg-base-200">
+                <span class="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+            <div x-show="mapStatus === 'unavailable'" x-cloak class="absolute inset-0 grid place-items-center bg-brand-mesh p-8 text-center">
+                <div>
+                    <span class="mx-auto grid size-14 place-items-center rounded-2xl bg-base-100 text-primary shadow-soft"><c-icon name="map-pinned" class="size-7" /></span>
+                    <p class="mt-4 font-bold">El mapa no está disponible</p>
+                    <p class="mt-1 text-sm text-base-content/65">Puedes seguir explorando los anuncios en la lista.</p>
+                    <button type="button" class="btn btn-sm btn-primary mt-4 rounded-full lg:hidden" @click="mobileMap = false">Ver lista</button>
+                </div>
+            </div>
+
+            <button type="button" x-show="areaChanged && mapStatus === 'ready'" x-transition x-cloak @click="searchThisArea()"
+                    class="btn absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full border-0 bg-base-100 px-5 font-bold shadow-float hover:bg-base-100 hover:text-primary">
+                <c-icon name="refresh-cw" class="size-4" />Buscar en esta zona
+            </button>
+
+            {# Vista previa del anuncio seleccionado en el mapa #}
+            <template x-if="preview">
+                <a :href="preview.url" x-transition
+                   class="absolute inset-x-3 bottom-3 z-10 flex gap-3 rounded-box bg-base-100 p-2.5 shadow-float ring-1 ring-base-300 sm:left-auto sm:right-4 sm:bottom-4 sm:w-96">
+                    <img :src="preview.thumbnail" alt="" class="size-24 shrink-0 rounded-xl object-cover bg-base-300">
+                    <div class="min-w-0 py-1 pr-6">
+                        <p class="text-xs font-bold uppercase tracking-wide text-primary" x-text="preview.category"></p>
+                        <p class="mt-0.5 line-clamp-1 font-bold" x-text="preview.title || preview.category"></p>
+                        <p class="mt-0.5 line-clamp-1 text-sm text-base-content/60" x-text="preview.address || preview.purpose"></p>
+                        <p class="mt-1 text-lg font-extrabold" x-text="habitta.formatPrice(preview.price) || 'Precio a convenir'"></p>
+                    </div>
+                    <button type="button" class="btn btn-ghost btn-circle btn-xs absolute right-2 top-2" @click.prevent="preview = null; setActive(null)" aria-label="Cerrar vista previa"><c-icon name="x" class="size-4" /></button>
+                </a>
+            </template>
+        </div>
+    </aside>
+
+    {# Botón flotante Mapa/Lista en móvil #}
+    <button type="button" @click="mobileMap ? (mobileMap = false) : openMobileMap()"
+            class="btn fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] left-1/2 z-40 -translate-x-1/2 rounded-full border-0 bg-neutral px-6 font-bold text-neutral-content shadow-float hover:bg-neutral lg:hidden">
+        <span x-show="!mobileMap" class="inline-flex items-center gap-2"><c-icon name="map" class="size-5" />Mapa</span>
+        <span x-show="mobileMap" x-cloak class="inline-flex items-center gap-2"><c-icon name="list" class="size-5" />Lista</span>
+    </button>
+</div>
 {% endblock %}

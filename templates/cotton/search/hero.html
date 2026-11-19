@@ -1,0 +1,71 @@
+{% comment %}
+Buscador principal: pestañas por tipo, propósito y categoría filtrados en el navegador, y lugar con Google Places.
+Requiere en la página: {{ search_data|json_script:"search-data" }}
+Envía por GET al explorador (URL compartible): kind, search_purpose, search_category, search_address.
+{% endcomment %}
+<c-vars class="" />
+<form method="get" action="{% url 'finder' %}" x-data="heroSearch" role="search" aria-label="Buscar anuncios"
+      class="rounded-[1.75rem] bg-base-100 p-2.5 text-base-content shadow-float ring-1 ring-black/5 {{ class }}">
+    <input type="hidden" name="kind" :value="kind">
+
+    <div class="flex gap-1 overflow-x-auto scrollbar-none p-1 pb-2" role="tablist" aria-label="Tipo de anuncio">
+        <button type="button" role="tab" :aria-selected="kind === ''" @click="setKind('')"
+                :class="kind === '' ? 'bg-neutral text-neutral-content shadow-soft' : 'hover:bg-base-200 text-base-content/70'"
+                class="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors">
+            <c-icon name="layout-grid" class="size-4" />Todo
+        </button>
+        <button type="button" role="tab" :aria-selected="kind === '1'" @click="setKind('1')"
+                :class="kind === '1' ? 'bg-neutral text-neutral-content shadow-soft' : 'hover:bg-base-200 text-base-content/70'"
+                class="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors">
+            <c-icon name="house" class="size-4" />Inmuebles
+        </button>
+        <button type="button" role="tab" :aria-selected="kind === '2'" @click="setKind('2')"
+                :class="kind === '2' ? 'bg-neutral text-neutral-content shadow-soft' : 'hover:bg-base-200 text-base-content/70'"
+                class="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors">
+            <c-icon name="wrench" class="size-4" />Servicios
+        </button>
+        <button type="button" role="tab" :aria-selected="kind === '3'" @click="setKind('3')"
+                :class="kind === '3' ? 'bg-neutral text-neutral-content shadow-soft' : 'hover:bg-base-200 text-base-content/70'"
+                class="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors">
+            <c-icon name="briefcase-business" class="size-4" />Empleos
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 gap-1 rounded-[1.35rem] bg-base-200/70 p-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.3fr)_auto] md:gap-0">
+        <label class="flex items-center gap-3 rounded-2xl px-4 py-2.5 transition-colors focus-within:bg-base-100 hover:bg-base-100/60 md:rounded-r-none">
+            <c-icon name="target" class="size-5 shrink-0 text-primary" />
+            <span class="min-w-0 flex-1">
+                <span class="block text-xs font-bold text-base-content/60">Quiero</span>
+                <select name="search_purpose" x-model="purpose" class="w-full cursor-pointer appearance-none truncate bg-transparent font-semibold outline-none">
+                    <option value="">Comprar, rentar…</option>
+                    <template x-for="p in visiblePurposes" :key="p.id">
+                        <option :value="p.id" x-text="p.name" :selected="String(p.id) === String(purpose)"></option>
+                    </template>
+                </select>
+            </span>
+        </label>
+        <label class="flex items-center gap-3 rounded-2xl px-4 py-2.5 transition-colors focus-within:bg-base-100 hover:bg-base-100/60 md:rounded-none md:border-l md:border-base-300">
+            <c-icon name="tag" class="size-5 shrink-0 text-primary" />
+            <span class="min-w-0 flex-1">
+                <span class="block text-xs font-bold text-base-content/60">Categoría</span>
+                <select name="search_category" x-model="category" class="w-full cursor-pointer appearance-none truncate bg-transparent font-semibold outline-none">
+                    <option value="">Todas</option>
+                    <template x-for="c in visibleCategories" :key="c.id">
+                        <option :value="c.id" x-text="c.name" :selected="String(c.id) === String(category)"></option>
+                    </template>
+                </select>
+            </span>
+        </label>
+        <label class="flex items-center gap-3 rounded-2xl px-4 py-2.5 transition-colors focus-within:bg-base-100 hover:bg-base-100/60 md:rounded-l-none md:border-l md:border-base-300">
+            <c-icon name="map-pin" class="size-5 shrink-0 text-primary" />
+            <span class="min-w-0 flex-1">
+                <span class="block text-xs font-bold text-base-content/60">Ubicación</span>
+                <input type="text" name="search_address" x-ref="address" autocomplete="off"
+                       placeholder="Ciudad o sector" class="w-full bg-transparent font-semibold outline-none placeholder:font-medium placeholder:text-base-content/40">
+            </span>
+        </label>
+        <button type="submit" class="btn btn-secondary btn-lg h-14 rounded-2xl px-7 text-base font-bold shadow-none md:ml-1">
+            <c-icon name="search" class="size-5" /><span>Buscar</span>
+        </button>
+    </div>
+</form>

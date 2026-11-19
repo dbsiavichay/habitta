@@ -1,13 +1,26 @@
-{% if log_form %}
-    <form id="log_form" action="{% url 'add_log' %}" method="POST" enctype="multipart/form-data" novalidate>
+{% comment %}
+Botón "Me gusta" (guarda en favoritos). Con HTMX se reemplaza a sí mismo sin recargar la página;
+sin JavaScript funciona como un formulario normal.
+{% endcomment %}
+<div id="like-{{ property.pk }}" class="contents">
+    {% if log %}
+    <form method="post" action="{% url 'delete_log' log.id %}" hx-post="{% url 'delete_log' log.id %}" hx-target="#like-{{ property.pk }}" hx-swap="outerHTML">
         {% csrf_token %}
-        {{ log_form }}
+        <button type="submit" class="btn rounded-full border-0 bg-error/10 font-semibold text-error hover:bg-error/15" aria-pressed="true" title="Quitar de favoritos">
+            <c-icon name="heart" class="size-5 fill-current animate-pop" />Guardado{% if likes %} · {{ likes }}{% endif %}
+        </button>
     </form>
-    <a href="#" class="save-btn"><i class="fa fa-heart-o" style="color: #878C9F!important;"></i> Me gusta </a>
-{% else %}
-	<form id="log_form" action="{% url 'delete_log' log.id %}" method="POST" enctype="multipart/form-data" novalidate>
-        {% csrf_token %}        
+    {% elif log_form %}
+    <form method="post" action="{% url 'add_log' %}" hx-post="{% url 'add_log' %}" hx-target="#like-{{ property.pk }}" hx-swap="outerHTML">
+        {% csrf_token %}
+        {{ log_form.type }}{{ log_form.property }}
+        <button type="submit" class="btn rounded-full border-base-300 bg-base-100 font-semibold hover:border-error/40 hover:text-error" aria-pressed="false" title="Guardar en favoritos">
+            <c-icon name="heart" class="size-5" />Guardar{% if likes %} · {{ likes }}{% endif %}
+        </button>
     </form>
-	<a href="#" class="save-btn"><i class="fa fa-heart"></i> Me gusta </a>
-{% endif %}    
-
+    {% else %}
+    <a href="{% url 'login' %}?next={{ property.get_absolute_url|urlencode }}" class="btn rounded-full border-base-300 bg-base-100 font-semibold hover:text-error" title="Ingresa para guardar en favoritos">
+        <c-icon name="heart" class="size-5" />Guardar{% if likes %} · {{ likes }}{% endif %}
+    </a>
+    {% endif %}
+</div>
