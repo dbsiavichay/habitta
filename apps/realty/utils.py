@@ -2,11 +2,11 @@ import os
 import re
 
 from django.conf import settings
+from django.db import DatabaseError
 
 
-def _read_icon_names(relative_path, prefix):
+def _read_icon_names(path, prefix):
 	"""Extrae los nombres de íconos (``.<prefix>-<nombre>:before``) de un CSS."""
-	path = os.path.join(settings.BASE_DIR, relative_path)
 	regex = re.compile(r'%s-(?P<icon>[\w_-]+):before' % prefix)
 	try:
 		with open(path, 'r', encoding='utf-8') as file:
@@ -16,18 +16,29 @@ def _read_icon_names(relative_path, prefix):
 
 
 def get_category_icons():
-	icons = _read_icon_names('static/plugins/fontcategories/fontcategories.css', 'fc')
+	icons = _read_icon_names(os.path.join(settings.BASE_DIR, 'static/plugins/fontcategories/fontcategories.css'), 'fc')
 	return [(icon, icon.capitalize()) for icon in icons]
 
 
 def get_spec_icons():
-	"""Íconos de especificaciones (clases ``lb-*``) de la fuente subida desde el admin."""
-	icons = _read_icon_names('media/larbitfonts/style.css', 'lb')
-	return [(icon, ' '.join(icon.capitalize().split('-'))) for icon in icons]
+	"""Íconos de especificaciones (clases ``lb-*``) de la fuente activa subida desde el admin.
 
+	Son las ``choices`` de ``Specification.icon``: Django las evalúa también en el system check,
+	así que con la BD vacía o sin migrar devuelve una lista vacía en vez de fallar.
+	"""
+	from apps.project.utils import get_active_icons
 
-# Alias histórico: lo referencia la migración realty/0006 y no debe romperse.
-get_larbit_icons = get_spec_icons
+	try:
+		icons = get_active_icons()
+	except DatabaseError:
+		return []
+	if not icons or not icons.css:
+		return []
+	try:
+		path = icons.css.path
+	except (NotImplementedError, ValueError):
+		return []
+	return [(icon, ' '.join(icon.capitalize().split('-'))) for icon in _read_icon_names(path, 'lb')]
 
 
 def property_photos(obj):

@@ -21,12 +21,13 @@ class Settings(models.Model):
 		return self.title
 
 class Icons(models.Model):
+	"""Fuente de íconos de especificaciones (clases ``lb-*``, exportada de IcoMoon) subida desde el admin."""
 	name = models.CharField(max_length=64, verbose_name='nombre')
-	eot = models.FileField(upload_to='larbitfonts/fonts')
-	svg = models.FileField(upload_to='larbitfonts/fonts')
-	ttf = models.FileField(upload_to='larbitfonts/fonts')
-	woff = models.FileField(upload_to='larbitfonts/fonts')
-	css = models.FileField(upload_to='larbitfonts')
+	eot = models.FileField(upload_to='spec_icons/fonts')
+	svg = models.FileField(upload_to='spec_icons/fonts')
+	ttf = models.FileField(upload_to='spec_icons/fonts')
+	woff = models.FileField(upload_to='spec_icons/fonts')
+	css = models.FileField(upload_to='spec_icons')
 	is_active = models.BooleanField(default=False, verbose_name='activo?')
 
 	def __str__(self):

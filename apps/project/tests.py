@@ -5,14 +5,21 @@ y sin rastros de la marca anterior.
 
     docker compose exec web python manage.py test apps.project.tests
 """
+import shutil
+import tempfile
+from io import StringIO
+
 from asgiref.sync import async_to_sync
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth.models import User
-from django.test import TestCase, TransactionTestCase, override_settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.core.management import call_command
+from django.test import RequestFactory, TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 
 from apps.logs.models import Log
-from apps.project.models import Help, Term
+from apps.project.models import Help, Icons, Settings, Term
 from apps.project.templatetags.habitta import money, spec_text, whatsapp_url
 from apps.project.testing import IN_MEMORY_LAYER, create_listing
 
@@ -170,3 +177,106 @@ class ChatConsumerTests(TransactionTestCase):
         client = Client()
         client.force_login(user)
         return f"sessionid={client.cookies['sessionid'].value}".encode()
+
+
+ICONS_MEDIA = tempfile.mkdtemp(prefix='habitta-icons-')
+ICONS_CSS = (
+    "@font-face {\n  font-family: 'larbit';\n  src: url('fonts/larbit.eot?h1x3xy');\n"
+    "  src: url('fonts/larbit.woff?h1x3xy') format('woff'), url('fonts/larbit.svg?h1x3xy#larbit') format('svg');\n}\n"
+    "[class^=\"lb-\"] { font-family: 'larbit' !important; }\n"
+    ".lb-bed:before { content: \"\\e900\"; }\n.lb-bath-tub:before { content: \"\\e901\"; }\n"
+)
+
+
+def tearDownModule():
+    shutil.rmtree(ICONS_MEDIA, ignore_errors=True)
+
+
+@override_settings(MEDIA_ROOT=ICONS_MEDIA, SITE_NAME='Habitta', LEGAL_NAME='Habitta S.A.', SITE_URL='https://habitta.ec')
+class RebrandContentTests(TestCase):
+    """manage.py rebrand_content"""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.settings_row = Settings.objects.create(
+            title='Bienvenidos  a LARBIT', subtitle='Tu tienda de servicios online',
+            cover='covers/a.jpg', subcover='covers/a.jpg', term_cover='covers/a.jpg',
+            help_cover='covers/a.jpg', service_cover='covers/a.jpg', is_active=True,
+        )
+        cls.term = Term.objects.create(title='1. ACEPTACIÓN', order=1, description=(
+            'Términos de Larbit Company S.A., con domicilio en Macas (el “www.larbit.com”).\n'
+            'Larbit company S.A y sus empresas. Propiedad de Larbit Company S.A. El Usuario acepta.\n'
+            'Escríbenos a larbitecuador@gmail.com o visita Larbit.'
+        ))
+
+    def setUp(self):
+        shutil.rmtree(ICONS_MEDIA, ignore_errors=True)
+
+    def run_command(self, *args):
+        out = StringIO()
+        with self.captureOnCommitCallbacks(execute=True):
+            call_command('rebrand_content', *args, stdout=out)
+        return out.getvalue()
+
+    def create_icons(self):
+        def stored(name, content):
+            return default_storage.save(name, ContentFile(content))
+
+        return Icons.objects.create(
+            name='LarbitFonts', is_active=True,
+            eot=stored('larbitfonts/fonts/larbit.eot', b'eot'), svg=stored('larbitfonts/fonts/larbit.svg', b'<font id="larbit">'),
+            ttf=stored('larbitfonts/fonts/larbit.ttf', b'ttf'), woff=stored('larbitfonts/fonts/larbit.woff', b'woff'),
+            css=stored('larbitfonts/style.css', ICONS_CSS.encode()),
+        )
+
+    def test_dry_run_saves_nothing(self):
+        icons = self.create_icons()
+        output = self.run_command('--dry-run')
+        self.assertIn('Se cambiarían', output)
+        self.term.refresh_from_db()
+        self.assertIn('Larbit Company S.A.', self.term.description)
+        icons.refresh_from_db()
+        self.assertEqual(icons.css.name, 'larbitfonts/style.css')
+        self.assertFalse(default_storage.exists('spec_icons/spec-icons.css'))
+
+    def test_replaces_brand_legal_name_and_domain(self):
+        self.run_command()
+        self.settings_row.refresh_from_db()
+        self.term.refresh_from_db()
+        self.assertEqual(self.settings_row.title, 'Bienvenidos a Habitta')
+        self.assertEqual(self.term.description, (
+            'Términos de Habitta S.A., con domicilio en Macas (el “habitta.ec”).\n'
+            'Habitta S.A. y sus empresas. Propiedad de Habitta S.A. El Usuario acepta.\n'
+            # Los correos no se tocan: se reportan para revisarlos a mano
+            'Escríbenos a larbitecuador@gmail.com o visita Habitta.'
+        ))
+
+    @override_settings(LEGAL_NAME='Habitta')
+    def test_keeps_the_period_only_at_the_end_of_a_sentence(self):
+        output = self.run_command()
+        self.term.refresh_from_db()
+        self.assertIn('Términos de Habitta, con domicilio', self.term.description)
+        self.assertIn('Habitta y sus empresas. Propiedad de Habitta. El Usuario', self.term.description)
+        self.assertIn('Aún mencionan «larbit»', output)
+
+    def test_is_idempotent(self):
+        self.run_command()
+        self.assertIn('Se cambiaron 0 fragmentos', self.run_command())
+
+    def test_moves_the_icon_font(self):
+        from apps.project.context_processors import brand
+        from apps.realty.utils import get_spec_icons
+
+        icons = self.create_icons()
+        self.run_command()
+        icons.refresh_from_db()
+        self.assertEqual(icons.name, 'Íconos de especificaciones')
+        self.assertEqual(icons.eot.name, 'spec_icons/fonts/spec-icons.eot')
+        self.assertEqual(icons.css.name, 'spec_icons/spec-icons.css')
+        css = icons.css.read().decode()
+        self.assertNotIn('larbit', css)
+        self.assertIn("url('fonts/spec-icons.svg?h1x3xy#spec-icons')", css)
+        self.assertEqual(icons.svg.read(), b'<font id="spec-icons">')
+        self.assertFalse(default_storage.exists('larbitfonts/style.css'))
+        self.assertEqual(get_spec_icons(), [('bath-tub', 'Bath tub'), ('bed', 'Bed')])
+        self.assertTrue(brand(RequestFactory().get('/'))['icons_url'].endswith('/spec_icons/spec-icons.css'))
