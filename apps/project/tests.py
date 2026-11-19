@@ -8,37 +8,13 @@ y sin rastros de la marca anterior.
 from asgiref.sync import async_to_sync
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import Point
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 
 from apps.logs.models import Log
 from apps.project.models import Help, Term
 from apps.project.templatetags.habitta import money, spec_text, whatsapp_url
-from apps.realty.models import Category, Property, Purpose, Specification
-
-IN_MEMORY_LAYER = {'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'}}
-
-
-def create_listing(owner, kind=Category.REAL_STATE, name='Casas', price='120000'):
-    purpose = Purpose.objects.create(for_owner='Vender', for_user='Comprar', activity='En Venta', participle='Vendido')
-    spec, _ = Specification.objects.get_or_create(
-        internal_name='precio', defaults={'name': 'Precio', 'field_type': 'DecimalField'}
-    )
-    category = Category.objects.create(
-        kind=kind, name=name, singular_name=name[:-1], price_area='precio', order=1, for_card='precio'
-    )
-    category.purposes.add(purpose)
-    return Property.objects.create(
-        title='Casa con jardín',
-        description='Amplia y luminosa.',
-        address='Av. Amazonas, Quito',
-        geopoint=Point(-78.4867, -0.1807),
-        status=Property.PUBLISHED,
-        details={'purpose': purpose.id, 'specifications': {str(spec.id): price}},
-        category=category,
-        user=owner,
-    )
+from apps.project.testing import IN_MEMORY_LAYER, create_listing
 
 
 class PublicPagesTests(TestCase):

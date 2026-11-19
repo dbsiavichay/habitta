@@ -1,54 +1,20 @@
-{% extends 'base/base_list.html' %}
+{% extends 'layouts/app.html' %}
 
-{% load messenger %}
+{% block title %}Mensajes{% endblock %}
+{% block panel_title %}Mensajes{% endblock %}
+{% block panel_lead %}{% if unread_messages %}Tienes {{ unread_messages }} mensaje{{ unread_messages|pluralize }} sin leer.{% else %}Tus conversaciones con anunciantes e interesados.{% endif %}{% endblock %}
 
-{% block breadcrumbs %}
-<h2>Mensajes</h2>
-<div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Mensajes</span></div>
-{% endblock %}
-
-{% block list %}
-{% for object in object_list %}
-<!-- dashboard-list end-->    
-<div class="dashboard-list" data-url="{% url 'detail_conversation' object.id %}">
-    <div class="dashboard-message">
-        {% get_conversation_receiver object user as receiver %}
-        {% with object.last_message as last_message %}
-        <div class="dashboard-message-avatar">
-            <img src="{{ receiver.profile.get_avatar }}" alt="">
-        </div>
-        <div class="dashboard-message-text">
-            <h4>{{ receiver.first_name }} - <span>Hace {{ last_message.create_date|timesince }}</span></h4>
-            <p>{{ last_message.content }}</p>            
-        </div>
-        {% endwith %}
-    </div>
+{% block panel_body %}
+{% if object_list %}
+<div class="overflow-hidden rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    {% include 'messenger/_conversation_items.html' with conversations=object_list active_id=None %}
 </div>
-<!-- dashboard-list end-->
-{% endfor %}     
-{% endblock %}
-
-{% block extracss %}
-<style>
-    .dashboard-list {
-        width: 100%;
-    }
-    .dashboard-list:hover {        
-        cursor: pointer;
-    }
-</style>
-{% endblock %}
-
-{% block js %}
-{{ block.super }}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        elements = document.querySelectorAll('.dashboard-list');
-        elements.forEach(function (elem, index) {
-            elem.addEventListener('click', function () {
-                window.location.href = this.dataset.url;
-            });
-        });
-});
-</script>
+<c-pagination :page_obj="page_obj" />
+{% else %}
+<div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    <c-empty-state icon="messages-square" title="Aún no tienes mensajes" text="Cuando escribas a un anunciante, o alguien te escriba por uno de tus anuncios, la conversación aparecerá aquí.">
+        <c-button icon="compass" href="{% url 'finder' %}">Explorar anuncios</c-button>
+    </c-empty-state>
+</div>
+{% endif %}
 {% endblock %}

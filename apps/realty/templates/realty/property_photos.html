@@ -1,0 +1,29 @@
+{% extends 'layouts/app.html' %}
+
+{% block title %}Fotos de tu anuncio{% endblock %}
+{% block breadcrumbs %}
+{% if is_new %}
+<c-panel.steps :current="6" />
+{% else %}
+<c-breadcrumbs class="mb-3">
+    <li><a href="{% url 'properties' %}">Mis publicaciones</a></li>
+    <li><span aria-current="page" class="opacity-65">Fotos</span></li>
+</c-breadcrumbs>
+{% endif %}
+{% endblock %}
+{% block panel_title %}{% if is_new %}Suma más fotos{% else %}Fotos de tu anuncio{% endif %}{% endblock %}
+{% block panel_lead %}{% if is_new %}Tu anuncio ya está publicado. Los que tienen varias fotos reciben más mensajes.{% else %}«{{ object.title|default:object.category.singular_name }}»: agrega o quita fotos de la galería.{% endif %}{% endblock %}
+
+{% block panel_body %}
+<div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+    <c-property.photo-manager :photos="photos" :property="object" :content_type_id="content_type_id" />
+
+    <aside class="space-y-4 xl:sticky xl:top-24">
+        <c-property.card :property="object" />
+        <div class="grid gap-2">
+            <c-button icon="eye" href="{{ object.get_absolute_url }}" block="1">Ver mi anuncio</c-button>
+            <c-button variant="ghost" icon="layout-grid" href="{% url 'properties' %}" block="1">Ir a mis publicaciones</c-button>
+        </div>
+    </aside>
+</div>
+{% endblock %}

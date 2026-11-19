@@ -76,7 +76,8 @@ opcionales: si se dejan vacías, la funcionalidad correspondiente se oculta o se
 ```bash
 docker compose exec web python manage.py check
 docker compose exec web python manage.py makemigrations --check --dry-run
-docker compose exec web python manage.py test apps.project.tests   # pruebas de humo del frontend
+docker compose exec web python manage.py test apps.project.tests apps.authentication.tests \
+    apps.realty.tests apps.messenger.tests apps.auctions.tests apps.payments.tests
 docker compose logs -f web
 ```
 
@@ -105,7 +106,7 @@ Sin Node: todo se instala con pip y se compila con el binario standalone de Tail
 | [Alpine.js](https://alpinejs.dev) | Interactividad declarativa (`static/js/habitta/*.js`) |
 | [HTMX](https://htmx.org) + `django-htmx` | Parciales sin recargar (p. ej. "Guardar" en favoritos) |
 | [Lucide](https://lucide.dev/icons) (`{% lucide %}` / `<c-icon name="…">`) | Íconos SVG |
-| PhotoSwipe, @googlemaps/markerclusterer | Galería y agrupación de pines (vendorizados en `static/vendor/`) |
+| PhotoSwipe, @googlemaps/markerclusterer, Cropper.js | Galería, agrupación de pines y recorte de la portada (vendorizados en `static/vendor/`) |
 
 - **Desarrollo:** `docker compose up -d` levanta también el servicio `tailwind`, que recompila el CSS al
   guardar plantillas. La primera vez descarga el CLI (~110 MB) en `.django_tailwind_cli/`.
@@ -115,9 +116,10 @@ Sin Node: todo se instala con pip y se compila con el binario standalone de Tail
   `assets/tailwind/source.css`; en las plantillas se usan clases semánticas (`bg-primary`,
   `text-secondary`…), nunca colores sueltos. Logo y favicons en `static/brand/`.
 - **Nombre y contacto:** `SITE_NAME`, `SITE_URL`, `CONTACT_*` y `SOCIAL_*` (ver `.env.example`).
-- **Diseño anterior:** las páginas de cuenta y del panel todavía usan la plantilla CityBook
-  (`templates/base/`); las públicas usan `templates/layouts/base.html`. Los formularios nuevos usan
-  `{% with hydra_theme="v2" %}` para renderizarse con `templates/hydra/v2/`.
+- **Layouts:** `templates/layouts/base.html` (páginas públicas), `auth.html` (login, registro y
+  recuperación) y `app.html` (panel del usuario, con el menú definido en `apps/project/panel.py`).
+  Los formularios usan `{% with hydra_theme="v2" %}` para renderizarse con `templates/hydra/v2/`.
+  La plantilla anterior (CityBook, `templates/base/`) ya no la usa ninguna página.
 
 ## Estructura
 

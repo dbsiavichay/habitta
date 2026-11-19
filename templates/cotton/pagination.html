@@ -1,0 +1,32 @@
+{% comment %}
+Paginación real sobre el page_obj de un ListView con paginate_by. Conserva los demás parámetros de la URL.
+  <c-pagination :page_obj="page_obj" />
+{% endcomment %}
+<c-vars page_obj="" class="" />
+{% load habitta %}
+{% if page_obj and page_obj.has_other_pages %}
+<nav aria-label="Paginación" class="mt-8 flex flex-col items-center justify-between gap-3 sm:flex-row {{ class }}">
+    <p class="text-sm text-base-content/60">{{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }}</p>
+    <div class="join">
+        {% if page_obj.has_previous %}
+        <a class="join-item btn btn-sm" href="{% querystring page=page_obj.previous_page_number %}" rel="prev" aria-label="Página anterior"><c-icon name="chevron-left" class="size-4" /></a>
+        {% else %}
+        <span class="join-item btn btn-sm btn-disabled" aria-hidden="true"><c-icon name="chevron-left" class="size-4" /></span>
+        {% endif %}
+        {% for number in page_obj|page_range %}
+        {% if number == page_obj.paginator.ELLIPSIS %}
+        <span class="join-item btn btn-sm btn-disabled" aria-hidden="true">…</span>
+        {% elif number == page_obj.number %}
+        <span class="join-item btn btn-sm btn-primary" aria-current="page">{{ number }}</span>
+        {% else %}
+        <a class="join-item btn btn-sm" href="{% querystring page=number %}" aria-label="Página {{ number }}">{{ number }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a class="join-item btn btn-sm" href="{% querystring page=page_obj.next_page_number %}" rel="next" aria-label="Página siguiente"><c-icon name="chevron-right" class="size-4" /></a>
+        {% else %}
+        <span class="join-item btn btn-sm btn-disabled" aria-hidden="true"><c-icon name="chevron-right" class="size-4" /></span>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}

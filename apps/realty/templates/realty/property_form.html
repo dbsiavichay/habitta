@@ -1,66 +1,240 @@
-{% extends 'base/base_form.html' %}
-{% load hydra %}
+{% extends 'layouts/app.html' %}
+{% comment %}
+Asistente de publicación (crear y editar): Datos → Ubicación → Portada → Revisar en un solo envío.
+Los pasos se validan en el navegador (publishWizard en static/js/habitta/publish.js); si el servidor
+devuelve errores, el asistente se abre en el primer paso con errores (initial_step).
+{% endcomment %}
+{% load static habitta hydra %}
 
-{% block extra_forms %}
-{% if location_form %}
-<!-- profile-edit-container-->
-<div class="profile-edit-container add-list-container">
-    <div class="profile-edit-header fl-wrap">
-        <h4>Localización</h4>
-    </div>
-    <div class="custom-form">
-        {% include 'hydra/form.html' with form=location_form %}
-        <div id="inputMap"></div>
-    </div>
-</div>
-<!-- profile-edit-container end-->
-{% endif %}
+{% block title %}{% if object %}Editar anuncio{% else %}Publicar · {{ category.singular_name }}{% endif %}{% endblock %}
+{% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'vendor/cropperjs/cropper-1.6.2.min.css' %}">{% endblock %}
+{% block scripts %}
+<script defer src="{% static 'vendor/cropperjs/cropper-1.6.2.min.js' %}"></script>
+<script defer src="{% static 'js/habitta/publish.js' %}"></script>
+{% endblock %}
 
-<div id="details-form">
-    {% include 'realty/publication_details.html' with forms=details_forms %}
-</div>
+{# El encabezado va dentro del formulario: los pasos siguen el estado del asistente #}
+{% block panel_header %}{% endblock %}
 
-<!-- profile-edit-container-->
-<div class="profile-edit-container add-list-container">
-    <div class="profile-edit-header fl-wrap">
-        <h4>Multimedia </h4>
-    </div>
+{% block panel_body %}
+<form method="post" enctype="multipart/form-data" novalidate class="-mt-6"
+      x-data="publishWizard({ initial: {{ initial_step }}, errors: {% if request.method == 'POST' %}true{% else %}false{% endif %}, priceField: '{{ price_field }}' })"
+      @submit="submit($event)" @keydown.enter="enter($event)" @input="dirty = true" @change="dirty = true">
+    {% csrf_token %}
 
-    <div class="custom-form">
-        <div class="fl-wrap filter-tags">
-            <h4>Foto de portada</h4>
+    <c-panel.steps live="1" />
+
+    <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div class="min-w-0">
+            <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold text-primary">
+                <span class="inline-flex items-center gap-1.5"><c-icon name="{{ category.kind|kind_icon }}" class="size-4" />{{ category.name }}</span>
+                {% if not object %}<a href="{% url 'choose_category' %}?kind={{ category.kind }}" class="font-semibold text-base-content/55 underline-offset-2 hover:text-primary hover:underline">Cambiar</a>{% endif %}
+            </p>
+            <h1 class="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                {% if object %}Editar «{{ object.title|default:category.singular_name }}»{% else %}Publica tu anuncio{% endif %}
+            </h1>
         </div>
-        {{ cover_form }}
-        <label class="upload-image">
-            <div class="btn flat-btn">
-                Seleccionar una imagen
-            </div>
-            <input type="file" class="sr-only" id="cover_image" accept="image/*">
-        </label>
-        <img style="width: 60%" id="cover" src="{{ object.get_cover }}" alt="">
-    </div>
-</div>
-<!-- profile-edit-container end-->
+        {% if object %}<c-button variant="ghost" size="sm" icon="eye" href="{{ object.get_absolute_url }}">Ver anuncio</c-button>{% endif %}
+    </header>
 
-<!--register form -->
-<div id="cover-modal" class="main-register-wrap modal">
-    <div class="main-overlay"></div>
-    <div class="main-register-holder">
-        <div class="main-register fl-wrap">
-            <div class="close-reg"><i class="fa fa-times"></i></div>
-            <h3>Recortar foto</h3>
-            <div class="soc-log fl-wrap">
-                <div class="img-container">
-                    <img id="cropper_image" style="max-width: 100%;" src="#">
+    {% if request.method == 'POST' %}
+    <div role="alert" class="alert alert-error mt-5 rounded-box">
+        <c-icon name="circle-alert" />
+        <span>Revisa los campos marcados en rojo antes de {% if object %}guardar{% else %}publicar{% endif %}.</span>
+    </div>
+    {% endif %}
+
+    {% with hydra_theme="v2" %}
+    {# ============================== 1. Datos ============================== #}
+    <section data-step="1" x-show="step === 1" {% if initial_step != 1 %}x-cloak{% endif %} class="mt-6 space-y-5" aria-labelledby="paso-1">
+        <div data-summary="Lo básico" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
+            <h2 id="paso-1" tabindex="-1" class="text-xl font-bold outline-none">Lo básico</h2>
+            <p class="mt-1 text-sm text-base-content/65">Un buen título y una descripción clara ayudan a que te encuentren.</p>
+            <div class="mt-5">{% include 'hydra/v2/form.html' with form=form %}</div>
+        </div>
+        {% for dform in details_forms %}{% if dform.fields %}
+        <div data-summary="{{ dform.group.name }}" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
+            <h3 class="text-lg font-bold">{{ dform.group.name }}</h3>
+            <div class="mt-5">{% include 'hydra/v2/form.html' with form=dform %}</div>
+        </div>
+        {% endif %}{% endfor %}
+    </section>
+
+    {# ============================== 2. Ubicación ============================== #}
+    <section data-step="2" x-show="step === 2" {% if initial_step != 2 %}x-cloak{% endif %} class="mt-6" aria-labelledby="paso-2">
+        <div data-summary="Ubicación" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7"
+             x-data="locationPicker({ lat: '{{ location_form.latitude.value|default_if_none:''|stringformat:'s' }}', lng: '{{ location_form.longitude.value|default_if_none:''|stringformat:'s' }}', radius: '{{ location_form.radius.value|default_if_none:''|stringformat:'s' }}', fixed: {{ category.require_location|yesno:'true,false' }} })"
+             @need-point.window="needPoint = true">
+            <h2 id="paso-2" tabindex="-1" class="text-xl font-bold outline-none">{% if category.require_location %}¿Dónde está?{% else %}¿Dónde trabajas?{% endif %}</h2>
+            <p class="mt-1 text-sm text-base-content/65">
+                {% if category.require_location %}Busca la dirección y ajusta el pin en el punto exacto. Así aparece en el mapa del explorador.{% else %}Marca tu ciudad o zona y elige hasta dónde llegas: te mostramos a quienes buscan cerca.{% endif %}
+            </p>
+
+            <div class="mt-5 grid gap-4">
+                {% render_field location_form.address icon="map-pin" %}
+
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <button type="button" @click="locate()" :disabled="locating" class="btn btn-soft btn-primary btn-sm rounded-full">
+                        <span x-show="locating" x-cloak class="loading loading-spinner loading-xs"></span>
+                        <span x-show="!locating"><c-icon name="locate-fixed" class="size-4" /></span>Usar mi ubicación
+                    </button>
+                    <p x-show="geoError" x-cloak x-text="geoError" class="text-sm text-error"></p>
+                    <p x-show="hasPoint && mapState === 'error'" x-cloak class="text-sm text-success">
+                        <c-icon name="circle-check" class="inline size-4" /> Punto marcado (<span x-text="lat?.toFixed(5)"></span>, <span x-text="lng?.toFixed(5)"></span>)
+                    </p>
+                </div>
+
+                <div class="relative">
+                    <div x-ref="map" class="h-72 overflow-hidden rounded-box bg-base-200 ring-1 ring-base-300 sm:h-96" role="application" aria-label="Mapa para marcar la ubicación"></div>
+                    <div x-show="mapState !== 'ready'" class="absolute inset-0 grid place-items-center rounded-box bg-base-200 p-6 text-center">
+                        <div x-show="mapState === 'error'" x-cloak>
+                            <span class="mx-auto grid size-12 place-items-center rounded-2xl bg-base-100 text-base-content/60 shadow-soft"><c-icon name="map-pin-off" class="size-6" /></span>
+                            <p class="mt-3 font-bold">El mapa no está disponible</p>
+                            <p class="mt-1 max-w-sm text-sm text-base-content/60">Escribe la dirección y usa «Usar mi ubicación» para marcar el punto.</p>
+                        </div>
+                        <p x-show="mapState !== 'error'" class="flex items-center gap-2 text-sm font-semibold text-base-content/60"><span class="loading loading-spinner loading-sm text-primary"></span>Cargando mapa…</p>
+                    </div>
+                </div>
+                <p x-show="mapState === 'ready'" class="flex items-center gap-1.5 text-sm text-base-content/60"><c-icon name="hand" class="size-4" />Toca el mapa o arrastra el pin para ajustar el punto.</p>
+
+                <p x-show="needPoint && !hasPoint" x-cloak role="alert" class="flex items-start gap-1.5 text-sm font-semibold text-error">
+                    <c-icon name="circle-alert" class="mt-0.5 size-4 shrink-0" />Marca el punto: busca la dirección, toca el mapa o usa tu ubicación.
+                </p>
+                {% if location_form.latitude.errors or location_form.longitude.errors %}
+                <p x-show="!hasPoint" class="flex items-start gap-1.5 text-sm font-semibold text-error"><c-icon name="circle-alert" class="mt-0.5 size-4 shrink-0" />Falta marcar el punto en el mapa.</p>
+                {% endif %}
+
+                {% if category.require_location %}
+                <input type="hidden" name="radius" value="0">
+                {% else %}
+                <div class="fieldset p-0">
+                    <label for="id_radius" class="fieldset-legend pt-0 pb-1.5 text-sm font-semibold">
+                        <span class="inline-flex items-center gap-1.5"><c-icon name="radius" class="size-4 text-primary" />Hasta dónde llegas</span>
+                        <span class="text-base font-extrabold text-primary" x-text="km + ' km'"></span>
+                    </label>
+                    <input type="range" name="radius" id="id_radius" min="500" max="50000" step="500" x-model.number="radius" class="range range-primary range-sm w-full" aria-describedby="id_radius_help">
+                    <p id="id_radius_help" class="label mt-1 flex justify-between text-xs text-base-content/55"><span>0,5 km</span><span>50 km</span></p>
+                    {% for error in location_form.radius.errors %}<p class="mt-1 text-sm text-error">{{ error }}</p>{% endfor %}
+                </div>
+                {% endif %}
+                <input type="hidden" name="latitude" :value="lat ?? ''">
+                <input type="hidden" name="longitude" :value="lng ?? ''">
+            </div>
+        </div>
+    </section>
+
+    {# ============================== 3. Portada ============================== #}
+    <section data-step="3" x-show="step === 3" {% if initial_step != 3 %}x-cloak{% endif %} class="mt-6" aria-labelledby="paso-3">
+        <div data-summary="Portada" data-cover class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7"
+             x-data="coverCropper({ current: '{{ current_cover|escapejs }}' })">
+            <h2 id="paso-3" tabindex="-1" class="text-xl font-bold outline-none">Elige la portada</h2>
+            <p class="mt-1 text-sm text-base-content/65">Es la foto que se ve en los resultados. La recortamos en horizontal (16:9) para que luzca en todas partes.</p>
+            {{ cover_form.base64image }}
+            {% for error in cover_form.errors.values %}{% for e in error %}<p class="mt-3 flex items-start gap-1.5 text-sm text-error"><c-icon name="circle-alert" class="mt-0.5 size-4 shrink-0" />{{ e }}</p>{% endfor %}{% endfor %}
+
+            <div class="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_15rem]">
+                <div @click="pick()" @keydown.enter.prevent.stop="pick()" @keydown.space.prevent="pick()" tabindex="0" role="button"
+                     @dragover.prevent="dragging = true" @dragleave.prevent="dragging = false" @drop.prevent="drop($event)"
+                     :class="dragging ? 'border-primary bg-primary/5' : 'border-base-300 hover:border-primary/60'"
+                     class="relative grid aspect-video cursor-pointer place-items-center overflow-hidden rounded-box border-2 border-dashed bg-base-200/60 text-center transition-colors"
+                     :aria-label="preview ? 'Cambiar la portada' : 'Elegir la portada'">
+                    <img x-show="preview" x-cloak :src="preview" data-cover-preview alt="Vista previa de la portada" class="absolute inset-0 size-full object-cover">
+                    <div x-show="!preview" class="px-6">
+                        <span class="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary"><c-icon name="image-plus" class="size-6" /></span>
+                        <p class="mt-3 font-bold">Arrastra una foto o haz clic para elegirla</p>
+                        <p class="mt-1 text-sm text-base-content/60">JPG, PNG o WEBP</p>
+                    </div>
+                    <input x-ref="file" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="load($event.target.files[0])" @click.stop>
+                </div>
+                <div class="space-y-4 text-sm">
+                    <ul class="space-y-2 text-base-content/70">
+                        <li class="flex gap-2"><c-icon name="sun" class="size-4 shrink-0 text-accent" />Buena luz, de día y sin flash.</li>
+                        <li class="flex gap-2"><c-icon name="rectangle-horizontal" class="size-4 shrink-0 text-accent" />En horizontal, mostrando lo principal.</li>
+                        <li class="flex gap-2"><c-icon name="type" class="size-4 shrink-0 text-accent" />Sin textos, logos ni marcas de agua.</li>
+                    </ul>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" @click="pick()" class="btn btn-soft btn-primary btn-sm rounded-full"><c-icon name="upload" class="size-4" /><span x-text="preview ? 'Cambiar foto' : 'Elegir foto'">Elegir foto</span></button>
+                        <button type="button" x-show="hasNew" x-cloak @click="discard()" class="btn btn-ghost btn-sm rounded-full"><c-icon name="undo-2" class="size-4" />Deshacer</button>
+                    </div>
+                    <p x-show="error" x-cloak x-text="error" class="text-error"></p>
+                    <p x-show="!preview" class="text-base-content/55">Es opcional: sin portada mostramos una imagen genérica.</p>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" id="cancel-crop">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="crop">Aceptar</button>
-            </div>
+            <dialog x-ref="dialog" class="modal" @close="destroy()" aria-labelledby="crop-title">
+                <div class="modal-box w-11/12 max-w-3xl">
+                    <h3 id="crop-title" class="text-lg font-bold">Recorta tu portada</h3>
+                    <p class="mt-1 text-sm text-base-content/60">Mueve y acerca la foto para encuadrar lo más importante.</p>
+                    <div class="mt-4 h-[min(60vh,28rem)] overflow-hidden rounded-xl bg-neutral">
+                        <img x-ref="image" alt="" class="block max-w-full">
+                    </div>
+                    <div class="modal-action">
+                        <button type="button" class="btn btn-ghost rounded-full" @click="cancel()">Cancelar</button>
+                        <button type="button" class="btn btn-primary rounded-full px-5" @click="crop()"><c-icon name="crop" class="size-4" />Usar esta portada</button>
+                    </div>
+                </div>
+            </dialog>
         </div>
+    </section>
+    {% endwith %}
+
+    {# ============================== 4. Revisar ============================== #}
+    <section data-step="4" x-show="step === 4" x-cloak class="mt-6" aria-labelledby="paso-4">
+        <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+            <div class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
+                <h2 id="paso-4" tabindex="-1" class="text-xl font-bold outline-none">Revisa antes de {% if object %}guardar{% else %}publicar{% endif %}</h2>
+                <p class="mt-1 text-sm text-base-content/65">Así se verá tu información. Puedes volver a cualquier paso.</p>
+                <div class="mt-5 space-y-4">
+                    <template x-for="section in summary" :key="section.title">
+                        <section class="rounded-xl p-4 ring-1 ring-base-300">
+                            <div class="flex items-center justify-between gap-3">
+                                <h3 class="font-bold" x-text="section.title"></h3>
+                                <button type="button" class="btn btn-ghost btn-xs rounded-full" @click="goTo(section.step)"><c-icon name="pencil" class="size-3.5" />Editar</button>
+                            </div>
+                            <dl class="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2" x-show="section.rows.length">
+                                <template x-for="row in section.rows" :key="row.label">
+                                    <div class="min-w-0" :class="row.wide && 'sm:col-span-2'">
+                                        <dt class="text-xs text-base-content/55" x-text="row.label"></dt>
+                                        <dd class="mt-0.5 whitespace-pre-line break-words font-semibold" x-text="row.value"></dd>
+                                    </div>
+                                </template>
+                            </dl>
+                            <p x-show="!section.rows.length" class="mt-2 text-sm text-base-content/55">Sin datos en esta sección.</p>
+                        </section>
+                    </template>
+                </div>
+            </div>
+
+            <aside class="lg:sticky lg:top-24">
+                <p class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/55">Vista previa</p>
+                <article class="overflow-hidden rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+                    <figure class="aspect-[16/10] bg-base-300">
+                        <img :src="card.cover || '{% static 'brand/placeholder.svg' %}'" alt="" class="size-full object-cover">
+                    </figure>
+                    <div class="p-4">
+                        <p class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-primary"><c-icon name="{{ category.kind|kind_icon }}" class="size-3.5" />{{ category.singular_name }}</p>
+                        <h3 class="mt-1.5 line-clamp-2 text-lg font-bold leading-snug" x-text="card.title || '{{ category.singular_name|escapejs }}'"></h3>
+                        <p class="mt-1 line-clamp-1 text-sm text-base-content/60" x-text="card.address"></p>
+                        <p class="mt-3 text-[1.35rem] font-extrabold leading-none tracking-tight" x-show="card.price" x-text="card.price"></p>
+                    </div>
+                </article>
+            </aside>
+        </div>
+    </section>
+
+    {# ============================== Navegación ============================== #}
+    <div class="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-20 -mx-4 mt-6 flex items-center gap-2 border-t border-base-300 bg-base-100/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-box sm:border sm:shadow-soft lg:bottom-4">
+        <button type="button" x-show="step > 1" x-cloak @click="back()" class="btn btn-ghost rounded-full"><c-icon name="arrow-left" class="size-4" />Atrás</button>
+        {% if object %}
+        <a x-show="step === 1" href="{% url 'properties' %}" class="btn btn-ghost rounded-full">Cancelar</a>
+        {% else %}
+        <a x-show="step === 1" href="{% url 'choose_category' %}?kind={{ category.kind }}" class="btn btn-ghost rounded-full"><c-icon name="arrow-left" class="size-4" />Categorías</a>
+        {% endif %}
+        <button type="button" x-show="step < 4" @click="next()" class="btn btn-primary ml-auto rounded-full px-6">Siguiente<c-icon name="arrow-right" class="size-4" /></button>
+        <button type="submit" x-show="step === 4" x-cloak :disabled="submitting" class="btn btn-secondary ml-auto rounded-full px-6">
+            <span x-show="submitting" class="loading loading-spinner loading-sm"></span>
+            {% if object %}Guardar cambios{% else %}Publicar anuncio{% endif %}
+        </button>
     </div>
-</div>
-<!--register form end -->
+</form>
 {% endblock %}

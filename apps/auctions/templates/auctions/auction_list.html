@@ -1,29 +1,65 @@
-{% extends 'base/base_list.html' %}
+{% extends 'layouts/app.html' %}
+{% load static habitta %}
 
-{% block breadcrumbs %}
-<h2>Subastas</h2>
-<div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Subastas</span></div>
-{% endblock %}
+{% block title %}Subastas{% endblock %}
+{% block panel_title %}Subastas{% endblock %}
+{% block panel_lead %}Las subastas de tus anuncios: cuánto falta, el monto base y la mejor oferta.{% endblock %}
+{% block panel_actions %}<c-button icon="gavel" href="{% url 'add_auction' %}">Nueva subasta</c-button>{% endblock %}
 
-{% block list %}
-{% for auction in object_list %}
-<!-- dashboard-list end-->    
-<div class="dashboard-list">
-    <div class="dashboard-message">
-        <span class="new-dashboard-item">{{ auction.get_stage_display }}</span>
-        <div class="dashboard-listing-table-image">
-            <a href="{% url 'detail_property' auction.property.id %}"><img src="{{ auction.property.get_cover }}" alt=""></a>
+{% block panel_body %}
+{% if object_list %}
+<ul class="grid gap-4 md:grid-cols-2">
+    {% for auction in object_list %}
+    {% with p=auction.property %}
+    <li class="flex flex-col overflow-hidden rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+        <a href="{{ p.get_absolute_url }}" class="relative block aspect-[16/7] bg-base-300">
+            <img src="{{ p.get_thumbnail }}" srcset="{{ p.get_thumbnail }} 320w, {{ p.get_cover }} 1600w" sizes="(min-width: 768px) 30rem, 100vw"
+                 alt="" loading="lazy" class="size-full object-cover" onerror="this.onerror=null;this.removeAttribute('srcset');this.src='{% static 'brand/placeholder.svg' %}'">
+            <span class="absolute left-3 top-3">
+                {% if auction.stage == auction.OPEN %}<c-status-badge tone="success" class="bg-base-100/95 shadow-soft">Abierta</c-status-badge>
+                {% elif auction.stage == auction.CANCELED %}<c-status-badge tone="error" class="bg-base-100/95 shadow-soft">Cancelada</c-status-badge>
+                {% else %}<c-status-badge class="bg-base-100/95 shadow-soft">Finalizada</c-status-badge>{% endif %}
+            </span>
+        </a>
+        <div class="flex flex-1 flex-col p-4 sm:p-5">
+            <p class="text-xs font-bold uppercase tracking-wide text-primary">{{ p.category.singular_name }}</p>
+            <h2 class="mt-1 truncate text-lg font-bold"><a href="{{ p.get_absolute_url }}" class="hover:text-primary">{{ p.title|lower|capfirst|default:p.category.singular_name }}</a></h2>
+
+            {% if auction.stage == auction.OPEN %}
+            <div x-data="countdown('{{ auction.ending_date|date:'c' }}')" class="mt-3 flex items-center gap-2 text-sm">
+                <c-icon name="timer" class="size-4 text-secondary" />
+                <span class="text-base-content/65">Termina en</span>
+                <span class="font-bold tabular-nums"><span x-text="d">00</span>d <span x-text="h">00</span>h <span x-text="m">00</span>m <span x-text="s">00</span>s</span>
+            </div>
+            {% else %}
+            <p class="mt-3 flex items-center gap-2 text-sm text-base-content/65"><c-icon name="calendar-x-2" class="size-4" />Terminó el {{ auction.ending_date|date:"j \d\e F \d\e Y" }}</p>
+            {% endif %}
+
+            <dl class="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-base-200/70 p-3 text-center">
+                <div><dt class="text-xs text-base-content/55">Monto base</dt><dd class="font-extrabold">{{ auction.base_amount|money }}</dd></div>
+                <div><dt class="text-xs text-base-content/55">Ofertas</dt><dd class="font-extrabold">{{ auction.offers_count }}</dd></div>
+                <div><dt class="text-xs text-base-content/55">Mejor oferta</dt><dd class="font-extrabold">{{ auction.best_offer|money|default:"—" }}</dd></div>
+            </dl>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2 pt-1">
+                <c-button variant="ghost" size="sm" icon="eye" href="{{ p.get_absolute_url }}">Ver anuncio</c-button>
+                {% if auction.stage == auction.OPEN %}
+                <c-confirm-button action="{% url 'cancel_auction' auction.pk %}" title="¿Cancelar esta subasta?"
+                                  text="Se cerrará ya y no se aceptarán más ofertas para «{{ p.title|default:p.category.singular_name }}»."
+                                  button="Cancelar subasta" icon="ban" class="btn btn-ghost btn-sm ml-auto rounded-full text-error">Cancelar</c-confirm-button>
+                {% endif %}
+            </div>
         </div>
-        <div class="dashboard-listing-table-text">
-            <h4><a href="{% url 'detail_property' auction.property.id %}">{{ auction.property }}</a></h4>
-            <span class="dashboard-listing-table-address"><i class="fa fa-calendar"></i><a href="#">{{ auction.ending_date }}</a></span>
-            <span class="dashboard-listing-table-address"><i class="fa fa-usd"></i><a href="#">{{ auction.base_amount }}</a></span>
-            <ul class="dashboard-listing-table-opt  fl-wrap">
-                <li><a href="#" class="del-btn">Cancelar subasta <i class="fa fa-trash-o"></i></a></li>
-            </ul>
-        </div>
-    </div>
+    </li>
+    {% endwith %}
+    {% endfor %}
+</ul>
+<c-pagination :page_obj="page_obj" />
+{% else %}
+<div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    <c-empty-state icon="gavel" title="No tienes subastas" text="Subasta uno de tus anuncios: fijas un monto base y una duración, y recibes ofertas hasta que termine.">
+        <c-button icon="gavel" href="{% url 'add_auction' %}">Crear una subasta</c-button>
+    </c-empty-state>
 </div>
-<!-- dashboard-list end-->
-{% endfor %}
+{% endif %}
 {% endblock %}

@@ -111,7 +111,7 @@ class Property(ImageMixin, models.Model):
 
     title = models.CharField(max_length=32, verbose_name='descripción rápida (Max 32 caracteres)')
     description = models.TextField(blank=True, null=True, verbose_name='descripción')
-    address = models.CharField(max_length=64, blank=True, null=True, verbose_name='dirección')
+    address = models.CharField(max_length=255, blank=True, null=True, verbose_name='dirección')
     geopoint = models.PointField(blank=True, null=True)
     radius = models.PositiveIntegerField(blank=True, null=True, verbose_name='Radio (m)') 
     status = models.PositiveSmallIntegerField(default=DRAFT)

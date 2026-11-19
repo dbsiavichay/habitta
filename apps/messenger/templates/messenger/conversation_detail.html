@@ -1,55 +1,28 @@
-{% extends 'base/base_list.html' %}
-{% load messenger %}
+{% extends 'layouts/app.html' %}
 
-{% block content %}
-<!--section -->
-<section id="sec1">
-    <!-- container -->
-    <div class="container">
-        <!-- profile-edit-wrap -->
-        <div class="profile-edit-wrap">
-            {% block breadcrumbs %}
-            <div class="profile-edit-page-header">
-                <h2>Conversación</h2>
-                <div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Mensajes</span></div>
-            </div>
-            {% endblock %}
-            <div class="row">
-                <div class="col-md-3">
-                    {% include 'base/sidebar.html' %}
-                </div>
-                <div class="col-md-9">
-                    {% get_conversation_receiver object user as receiver%}
-                    <input type="hidden" id="owner" value="{{ receiver.id }}">
-                    <div class="chat-widget_wrap not-vis-chat custom-chat">
-                        <div class="chat-widget_header color-bg">
-                            <h3>Chat con  <a href="{% url 'detail_profile' receiver.username %}"> {{ receiver.get_full_name }}</a></h3>
-                            <div class="status st_online"><span></span>Online</div>
-                        </div>
-                        <div class="chat-body">
-                            {% for message in object.messages.all %}
+{% block title %}Chat con {{ receiver.get_full_name|default:receiver.username }}{% endblock %}
+{% block panel_header %}{% endblock %}
 
-                            {% if user == message.sender %} 
-                            {% include 'messenger/chat_message_sender.html' with message=message %}
-                            {% else %}
-                            {% include 'messenger/chat_message_receiver.html' with message=message %}
-                            {% endif %}
-
-                            {% endfor %}
-                        </div>
-                        <div class="chat-widget_input fl-wrap">
-                            <textarea  placeholder="Escribe un mensaje"></textarea>
-                            <button type="submit"><i class="fa fa-paper-plane-o"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+{% block panel_body %}
+<div class="-mt-6 grid items-start gap-5 xl:grid-cols-[19rem_minmax(0,1fr)]">
+    <aside class="hidden overflow-hidden rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60 xl:block" aria-label="Conversaciones">
+        <a href="{% url 'conversations' %}" class="flex items-center justify-between border-b border-base-300 px-4 py-3 font-bold hover:text-primary">Mensajes<c-icon name="chevron-right" class="size-4 opacity-50" /></a>
+        <div class="max-h-[calc(100dvh-14rem)] overflow-y-auto">
+            {% include 'messenger/_conversation_items.html' with conversations=conversations active_id=object.pk %}
         </div>
-        <!--profile-edit-wrap end -->
+    </aside>
+
+    <div class="min-w-0">
+        <a href="{% url 'conversations' %}" class="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-base-content/65 hover:text-primary xl:hidden"><c-icon name="arrow-left" class="size-4" />Todas las conversaciones</a>
+        <section x-data="chatWidget({{ receiver.id }}, { autoconnect: true })"
+                 class="flex h-[calc(100dvh-17rem)] min-h-[24rem] flex-col overflow-hidden rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60 lg:h-[calc(100dvh-11rem)]"
+                 aria-label="Chat con {{ receiver.get_full_name|default:receiver.username }}">
+            <c-chat.thread :receiver="receiver" :history="chat_messages" page="1">
+                <c-slot name="actions">
+                    <c-button variant="ghost" size="sm" icon="user-round" href="{{ receiver.profile.get_absolute_url }}">Ver perfil</c-button>
+                </c-slot>
+            </c-chat.thread>
+        </section>
     </div>
-    <!--container end -->
-</section>
-<!-- section end -->    
-<div class="limit-box fl-wrap"></div>
-{% include 'base/have_a_questions.html' %}
+</div>
 {% endblock %}

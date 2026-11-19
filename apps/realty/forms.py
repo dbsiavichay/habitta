@@ -108,46 +108,46 @@ class SpecificationForm(ModelForm):
 
         return self.cleaned_data
 
-class PropertyForm(ModelForm):    
+class PropertyForm(ModelForm):
+    """Datos básicos del anuncio. La categoría no viaja en el formulario: la fija la vista
+    (URL al crear, el propio anuncio al editar)."""
     purpose = ModelChoiceField(
-        label = '¿Que desea hacer?',
+        label = '¿Qué quieres hacer?',
         empty_label = None,
         widget = RadioSelect,
         queryset = Purpose.objects.none(),
         required = True,
-
     )
 
     class Meta:
         model = Property
-        fields = ('category', 'purpose', 'title', 'description',)       
+        fields = ('purpose', 'title', 'description',)
+        labels = {
+            'title': 'Título del anuncio',
+            'description': 'Descripción',
+        }
+        help_texts = {
+            'title': 'Corto y claro: qué es y dónde. Máximo 32 caracteres.',
+        }
 
-    def __init__(self, *args, **kwargs):        
-        self.category = kwargs.pop('category', None)
-        self.kind = kwargs.pop('kind', None)
-        super().__init__(*args, **kwargs)                       
-        if self.kind and self.kind == Category.SERVICE:
-            queryset = self.fields['category'].queryset.filter(kind=self.kind)
-            self.fields['category'].queryset = queryset
-            purposes = Category.objects.filter(kind=self.kind).last().purposes.all()
+    def __init__(self, *args, **kwargs):
+        self.category = kwargs.pop('category')
+        super().__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'placeholder': 'Ej.: Casa con jardín en Cumbayá', 'autocomplete': 'off'})
+        self.fields['description'].widget.attrs.update({
+            'rows': 6, 'placeholder': 'Cuenta lo que hace especial tu anuncio: estado, entorno, condiciones…',
+        })
+
+        purposes = self.category.purposes.all()
+        if len(purposes) == 1:
             self.fields['purpose'].widget = HiddenInput()
-            self.fields['purpose'].queryset = purposes
             self.fields['purpose'].initial = purposes[0]
-
-        else:
-            purposes = self.category.purposes.all()
-            if len(purposes) == 1:
-                self.fields['purpose'].widget = HiddenInput()
-                self.fields['purpose'].initial = purposes[0]
-            self.fields['purpose'].queryset = purposes          
-            self.fields['category'].initial = self.category
-            self.fields['category'].widget = HiddenInput()
-
+        self.fields['purpose'].queryset = purposes
 
         if self.instance.pk:
             try:
-                instance_purpose = int(self.instance.details['purpose'])
-            except KeyError as e:
+                instance_purpose = int((self.instance.details or {})['purpose'])
+            except (KeyError, TypeError, ValueError):
                 instance_purpose = None
 
             if instance_purpose in purposes.values_list("id", flat=True):
@@ -160,8 +160,8 @@ class PropertyForm(ModelForm):
 class LocationForm(Form):
     longitude = FloatField(widget=HiddenInput)
     latitude = FloatField(widget=HiddenInput)
-    address = CharField(max_length=64, label='Ciudad/Lugar donde operas')
-    radius = IntegerField(min_value=1,label='Radio (m) de operación', initial=3000)
+    address = CharField(max_length=255, label='Ciudad o zona donde trabajas')
+    radius = IntegerField(min_value=1, label='Radio de operación (m)', initial=3000)
 
     def __init__(self, *args, **kwargs):
         require_location = kwargs.pop('require_location')
@@ -204,6 +204,9 @@ class GroupDetailsForm(Form):
                 self.fields[key].widget = SPECIFICATION_WIDGETS[widget]()
             if specification.choices:
                 CHOICES = [(choice.strip(), choice.strip()) for choice in specification.choices.split(',')]
+                # Un selector opcional necesita una opción vacía; si no, siempre se enviaba la primera
+                if field_class is ChoiceField and not specification.is_required and not widget:
+                    CHOICES = [('', 'Sin especificar')] + CHOICES
                 self.fields[key].choices = CHOICES
 
             self.fields[key].widget.attrs.update(parse_widget_attributes(specification.attributes))

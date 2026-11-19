@@ -1,39 +1,31 @@
-{% extends 'base/base_list.html' %}
+{% extends 'layouts/app.html' %}
 
-{% block breadcrumbs %}
-<h2>Favoritos</h2>
-<div class="breadcrumbs"><a href="#">Home</a><a href="#">Dasboard</a><span>Favoritos</span></div>
-{% endblock %}
+{% block title %}Favoritos{% endblock %}
+{% block panel_title %}Favoritos{% endblock %}
+{% block panel_lead %}Los anuncios que guardaste con <span class="inline-flex translate-y-0.5 text-error"><c-icon name="heart" class="size-4" /></span> para volver a verlos.{% endblock %}
 
-{% block list %}
-{% for property in object_list %}
-<!-- dashboard-list end-->    
-<div class="dashboard-list">
-    <div class="dashboard-message">
-        <span class="new-dashboard-item">{{ property.category }}</span>
-        <div class="dashboard-listing-table-image">
-            <a href="{% url 'detail_property' property.id %}"><img src="{{ property.get_cover }}" alt=""></a>
-        </div>
-        <div class="dashboard-listing-table-text">
-            <h4><a href="listing-single.html">{{ property.title }}</a></h4>
-            <span class="dashboard-listing-table-address"><i class="fa fa-map-marker"></i><a  href="#">{{ property.address }}</a></span>
-            <div class="listing-rating card-popup-rainingvis fl-wrap" data-starrating2="5">
-                <span>(2 comentarios)</span>
-            </div>
-            <ul class="dashboard-listing-table-opt  fl-wrap">
-                <li><a href="#" class="del-btn">Eliminar <i class="fa fa-trash-o"></i></a></li>
-            </ul>
-        </div>
+{% block panel_body %}
+<div class="group/favs">
+    {% if object_list %}
+    <ul class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        {% for p in object_list %}
+        <li data-fav class="relative">
+            <c-property.card :property="p" />
+            <button type="button" hx-post="{% url 'delete_log' p.like_id %}" hx-target="closest [data-fav]" hx-swap="delete"
+                    class="btn btn-circle btn-sm absolute right-3 top-3 z-20 border-0 bg-base-100/90 text-error shadow-soft backdrop-blur hover:bg-base-100"
+                    aria-label="Quitar «{{ p.title|default:p.category.singular_name }}» de favoritos" title="Quitar de favoritos">
+                <c-icon name="heart-off" class="size-4" />
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+    <c-pagination :page_obj="page_obj" />
+    {% endif %}
+    {# Se muestra también cuando se quita el último favorito de la página (sin recargar) #}
+    <div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60 group-has-[[data-fav]]/favs:hidden">
+        <c-empty-state icon="heart" title="Todavía no guardas favoritos" text="Toca el corazón de un anuncio para guardarlo aquí y compararlo después.">
+            <c-button icon="compass" href="{% url 'finder' %}">Explorar anuncios</c-button>
+        </c-empty-state>
     </div>
 </div>
-<!-- dashboard-list end-->
-{% empty %}
-<div class="dashboard-list">
-    <div class="dashboard-message">        
-        <div class="dashboard-listing-table-text">
-            <h4><a href="#">Sin registros.</a></h4>            
-        </div>
-    </div>
-</div>
-{% endfor %}
 {% endblock %}

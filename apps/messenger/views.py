@@ -6,23 +6,56 @@ from django.views.generic import CreateView, ListView, DetailView
 from django.contrib.auth.models import User
 from .models import Conversation, Message
 from .forms import MessageForm
-from django.db.models import Q, Max
+from django.db.models import Count, OuterRef, Q, Subquery
+
+def conversations_for(user):
+    """Conversaciones con mensajes del usuario, la más reciente primero, con el último mensaje y
+    cuántos no ha leído (todo en una consulta)."""
+    last = Message.objects.filter(conversation=OuterRef('pk')).order_by('-create_date', '-pk')
+    return (
+        Conversation.objects.filter(Q(owner=user) | Q(member=user))
+        .annotate(
+            last_date=Subquery(last.values('create_date')[:1]),
+            last_content=Subquery(last.values('content')[:1]),
+            last_sender=Subquery(last.values('sender_id')[:1]),
+            unread=Count('messages', filter=Q(messages__read_at__isnull=True) & ~Q(messages__sender=user)),
+        )
+        .filter(last_date__isnull=False)
+        .select_related('owner__profile', 'member__profile')
+        .order_by('-last_date', '-pk')
+    )
+
 
 class ConversationListView(ListView):
     model = Conversation
+    paginate_by = 20
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(Q(owner=self.request.user)|Q(member=self.request.user))\
-            .exclude(messages__isnull=True).annotate(max_create_date=Max('messages__create_date')).order_by('-max_create_date')
-        return queryset
+        return conversations_for(self.request.user)
+
 
 class ConversationDetailView(DetailView):
     model = Conversation
 
     def get_queryset(self):
         user = self.request.user
-        return super().get_queryset().filter(Q(owner=user) | Q(member=user))
+        return super().get_queryset().filter(Q(owner=user) | Q(member=user)).select_related('owner__profile', 'member__profile')
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # Se marca antes de renderizar para que los contadores ya salgan actualizados
+        self.object.mark_read(request.user)
+        return self.render_to_response(self.get_context_data(object=self.object))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'receiver': self.object.other(self.request.user),
+            'chat_messages': self.object.messages.select_related('sender__profile').order_by('create_date', 'pk'),
+            'conversations': conversations_for(self.request.user)[:40],
+        })
+        return context
+
 
 class MessageCreateView(CreateView):
     model = Message

@@ -1,11 +1,31 @@
-{% extends 'base/base_form.html' %}
-{% load hydra %}
+{% extends 'layouts/app.html' %}
 
-{% block visible_fields %}
-{% render_field form.amount icon='usd' %}
-{% render_field form.bank icon='bank' class='nice-select' %}
-{% render_field form.voucher %}
-<button type="submit" class="btn big-btn color-bg flat-btn">Guardar
-    <i class="fa fa-angle-right"></i>
-</button>
+{% block title %}Registrar pago{% endblock %}
+{% block breadcrumbs %}
+<c-breadcrumbs class="mb-3">
+    <li><a href="{% url 'list_bank_payment' %}">Mis pagos</a></li>
+    <li><span aria-current="page" class="opacity-65">Registrar pago</span></li>
+</c-breadcrumbs>
+{% endblock %}
+{% block panel_title %}Registrar tu pago{% endblock %}
+{% block panel_lead %}Cuéntanos a qué cuenta pagaste y sube el comprobante.{% endblock %}
+
+{% block panel_body %}
+{% if pending %}
+{% include 'payments/_pending_summary.html' %}
+<form method="post" enctype="multipart/form-data" class="mt-6 rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
+    {% csrf_token %}
+    {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+    <div class="mt-7 flex flex-wrap justify-end gap-2">
+        <c-button variant="ghost" icon="arrow-left" href="{% url 'select_method_payment' %}">Ver las cuentas</c-button>
+        <c-button type="submit" icon="send">Registrar pago</c-button>
+    </div>
+</form>
+{% else %}
+<div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    <c-empty-state icon="shopping-bag" title="No tienes un pago en curso" text="Para pagar, entra al anuncio y toca «Comprar». Tus pagos registrados están en Mis pagos.">
+        <c-button icon="receipt-text" href="{% url 'list_bank_payment' %}">Ir a Mis pagos</c-button>
+    </c-empty-state>
+</div>
+{% endif %}
 {% endblock %}

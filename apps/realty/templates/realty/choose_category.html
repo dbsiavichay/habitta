@@ -1,99 +1,60 @@
-{% extends 'base/base.html' %}
+{% extends 'layouts/app.html' %}
+{% load static habitta %}
 
-{% load static hydra %}
+{% block title %}Publicar un anuncio{% endblock %}
+{# Íconos propios de las categorías (fuente subida con la plantilla original) #}
+{% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'plugins/fontcategories/fontcategories.css' %}">{% endblock %}
+{% block scripts %}<script defer src="{% static 'js/habitta/publish.js' %}"></script>{% endblock %}
 
-{% block css %}
-{{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/fontcategories/fontcategories.css' %}">
-{% endblock %}
+{% block breadcrumbs %}<c-panel.steps :current="1" />{% endblock %}
+{% block panel_title %}¿Qué quieres publicar?{% endblock %}
+{% block panel_lead %}Elige la categoría que mejor describe tu anuncio: así te pedimos sólo los datos que importan.{% endblock %}
 
-{% block content %}
-<!--section -->
-<section id="sec1">
-    <!-- container -->
-    <div class="container">
-        <!-- profile-edit-wrap -->
-        <div class="profile-edit-wrap">
-            <div class="profile-edit-page-header">
-                <h2>Escoge una categoría</h2>
-                <div class="breadcrumbs"><a href="{% url 'home' %}">Inicio</a><span>Selección de categoría</span></div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    
-                    <div class="tabs">
-                        <input type="radio" id="tab1" name="tab-control">
-                        <input type="radio" id="tab2" name="tab-control" checked>
-                        <input type="radio" id="tab3" name="tab-control">
-                                                  
-                        <ul>
-                            <li title="Jobs">
-                                <label for="tab1" role="button">
-                                    {% include 'realty/job_option.html' %}<br><span>Empleos</span>
-                                </label>
-                            </li>
-                            <li title="Services">
-                                <label for="tab2" role="button">
-                                    {% include 'realty/services_option.html' %}<br><span>Servicios</span>
-                                </label>
-                            </li>
-                            <li title="Realty">
-                                <label for="tab3" role="button">
-                                    {% include 'realty/realty_option.html' %}<br><span>Inmuebles</span>
-                                </label>
-                            </li>                              
-                        </ul>
-                        
-                        <div class="slider"><div class="indicator"></div></div>
-                        <div class="content">
-                            <section>
-                                <h2>Empleos</h2>
-                                {% for category in jobs %}
-                                <div class="col-xs-6 col-sm-3">
-                                    <!--box-cat-->
-                                    <a href="{% url 'add_property' category.pk %}" class="box-cat">
-                                        <i class="fc-{{ category.icon }}"></i>
-                                        <h4 class="name">{{ category|truncatechars:"25" }}</h4>
-                                    </a>
-                                    <!--box-cat end-->
-                                </div>
-                                {% endfor %} 
-                            </section>
-                            <section>
-                                <h2>Servicios</h2>
-                                {% for category in services %}
-                                <div class="col-xs-6 col-sm-3">
-                                    <!--box-cat-->
-                                    <a href="{% url 'add_property' category.pk %}" class="box-cat">
-                                        <i class="fc-{{ category.icon }}"></i>
-                                        <h4 class="name">{{ category|truncatechars:"25" }}</h4>
-                                    </a>
-                                    <!--box-cat end-->
-                                </div>
-                                {% endfor %} 
-                            </section>
-                            <section>
-                                <h2>Inmuebles</h2>                                
-                                {% for category in object_list %}
-                                <div class="col-xs-6 col-sm-3">
-                                    <!--box-cat-->
-                                    <a href="{% url 'add_property' category.pk %}" class="box-cat">
-                                        <i class="fc-{{ category.icon }}"></i>
-                                        <h4 class="name">{{ category|truncatechars:"25" }}</h4>
-                                    </a>
-                                    <!--box-cat end-->
-                                </div>
-                                {% endfor %}                               
-                            </section>                                                
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+{% block panel_body %}
+<div x-data="categoryPicker({{ initial_kind }})">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div role="tablist" aria-label="Tipo de anuncio" class="inline-flex w-full rounded-full bg-base-100 p-1 shadow-soft ring-1 ring-base-300/60 sm:w-auto">
+            {% for k in kinds %}
+            <button type="button" role="tab" @click="kind = {{ k.id }}; query = ''" :aria-selected="kind === {{ k.id }}"
+                    :class="kind === {{ k.id }} && !query ? 'bg-primary text-primary-content shadow-soft' : 'text-base-content/70 hover:text-base-content'"
+                    class="inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors sm:flex-none">
+                <c-icon name="{{ k.icon }}" class="size-4" />{{ k.label }}
+                <span class="hidden text-xs font-semibold opacity-70 sm:inline">{{ k.categories|length }}</span>
+            </button>
+            {% endfor %}
         </div>
-        <!--profile-edit-wrap end -->
+        <label class="input w-full rounded-full sm:max-w-xs">
+            <c-icon name="search" class="size-4 opacity-60" />
+            <input type="search" x-model.debounce.150ms="query" placeholder="Buscar categoría…" aria-label="Buscar categoría">
+        </label>
     </div>
-    <!--container end -->
-</section>
-<!-- section end -->
+
+    {% for k in kinds %}
+    <section x-show="visible({{ k.id }})" {% if k.id != initial_kind %}x-cloak{% endif %} class="mt-6" aria-label="{{ k.label }}">
+        <h2 x-show="query" x-cloak class="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-base-content/55"><c-icon name="{{ k.icon }}" class="size-4" />{{ k.label }}</h2>
+        <ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {% for category in k.categories %}
+            <li data-name="{{ category.name }}" data-kind="{{ k.id }}" x-show="matches($el.dataset.name)">
+                <a href="{% url 'add_property' category.pk %}"
+                   class="group flex h-full items-center gap-3.5 rounded-box bg-base-100 p-4 shadow-soft ring-1 ring-base-300/60 transition hover:ring-primary/60 card-lift">
+                    <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-content">
+                        {% if category.icon %}<i class="fc-{{ category.icon }} text-2xl" aria-hidden="true"></i>{% else %}<c-icon name="{{ category.kind|kind_icon }}" class="size-6" />{% endif %}
+                    </span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block font-bold leading-snug group-hover:text-primary">{{ category.name }}</span>
+                        <span class="mt-0.5 block truncate text-sm text-base-content/60">{% for purpose in category.purposes.all %}{{ purpose.for_owner }}{% if not forloop.last %} · {% endif %}{% endfor %}</span>
+                        {% if not category.require_location %}<span class="mt-1.5 inline-flex items-center gap-1 rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold"><c-icon name="navigation" class="size-3" />Sin ubicación fija</span>{% endif %}
+                    </span>
+                    <c-icon name="chevron-right" class="size-5 text-base-content/30 transition-colors group-hover:text-primary" />
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+
+    <div x-show="empty" x-cloak class="mt-6 rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+        <c-empty-state icon="search-x" title="No encontramos esa categoría" text="Prueba con otra palabra o revisa las pestañas de Inmuebles, Servicios y Empleos." />
+    </div>
+</div>
 {% endblock %}

@@ -1,38 +1,44 @@
-{% extends 'base/base_list.html' %}
+{% extends 'layouts/app.html' %}
+{% load static habitta %}
 
-{% block breadcrumbs %}
-<h2>Mis pagos</h2>
-<div class="breadcrumbs"><a href="#">Inicio</a><a href="#">Dasboard</a><span>Pagos</span></div>
-{% endblock %}
+{% block title %}Mis pagos{% endblock %}
+{% block panel_title %}Mis pagos{% endblock %}
+{% block panel_lead %}Tus compras con transferencia o PayPal y en qué estado están.{% endblock %}
 
-{% block list %}
-{% for payment in object_list %}
-<!-- dashboard-list end-->    
-<div class="item-list">                            
-    <span class="item-badge">Bancario</span>                                
-    <div class="item-text">
-        <div class="item">
-            <i class="fa fa-bank"></i><a  href="#">{{ payment.bank }}</a>
-        </div>                                
-        <div class="item">
-            <i class="fa fa-usd"></i><a  href="#">{{ payment.amount }}</a>
+{% block panel_body %}
+{% if object_list %}
+<ul class="grid gap-3">
+    {% for payment in object_list %}
+    {% with obj=payment.get_object_or_none %}
+    <li class="flex flex-col gap-4 rounded-box bg-base-100 p-4 shadow-soft ring-1 ring-base-300/60 sm:flex-row sm:items-center">
+        <span class="grid size-12 shrink-0 place-items-center rounded-2xl {% if payment.paypalpayment %}bg-info/12 text-info{% else %}bg-primary/10 text-primary{% endif %}">
+            <c-icon name="{% if payment.paypalpayment %}wallet{% else %}landmark{% endif %}" class="size-6" />
+        </span>
+        <div class="min-w-0 flex-1">
+            <p class="text-sm text-base-content/60">{{ payment.get_method }} · {{ payment.date|date:"j M Y, H:i" }}</p>
+            <p class="mt-0.5 truncate font-bold">
+                {% if obj %}<a href="{{ obj.get_absolute_url }}" class="hover:text-primary">{{ obj }}</a>{% else %}<span class="text-base-content/55">Anuncio no disponible</span>{% endif %}
+            </p>
+            {% if payment.bankpayment.voucher %}
+            <a href="{{ payment.bankpayment.voucher.url }}" target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"><c-icon name="paperclip" class="size-4" />Ver comprobante</a>
+            {% endif %}
         </div>
-               
-        <p>{{ payment.get_object }}</p>
-
-       
-        <ul class="dashboard-listing-table-opt fl-wrap">
-            <li><a href="#"><i class="fa fa-pencil-square-o"></i></a></li>                                    
-            <li><a href="#" data-id="{{ payment.id }}" class="del-btn"><i class="fa fa-trash-o"></i></a></li>
-        </ul>
-    </div>
-    <div class="post-opt">
-        <ul>
-            <li><i class="fa fa-calendar-check-o"></i> <span>{{ payment.date }}</span></li>            
-            <li><i class="fa fa-eye"></i> <span>{{ payment.get_status }}</span></li>            
-        </ul>
-    </div>                            
-</div>                        
-<!-- dashboard-list end-->
-{% endfor %}
+        <div class="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-center">
+            <p class="text-xl font-extrabold">{{ payment.amount|money }}</p>
+            {% if payment.status == payment.CONFIRMED %}<c-status-badge tone="success">Confirmado</c-status-badge>
+            {% elif payment.status == payment.REJECTED %}<c-status-badge tone="error">Rechazado</c-status-badge>
+            {% else %}<c-status-badge tone="warning">En revisión</c-status-badge>{% endif %}
+        </div>
+    </li>
+    {% endwith %}
+    {% endfor %}
+</ul>
+<c-pagination :page_obj="page_obj" />
+{% else %}
+<div class="rounded-box bg-base-100 shadow-soft ring-1 ring-base-300/60">
+    <c-empty-state icon="receipt-text" title="Aún no tienes pagos" text="Cuando compres los archivos de un anuncio (planos, catálogos…) verás aquí el estado de tu pago.">
+        <c-button icon="compass" href="{% url 'finder' %}">Explorar anuncios</c-button>
+    </c-empty-state>
+</div>
+{% endif %}
 {% endblock %}

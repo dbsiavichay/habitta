@@ -1,12 +1,11 @@
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse, Http404
-from hydra.utils import is_ajax
-from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse_lazy
-from django.views.generic import (
-    View, ListView, CreateView, UpdateView, DeleteView, DetailView, FormView, TemplateView
-)
+from django.db.models import Count, OuterRef, Q, Subquery
+from django.urls import reverse, reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 
 from django.template.loader import render_to_string
 
@@ -14,10 +13,12 @@ from apps.multimedia.forms import ImageForm
 
 
 from .models import Category, Property, Purpose
-from .forms import FinderForm, GroupDetailsForm
+from .forms import FinderForm
 from .mixins import PropertyViewMixin
 from .search import search_data
+from .utils import property_photos
 from apps.authentication.mixins import OwnerQuerysetMixin
+from apps.project.templatetags.habitta import KIND_ICONS, KIND_LABELS
 
 from apps.logs.models import Log
 
@@ -28,58 +29,103 @@ import os
 import zipfile
 from io import BytesIO
 
+
 class ChooseCategoryListView(ListView):
+    """Paso 1 del asistente: elegir la categoría, agrupadas por tipo (inmuebles, servicios, empleos)."""
     model = Category
-    queryset = Category.objects.filter(enabled=True, kind=Category.REAL_STATE)
     template_name = 'realty/choose_category.html'
+
+    def get_queryset(self):
+        return Category.objects.filter(enabled=True).prefetch_related('purposes').order_by('kind', 'name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        services = self.model.objects.filter(enabled=True, kind=Category.SERVICE)
-        jobs = self.model.objects.filter(enabled=True, kind=Category.JOB)
-        context.update(
-            {
-                'services':services,
-                'jobs': jobs
-            }
-        )
+        by_kind = {kind: [] for kind, _ in Category.KIND_CHOICES}
+        for category in context['object_list']:
+            by_kind.setdefault(category.kind, []).append(category)
+        kind = self.request.GET.get('kind', '')
+        context.update({
+            'kinds': [
+                {'id': kind_id, 'label': KIND_LABELS[kind_id], 'icon': KIND_ICONS[kind_id], 'categories': by_kind[kind_id]}
+                for kind_id, _ in Category.KIND_CHOICES if by_kind[kind_id]
+            ],
+            'initial_kind': int(kind) if kind in ('1', '2', '3') else Category.REAL_STATE,
+        })
         return context
 
+
 class PropertyListView(ListView):
+    """Mis publicaciones."""
     model = Property
+    paginate_by = 12
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(user=self.request.user)
+        return (
+            Property.objects.filter(user=self.request.user)
+            .select_related('category')
+            .annotate(likes=Count('log', filter=Q(log__type=Log.LIKE)))
+            .order_by('-pub_date', '-pk')
+        )
 
 
 class PropertyCreateView(PropertyViewMixin, CreateView):
-    def get(self, request, *args, **kwargs):
-        category = self.get_category()
-        if not category.enabled:
-            raise Http404
-        return super().get(request, *args, **kwargs)
+    def get_success_url(self):
+        messages.success(self.request, '¡Tu anuncio está publicado! Ahora suma más fotos.')
+        return reverse('property_photos', args=[self.object.pk]) + '?nuevo=1'
+
 
 class PropertyUpdateView(OwnerQuerysetMixin, PropertyViewMixin, UpdateView):
+    def get_previous_specifications(self):
+        return (self.get_object().details or {}).get('specifications', {})
+
     def get_details_forms(self):
         forms = super().get_details_forms()
-        if self.request.method == 'GET':
-            try:
-                initials = self.object.details['specifications']
-                for form in forms:              
-                    form.initial = initials
-            except KeyError:
-                pass
-
+        previous = self.get_previous_specifications()
+        for form in forms:
+            if self.request.method == 'GET':
+                form.initial = previous
+            # Un archivo ya subido no se vuelve a pedir: sólo se reemplaza si se elige otro
+            for key, field in form.fields.items():
+                if field.__class__.__name__ == 'FileField' and previous.get(key):
+                    field.required = False
+                    field.help_text = 'Ya subiste un archivo. Elige otro sólo si quieres reemplazarlo.'
         return forms
+
+    def get_form_specifications(self, forms):
+        specifications = super().get_form_specifications(forms)
+        previous = self.get_previous_specifications()
+        for form in forms:
+            for key, field in form.fields.items():
+                if field.__class__.__name__ == 'FileField' and key not in specifications and previous.get(key):
+                    specifications[key] = previous[key]
+        return specifications
 
     def get_cover_form(self):
         form = super().get_cover_form()
-        if self.request.method == 'POST':       
-            cover = self.get_object().get_cover_instance()          
+        if self.request.method == 'POST':
+            cover = self.get_object().get_cover_instance()
             if cover:
                 form.instance = cover
         return form
+
+    def get_success_url(self):
+        messages.success(self.request, 'Guardamos los cambios de tu anuncio.')
+        return self.object.get_absolute_url()
+
+
+class PropertyPhotosView(OwnerQuerysetMixin, DetailView):
+    """Último paso del asistente (y acceso directo desde Mis publicaciones): fotos de la galería."""
+    model = Property
+    template_name = 'realty/property_photos.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'photos': property_photos(self.object),
+            'content_type_id': ContentType.objects.get_for_model(Property).id,
+            'is_new': 'nuevo' in self.request.GET,
+        })
+        return context
 
 class PropertyDetailView(DetailView):
     model = Property
@@ -109,30 +155,7 @@ class PropertyDetailView(DetailView):
         return context
 
     def get_photos(self):
-        """Portada + galería con sus dimensiones (las necesita el visor PhotoSwipe)."""
-        photos = []
-        cover = self.object.get_cover_instance()
-        images = ([cover] if cover and cover.img else []) + self.object.get_gallery()
-        seen = set()
-        for image in images:
-            # Las imágenes generadas para el PDF (QR, mapa estático, miniatura) no son fotos del anuncio
-            if image.pk in seen or image.code in ('qrcode', 'map', 'thumbnail'):
-                continue
-            seen.add(image.pk)
-            try:
-                width, height = image.img.width, image.img.height
-            except (OSError, ValueError):
-                # La imagen no existe en el almacenamiento: no se muestra
-                continue
-            photos.append({
-                'id': image.pk,
-                'url': image.img.url,
-                'width': width,
-                'height': height,
-                'is_cover': image.is_cover,
-                'delete_url': reverse_lazy('delete_image', args=[image.pk]),
-            })
-        return photos
+        return property_photos(self.object)
 
     def get_map_point(self):
         point = self.object.geopoint
@@ -145,13 +168,19 @@ class PropertyDetailView(DetailView):
 
 
 class PropertyFavoriteListView(ListView):
+    """Favoritos: anuncios con "me gusta" del usuario, el último guardado primero."""
     model = Property
     template_name_suffix = '_favorite_list'
+    paginate_by = 12
 
     def get_queryset(self):
-        properties = Log.objects.values_list('property_id', flat=True).filter(type=Log.LIKE, user=self.request.user)
-        queryset = super().get_queryset()
-        return queryset.filter(id__in=properties)
+        likes = Log.objects.filter(type=Log.LIKE, user=self.request.user, property=OuterRef('pk'))
+        return (
+            Property.objects.filter(log__type=Log.LIKE, log__user=self.request.user)
+            .select_related('category', 'user__profile')
+            .annotate(like_id=Subquery(likes.values('pk')[:1]), liked_at=Subquery(likes.values('date')[:1]))
+            .order_by('-liked_at')
+        )
 
 class PropertyPrintView(DetailView):
     model = Property
@@ -172,6 +201,10 @@ class PropertyDeleteView(OwnerQuerysetMixin, DeleteView):
     model = Property
     success_url = reverse_lazy('properties')
     http_method_names = ['post',]
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Eliminamos el anuncio «%s».' % (self.object.title or self.object.category.singular_name))
+        return super().form_valid(form)
 
 class PropertyDownloadView(DetailView):
     model = Property
@@ -249,36 +282,6 @@ class FinderMapView(TemplateView):
 
 class FinderListView(FinderMapView):
     initial_view = 'list'
-
-
-##Ajax components
-class PropertyDetailsRenderer(FormView):
-    template_name = 'realty/publication_details.html'
-    form_class = GroupDetailsForm
-    http_method_names = ['get',]
-
-    def get(self, request, *args, **kwargs):
-        if not is_ajax(self.request):
-            raise Http404
-        forms = []
-        for group in self.get_groups():
-            forms.append(self.get_form(group))
-        r = render_to_string(self.template_name, context={'forms':forms})
-        return JsonResponse({'form': r}, status=200)
-
-    def get_groups(self):
-        pk = self.kwargs.get('category')
-        category = get_object_or_404(Category, pk=pk)
-        groups = category.groups.all().order_by('groupcategory__sequence')
-        return groups
-
-    def get_form(self, group, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
-        kwargs = self.get_form_kwargs()
-        kwargs['group'] = group
-        return form_class(**kwargs)
-
 
 
 def filter_category_by_purpose(request, pk, klass): 

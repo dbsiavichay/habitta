@@ -1,0 +1,14 @@
+{% comment %}Resumen de lo que se está pagando (sesión). Recibe `pending` = {'object', 'amount'}.{% endcomment %}
+{% load static habitta %}
+{% with obj=pending.object %}
+<div class="flex items-center gap-4 rounded-box bg-base-100 p-4 shadow-soft ring-1 ring-base-300/60">
+    {% if obj.get_thumbnail %}
+    <img src="{{ obj.get_thumbnail }}" alt="" class="aspect-video w-28 shrink-0 rounded-xl bg-base-300 object-cover" onerror="this.onerror=null;this.src='{% static 'brand/placeholder.svg' %}'">
+    {% endif %}
+    <div class="min-w-0 flex-1">
+        <p class="text-xs font-bold uppercase tracking-wide text-base-content/55">Estás pagando</p>
+        <p class="mt-0.5 truncate font-bold"><a href="{{ obj.get_absolute_url }}" class="hover:text-primary">{{ obj }}</a></p>
+    </div>
+    {% if pending.amount %}<p class="shrink-0 text-2xl font-extrabold">{{ pending.amount|money }}</p>{% endif %}
+</div>
+{% endwith %}

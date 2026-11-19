@@ -280,14 +280,58 @@
             };
         });
 
-        /* Chat en tiempo real con el anunciante (WebSocket de Django Channels) */
-        Alpine.data('chatWidget', function (receiverId) {
+        /* Diálogo de confirmación del panel (<c-confirm-dialog>): lo abre $dispatch('confirm', {...}) */
+        Alpine.data('confirmDialog', function () {
+            return {
+                action: '',
+                title: '',
+                text: '',
+                button: 'Eliminar',
+                show: function (detail) {
+                    detail = detail || {};
+                    this.action = detail.action || '';
+                    this.title = detail.title || '¿Seguro?';
+                    this.text = detail.text || '';
+                    this.button = detail.button || 'Eliminar';
+                    if (this.action) this.$root.showModal();
+                },
+                close: function () { this.$root.close(); },
+            };
+        });
+
+        /* Copiar un texto (número de cuenta, enlace) con confirmación visual */
+        Alpine.data('copyText', function (text) {
+            return {
+                copied: false,
+                copy: function () {
+                    var self = this;
+                    if (!navigator.clipboard) return;
+                    navigator.clipboard.writeText(text).then(function () {
+                        self.copied = true;
+                        setTimeout(function () { self.copied = false; }, 1800);
+                    });
+                },
+            };
+        });
+
+        /*
+         * Chat en tiempo real con otro usuario (WebSocket de Django Channels).
+         * En el widget flotante conecta al abrirse; en la página de conversación ({autoconnect: true}) al cargar.
+         */
+        Alpine.data('chatWidget', function (receiverId, options) {
             var socket = null;
             var pending = []; // mensajes escritos antes de que el WebSocket termine de abrir
+            options = options || {};
             return {
                 open: false,
                 draft: '',
                 status: 'idle', // idle | connecting | online | offline
+                init: function () {
+                    if (!options.autoconnect) return;
+                    this.connect();
+                    var self = this;
+                    this.$nextTick(function () { self.scrollDown(); });
+                },
                 toggle: function () {
                     this.open = !this.open;
                     if (this.open) this.connect();
@@ -311,7 +355,7 @@
                     socket.onmessage = function (event) {
                         var data = JSON.parse(event.data);
                         // HTML renderizado y escapado por el servidor
-                        self.$refs.messages.insertAdjacentHTML('beforeend', data.bubble || data.message);
+                        self.$refs.messages.insertAdjacentHTML('beforeend', data.bubble);
                         var empty = self.$refs.messages.querySelector('[data-empty]');
                         if (empty) empty.remove();
                         self.scrollDown();

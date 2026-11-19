@@ -1,0 +1,9 @@
+{% comment %}
+Estado corto con punto de color (pagos, subastas…).
+  <c-status-badge tone="success">Confirmado</c-status-badge>
+tone: success | warning | error | info | neutral
+{% endcomment %}
+<c-vars tone="neutral" class="" />
+<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold {% if tone == 'success' %}bg-success/12{% elif tone == 'warning' %}bg-warning/18{% elif tone == 'error' %}bg-error/12{% elif tone == 'info' %}bg-info/12{% else %}bg-base-content/8{% endif %} {{ class }}">
+    <span class="size-1.5 rounded-full {% if tone == 'success' %}bg-success{% elif tone == 'warning' %}bg-warning{% elif tone == 'error' %}bg-error{% elif tone == 'info' %}bg-info{% else %}bg-base-content/45{% endif %}"></span>{{ slot }}
+</span>

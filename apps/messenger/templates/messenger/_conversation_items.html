@@ -1,0 +1,28 @@
+{% comment %}
+Lista de conversaciones (de messenger.views.conversations_for). `active_id` resalta la abierta.
+{% endcomment %}
+{% load habitta messenger %}
+<ul class="divide-y divide-base-300/70">
+    {% for c in conversations %}
+    {% get_conversation_receiver c user as other %}
+    <li>
+        <a href="{% url 'detail_conversation' c.pk %}" {% if c.pk == active_id %}aria-current="page"{% endif %}
+           class="flex items-center gap-3 px-4 py-3 transition-colors {% if c.pk == active_id %}bg-primary/8{% else %}hover:bg-base-200/70{% endif %}">
+            <span class="relative shrink-0">
+                <c-avatar :user="other" size="size-12" />
+                {% if c.unread %}<span class="absolute -right-0.5 -top-0.5 size-3.5 rounded-full bg-secondary ring-2 ring-base-100"></span>{% endif %}
+            </span>
+            <span class="min-w-0 flex-1">
+                <span class="flex items-baseline justify-between gap-3">
+                    <span class="truncate {% if c.unread %}font-extrabold{% else %}font-semibold{% endif %}">{{ other.get_full_name|default:other.username }}</span>
+                    <time datetime="{{ c.last_date|date:'c' }}" class="shrink-0 text-xs {% if c.unread %}font-bold text-secondary{% else %}text-base-content/50{% endif %}">{{ c.last_date|ago }}</time>
+                </span>
+                <span class="mt-0.5 flex items-center gap-2">
+                    <span class="truncate text-sm {% if c.unread %}font-semibold text-base-content{% else %}text-base-content/60{% endif %}">{% if c.last_sender == user.pk %}Tú: {% endif %}{{ c.last_content|truncatechars:90 }}</span>
+                    {% if c.unread %}<span class="ml-auto grid min-w-5 shrink-0 place-items-center rounded-full bg-secondary px-1.5 text-xs font-bold leading-5 text-secondary-content" aria-label="{{ c.unread }} sin leer">{{ c.unread|badge_count }}</span>{% endif %}
+                </span>
+            </span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
