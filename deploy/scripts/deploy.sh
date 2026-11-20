@@ -16,7 +16,7 @@ set -euo pipefail
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 TAG="${1:-}"
-if ! printf '%s' "$TAG" | grep -qE '^(latest|sha-[0-9a-f]{7,40})$'; then
+if ! grep -qE '^(latest|sha-[0-9a-f]{7,40})$' <<< "$TAG"; then
     echo "uso: deploy.sh <latest|sha-abc1234>" >&2
     exit 2
 fi
@@ -31,7 +31,7 @@ ENV_FILE="${APP_DIR}/.env"
 docker network inspect edge >/dev/null 2>&1 || docker network create edge >/dev/null
 
 read_tag() {
-    grep -E '^WEB_TAG=' "$ENV_FILE" | head -n1 | cut -d= -f2- || true
+    grep -E '^WEB_TAG=' "$ENV_FILE" | sed -n '1s/^WEB_TAG=//p' || true
 }
 
 # Con un archivo temporal y un rename: `sed -i` cambia entre GNU y BSD, y un corte a la
@@ -115,7 +115,7 @@ echo ">> web está healthy en ${TAG}."
 # Cada deploy baja una imagen nueva. Se guardan la que corre y la anterior, para que un
 # rollback no necesite red, y se borran los demás tags de Habitta. Nunca `prune -a`: también
 # borraría las imágenes que Grazia guarda para sus rollbacks.
-repository="$(docker compose config --images web | head -n1)"
+repository="$(docker compose config --images web | sed -n 1p)"
 repository="${repository%:*}"
 docker image ls "$repository" --format '{{.Repository}}:{{.Tag}}' \
     | grep -vxF -e "${repository}:${TAG}" -e "${repository}:${PREVIOUS_TAG}" \

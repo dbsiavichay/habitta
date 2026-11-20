@@ -65,13 +65,15 @@ compose exec -T web sh -c '
 curl_edge() { docker run --rm --network edge "$CURL_IMAGE" -sk --max-time 10 "$@"; }
 
 fail=0
+# Con here-strings y sin `grep -q` ni `head`: si el lector cierra el pipe antes de leerlo
+# todo, el escritor recibe SIGPIPE y, con pipefail, una respuesta correcta cuenta como fallo.
 check() {
     local name="$1" got="$2" want="$3"
-    if printf '%s' "$got" | grep -qiE -- "$want"; then
+    if grep -iE -- "$want" <<< "$got" > /dev/null; then
         echo "   ok   ${name}"
     else
         echo "   FAIL ${name}: se esperaba /${want}/"
-        printf '%s\n' "$got" | head -20 | sed 's/^/        /'
+        sed -n '1,20s/^/        /p' <<< "$got"
         fail=1
     fi
 }
