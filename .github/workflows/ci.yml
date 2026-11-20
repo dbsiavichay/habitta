@@ -1,0 +1,219 @@
+name: ci
+
+# Cada pull request corre las verificaciones. Un push a master las corre otra vez y, si
+# pasan, publica la imagen que el job `docker` ensayó y la despliega. El VPS nunca
+# construye ni tiene credenciales de git: sólo baja la imagen de GHCR. Ver deploy/README.md.
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+# Un push nuevo a un PR reemplaza las verificaciones en curso. En master no se cancela
+# nada: un deploy cortado a la mitad podría dejar en el .env del servidor un tag que nunca
+# quedó sano.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/dbsiavichay/habitta
+  SITE_URL: https://habitta.dbsiavichay.dev
+
+jobs:
+  # La imagen que se publica, construida una sola vez: las pruebas corren dentro de ella y
+  # el ensayo la levanta como en el VPS (deploy/compose.yml detrás de un Caddy con habitta.caddy).
+  docker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgis:
+        image: imresamu/postgis:17-3.5
+        env:
+          POSTGRES_DB: habitta
+          POSTGRES_USER: habitta
+          POSTGRES_PASSWORD: habitta
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U habitta -d habitta"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE }}:smoke
+          build-args: |
+            GIT_SHA=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Sin Redis: las pruebas del chat usan InMemoryChannelLayer.
+      - name: Pruebas dentro de la imagen
+        run: |
+          docker run --rm --network host \
+            -e DATABASE_URL=postgis://habitta:habitta@127.0.0.1:5432/habitta \
+            -e SECRET_KEY=ci-not-a-secret \
+            --entrypoint sh "${IMAGE}:smoke" -c '
+              set -e
+              python manage.py check
+              python manage.py makemigrations --check --dry-run
+              python manage.py test --noinput \
+                apps.project.tests apps.authentication.tests apps.realty.tests \
+                apps.messenger.tests apps.auctions.tests apps.payments.tests \
+                apps.multimedia.tests apps.manual.tests api.tests'
+
+      - name: Ensayo de la topología de producción
+        env:
+          EXPECT_SHA: ${{ github.sha }}
+        run: deploy/ci/smoke.sh
+
+      - name: Guardar la imagen para publicarla
+        if: github.event_name == 'push'
+        run: docker save "${IMAGE}:smoke" | gzip > image.tar.gz
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'push'
+        with:
+          name: image
+          path: image.tar.gz
+          retention-days: 1
+          compression-level: 0
+
+  # Atrapa lo que si no fallaría en el VPS a mitad de un deploy: un script con un error de
+  # comillas, un compose que no se renderiza, un sitio que el Caddy del edge rechazaría
+  # (y que bloquearía los deploys de Grazia).
+  deploy-config:
+    name: deploy config
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: shellcheck
+        run: shellcheck deploy/scripts/*.sh deploy/ci/*.sh
+      - name: Renderizar el compose
+        run: |
+          printf '%s\n' POSTGRES_PASSWORD=x SECRET_KEY=x > deploy/.env
+          docker compose -f deploy/compose.yml config -q
+      # La misma imagen y disposición que el edge, para que `import security` e
+      # `import /etc/caddy/sites/*.caddy` resuelvan como en el VPS.
+      - name: Validar habitta.caddy
+        run: |
+          docker run --rm \
+            -v "$PWD/deploy/ci/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -v "$PWD/deploy/caddy:/etc/caddy/sites:ro" \
+            caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      # Caddy avisa del formato en cada reload: los logs del edge quedan limpios.
+      - name: Formato de los Caddyfile
+        run: |
+          docker run --rm -v "$PWD/deploy:/deploy:ro" caddy:2-alpine sh -c '
+            for f in /deploy/caddy/*.caddy /deploy/ci/Caddyfile; do
+              caddy fmt "$f" | diff -u "$f" - || exit 1
+            done'
+
+  publish:
+    if: github.event_name == 'push'
+    needs: [docker, deploy-config]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tag: ${{ steps.push.outputs.tag }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+      - name: Cargar la imagen ensayada
+        run: gunzip -c image.tar.gz | docker load
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publicar sha-<7> y latest
+        id: push
+        run: |
+          tag="sha-${GITHUB_SHA::7}"
+          for t in "$tag" latest; do
+            docker tag "${IMAGE}:smoke" "${IMAGE}:${t}"
+            docker push "${IMAGE}:${t}"
+          done
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "Publicado \`${IMAGE}:${tag}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ env.SITE_URL }}
+    concurrency:
+      group: deploy-habitta
+      cancel-in-progress: false
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configurar SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Fallar aquí, con nombre, y no después con un opaco "Host key verification failed".
+          ssh-keyscan -p "$VPS_SSH_PORT" -H "$VPS_HOST" > /tmp/host_keys 2>/dev/null || true
+          if [ ! -s /tmp/host_keys ]; then
+            echo "ssh-keyscan no obtuvo la llave de ${VPS_HOST}:${VPS_SSH_PORT}." >&2
+            exit 1
+          fi
+          cat /tmp/host_keys >> ~/.ssh/known_hosts
+          printf '%s\n' "Host vps" "  HostName ${VPS_HOST}" "  Port ${VPS_SSH_PORT}" \
+            "  User ${VPS_USER}" "  IdentityFile ~/.ssh/deploy_key" "  BatchMode yes" \
+            "  StrictHostKeyChecking yes" "  ServerAliveInterval 30" > ~/.ssh/config
+
+      # tar y no scp, para conservar los bits de ejecución. Extraer nunca borra, así que el
+      # .env del servidor sobrevive.
+      - name: Enviar los archivos de despliegue
+        run: |
+          tar -czf - -C deploy compose.yml scripts caddy \
+            | ssh vps 'test -f /opt/habitta/.env || { echo "Falta /opt/habitta/.env. Ver deploy/README.md." >&2; exit 1; }; tar -xzf - -C /opt/habitta'
+
+      # Primero el contenedor: el edge empieza a enrutar hacia él sólo cuando está sano, y un
+      # deploy fallido nunca toca el edge.
+      - name: Desplegar
+        env:
+          TAG: ${{ needs.publish.outputs.tag }}
+        run: |
+          # El tag se expande aquí, en el runner, a propósito: publish lo derivó del commit y
+          # deploy.sh lo valida otra vez.
+          # shellcheck disable=SC2029
+          ssh vps "/opt/habitta/scripts/deploy.sh ${TAG} && /opt/habitta/scripts/apply-edge.sh"
+
+      # Por DNS, TLS y el edge, como llega un visitante. El primer deploy puede esperar unos
+      # segundos a su certificado.
+      - name: Revisar el sitio en vivo
+        run: |
+          for _ in $(seq 1 30); do
+            if curl -fsS "${SITE_URL}/healthz" | grep -qE "\"sha\": ?\"${GITHUB_SHA}\""; then
+              echo "${SITE_URL} sirve ${GITHUB_SHA::7}."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "${SITE_URL}/healthz no reporta ${GITHUB_SHA}." >&2
+          exit 1

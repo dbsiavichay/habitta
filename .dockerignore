@@ -12,5 +12,7 @@ staticfiles/
 docker-compose*.yml
 Dockerfile
 .dockerignore
+.github/
+deploy/
 static/css/habitta.css
 .django_tailwind_cli/

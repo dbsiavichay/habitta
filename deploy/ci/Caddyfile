@@ -1,0 +1,22 @@
+# Réplica del Caddyfile del edge (grazia-infra: edge/caddy/Caddyfile) para validar y ensayar
+# habitta.caddy en CI y en local (deploy/ci/smoke.sh). Si el snippet `security` cambia allá,
+# copiar el cambio aquí.
+#
+# Diferencia a propósito: certificados de la CA interna de Caddy, así el ensayo nunca
+# contacta a Let's Encrypt.
+{
+	local_certs
+	skip_install_trust
+}
+
+(security) {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+import /etc/caddy/sites/*.caddy
