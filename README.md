@@ -64,6 +64,7 @@ opcionales: si se dejan vacías, la funcionalidad correspondiente se oculta o se
 | Variable | Uso |
 |---|---|
 | `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` | Django |
+| `SITE_NAME`, `SITE_TAGLINE`, `SITE_URL`, `LEGAL_NAME`, `CONTACT_*`, `SOCIAL_*` | Marca, URL pública (enlaces absolutos y QR del PDF), razón social de los términos y datos de contacto |
 | `DATABASE_URL`, `REDIS_URL` | Base de datos (PostGIS) y capa de canales. Ya los define `docker-compose.yml`. |
 | `GOOGLE_MAPS_API_KEY` | Mapas, autocompletado, geocodificación y mapa estático del PDF |
 | `PAYPAL_MODE`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | Pagos con PayPal (Orders v2) |
@@ -77,9 +78,19 @@ opcionales: si se dejan vacías, la funcionalidad correspondiente se oculta o se
 docker compose exec web python manage.py check
 docker compose exec web python manage.py makemigrations --check --dry-run
 docker compose exec web python manage.py test apps.project.tests apps.authentication.tests \
-    apps.realty.tests apps.messenger.tests apps.auctions.tests apps.payments.tests
+    apps.realty.tests apps.messenger.tests apps.auctions.tests apps.payments.tests apps.multimedia.tests
 docker compose logs -f web
 ```
+
+### Mantenimiento de datos
+
+Comandos para la base de datos y `media/` (córrelos siempre primero con `--dry-run`: los archivos
+borrados no se recuperan, `media/` no está en git).
+
+| Comando | Qué hace |
+|---|---|
+| `manage.py rebrand_content [--dry-run] [--legal-name …] [--domain …]` | Cambia la marca anterior (Larbit) en el título del sitio y en los términos (razón social → `LEGAL_NAME`, `www.larbit.com` → dominio de `SITE_URL`) y mueve la fuente de íconos de especificaciones a `media/spec_icons/`. No toca datos de usuarios. |
+| `manage.py purge_orphan_images [--dry-run] [--files]` | Borra las filas de `Image` cuyo objeto ya no existe y sus archivos; con `--files`, también los archivos de `media/images/` que ninguna fila usa. |
 
 ### Dependencias
 
@@ -115,6 +126,8 @@ Sin Node: todo se instala con pip y se compila con el binario standalone de Tail
 - **Marca:** colores, radios y tipografía son tokens del tema `habitta` / `habitta-dark` en
   `assets/tailwind/source.css`; en las plantillas se usan clases semánticas (`bg-primary`,
   `text-secondary`…), nunca colores sueltos. Logo y favicons en `static/brand/`.
+- **PDF del anuncio:** `apps/realty/report.py` lo dibuja con reportlab usando el logo de
+  `static/brand/` y Plus Jakarta Sans (`assets/fonts/`, licencia OFL).
 - **Nombre y contacto:** `SITE_NAME`, `SITE_URL`, `CONTACT_*` y `SOCIAL_*` (ver `.env.example`).
 - **Layouts:** `templates/layouts/base.html` (páginas públicas), `auth.html` (login, registro y
   recuperación) y `app.html` (panel del usuario, con el menú definido en `apps/project/panel.py`).
@@ -131,8 +144,9 @@ Sin Node: todo se instala con pip y se compila con el binario standalone de Tail
 | `apps/payments` | Pagos bancarios y con PayPal |
 | `apps/auctions` | Subastas |
 | `apps/authentication` | Registro, perfiles y login social |
-| `apps/comments`, `apps/logs`, `apps/multimedia`, `apps/project` | Comentarios, "me gusta", imágenes y contenido del sitio |
+| `apps/logs`, `apps/multimedia`, `apps/project` | "Me gusta", imágenes y contenido del sitio |
+| `apps/comments` | Comentarios antiguos: no se muestran en el sitio, sólo en el admin |
 | `hydra/` | Librería interna de template tags para formularios |
 | `templates/layouts/`, `templates/cotton/` | Layout base y componentes del diseño Habitta |
-| `assets/tailwind/` | Hoja fuente de Tailwind con los temas de la marca |
+| `assets/tailwind/`, `assets/fonts/` | Hoja fuente de Tailwind con los temas de la marca y la fuente del PDF |
 | `api/` | API REST usada por el explorador del mapa |

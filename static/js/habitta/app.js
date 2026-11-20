@@ -141,7 +141,7 @@
             };
         });
 
-        /* Mostrar u ocultar una contraseña (plantilla hydra/v2/forms/passwordinput.html) */
+        /* Mostrar u ocultar una contraseña (plantilla hydra/forms/passwordinput.html) */
         Alpine.data('passwordToggle', function () {
             return {
                 show: false,
