@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 class ProjectConfig(AppConfig):
     name = 'apps.project'
-    verbose_name = 'Configuración del Proyecto'
+    verbose_name = 'Contenido del sitio'

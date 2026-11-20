@@ -74,6 +74,7 @@ SIDEBAR_NAVIGATION = [
                    badge=f'{DASHBOARD}.pending_bank_payments_badge', badge_variant='warning'),
             _model('Pagos PayPal', 'credit_card', 'payments', 'paypalpayment'),
             _model('Publicaciones', 'home_work', 'realty', 'property'),
+            _model('Subastas', 'gavel', 'auctions', 'auction'),
         ],
     },
     {
@@ -81,8 +82,11 @@ SIDEBAR_NAVIGATION = [
         'separator': True,
         'items': [
             _model('Usuarios', 'group', 'auth', 'user'),
-            _model('Perfiles', 'badge', 'authentication', 'profile'),
+            _model('Vistas y me gusta', 'visibility', 'logs', 'log'),
             _model('Comentarios', 'forum', 'comments', 'comment'),
+            # Mensajes privados: sólo superusuarios (apps/messenger/admin.py).
+            _model('Conversaciones', 'chat', 'messenger', 'conversation',
+                   permission=lambda request: request.user.is_superuser),
         ],
     },
     {
@@ -113,7 +117,6 @@ SIDEBAR_NAVIGATION = [
             _model('Bancos', 'account_balance_wallet', 'payments', 'bank'),
             _model('Grupos y permisos', 'admin_panel_settings', 'auth', 'group'),
             _model('Imágenes', 'photo_library', 'multimedia', 'image'),
-            _model('Perfiles sociales', 'link', 'authentication', 'socialprofile'),
         ],
     },
 ]
@@ -149,6 +152,12 @@ def build_unfold(site_name):
         ],
         'BORDER_RADIUS': '12px',  # igual a --radius-field del sitio
         'COLORS': COLORS,
+        # ⌘K / Ctrl+K: además del menú, busca registros en estos modelos (respeta los permisos).
+        'COMMAND': {
+            'search_models': ['auth.user', 'realty.property', 'payments.bankpayment',
+                              'realty.category', 'realty.specification'],
+            'show_history': True,
+        },
         'SIDEBAR': {
             'show_search': True,
             'show_all_applications': False,

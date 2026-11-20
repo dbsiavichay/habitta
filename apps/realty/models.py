@@ -54,7 +54,7 @@ class Group(models.Model):
     name = models.CharField(max_length=32, verbose_name='nombre')
     internal_name = models.CharField(max_length=64, verbose_name='nombre de uso interno')   
     columns = models.CharField(max_length=16, choices=COLUMNS_CHOICES, default='col-xs-12', verbose_name='número de columnas')    
-    specifications = models.ManyToManyField(Specification, verbose_name='especifaciones para este grupo')
+    specifications = models.ManyToManyField(Specification, verbose_name='especificaciones')
 
     def __str__(self):
         return self.name
@@ -97,6 +97,9 @@ class GroupCategory(models.Model):
     class Meta:
         verbose_name = 'formulario de categoría'
         verbose_name_plural = 'formularios de categoría'
+
+    def __str__(self):
+        return str(self.group)
 
 class Property(ImageMixin, models.Model):
     class Meta:
