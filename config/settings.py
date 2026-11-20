@@ -216,7 +216,17 @@ PAYPAL_CLIENT_SECRET = env('PAYPAL_CLIENT_SECRET', default='')
 
 TINIFY_API_KEY = env('TINIFY_API_KEY', default='')
 
-GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default='')
+# Mapas libres (sin key). Vacío = deshabilitado.
+# Estilo vectorial de MapLibre para los mapas del sitio (OpenFreeMap: sin key ni límites).
+MAP_STYLE_URL = env('MAP_STYLE_URL', default='https://tiles.openfreemap.org/styles/positron')
+# Photon (OpenStreetMap) para buscar lugares y obtener la dirección de un punto (/api/places/).
+GEOCODER_URL = env('GEOCODER_URL', default='https://photon.komoot.io')
+# Tiles raster para el mapa del afiche en PDF; MAP_TILE_SCALE=2 si el proveedor sirve tiles @2x (512 px).
+MAP_TILE_URL = env('MAP_TILE_URL', default='https://tile.openstreetmap.org/{z}/{x}/{y}.png')
+MAP_TILE_SCALE = env.int('MAP_TILE_SCALE', default=1)
+MAP_TILE_ATTRIBUTION = env('MAP_TILE_ATTRIBUTION', default='© OpenStreetMap')
+# Las políticas de OpenStreetMap piden que cada app se identifique (idealmente con una URL de contacto).
+GEO_USER_AGENT = env('GEO_USER_AGENT', default='') or '%s/1.0' % SITE_NAME
 
 # Timeout (segundos) para llamadas HTTP a servicios externos
 EXTERNAL_HTTP_TIMEOUT = env.int('EXTERNAL_HTTP_TIMEOUT', default=10)

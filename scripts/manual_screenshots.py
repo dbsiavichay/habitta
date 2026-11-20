@@ -97,8 +97,8 @@ SHOTS = [
      'js': OPEN_ACCOUNT_MENU},
     # 2. Buscar y explorar
     {'name': U + 'portada', 'path': '/', 'viewport': DESKTOP, 'wait': 1},
-    # Vista de lista: la clave de Google Maps del demo muestra un aviso de error sobre el mapa.
-    {'name': U + 'explorador', 'path': '/realty/explorador/lista/?kind=1', 'viewport': DESKTOP, 'wait': 2},
+    # Con el mapa: se espera a que carguen los tiles (OpenFreeMap).
+    {'name': U + 'explorador', 'path': '/realty/explorador/mapa/?kind=1', 'viewport': DESKTOP, 'wait': 4},
     {'name': U + 'explorador-filtros', 'path': '/realty/explorador/mapa/?kind=1', 'viewport': PHONE, 'wait': 1,
      'js': "document.querySelector('[aria-label=\"Abrir filtros\"]').click()"},
     # 3. Ver un anuncio
@@ -110,9 +110,10 @@ SHOTS = [
     # 4. Publicar un anuncio
     {'name': U + 'publicar-categoria', 'path': '/realty/property/add/', 'user': 'ana', 'viewport': DESKTOP},
     {'name': U + 'publicar-datos', 'path': '/realty/property/add/category/{categoria}/', 'user': 'ana', 'viewport': DESKTOP},
-    # Sin el mapa: con la clave del demo, Google muestra un aviso de error encima.
+    # Sin la barra fija Atrás/Siguiente, que tapa el mapa en la toma del paso completo.
     {'name': U + 'publicar-ubicacion', 'path': '/realty/property/{anuncio}/update/#ubicacion', 'user': 'ana',
-     'viewport': DESKTOP, 'clip': (300, 100, 980, 470)},
+     'viewport': DESKTOP, 'selector': 'section[data-step="2"]', 'pad': 12, 'wait': 4,
+     'js': "document.querySelector('form [class*=\"sticky\"][class*=\"bottom-\"]').style.display = 'none'"},
     {'name': U + 'publicar-portada', 'path': '/realty/property/{anuncio}/update/#portada', 'user': 'ana', 'viewport': DESKTOP},
     {'name': U + 'publicar-revisar', 'path': '/realty/property/{anuncio}/update/#revisar', 'user': 'ana', 'viewport': DESKTOP},
     {'name': U + 'publicar-fotos', 'path': '/realty/property/{anuncio}/fotos/', 'user': 'ana', 'viewport': DESKTOP},
@@ -200,6 +201,8 @@ class Chrome:
         self.process = subprocess.Popen(
             [CHROME, '--headless=new', f'--remote-debugging-port={PORT}', f'--user-data-dir={self.profile}',
              '--hide-scrollbars', '--no-first-run', '--no-default-browser-check', '--disable-extensions',
+             # WebGL por software: sin esto los mapas (MapLibre) no se dibujan en headless
+             '--use-angle=swiftshader', '--enable-unsafe-swiftshader',
              '--lang=es-EC', 'about:blank'],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )

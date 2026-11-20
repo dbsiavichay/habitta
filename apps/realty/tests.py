@@ -7,7 +7,7 @@ import os
 import shutil
 import tempfile
 from io import BytesIO
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 from django.urls import NoReverseMatch, reverse
@@ -289,7 +289,14 @@ def png_bytes(size=(160, 90), color=(11, 110, 95)):
     return buffer.getvalue()
 
 
-@override_settings(MEDIA_ROOT=MEDIA_ROOT, TINIFY_API_KEY='', GOOGLE_MAPS_API_KEY='', SITE_URL='https://habitta.test')
+TILE_URL = 'https://tiles.test/{z}/{x}/{y}.png'
+
+
+def gray_tile(*args):
+    return PILImage.new('RGB', (256, 256), (230, 230, 230))
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT, TINIFY_API_KEY='', MAP_TILE_URL='', SITE_URL='https://habitta.test')
 class PropertyPdfTests(TestCase):
     """Afiche en PDF (apps/realty/report.py)."""
 
@@ -325,27 +332,52 @@ class PropertyPdfTests(TestCase):
         network = SocialNetwork.objects.create(name='Instagram', icon='instagram', url='https://instagram.com/')
         SocialNetworkProfile.objects.create(social_network=network, profile=profile, username='ana.casas')
 
-        with patch('apps.realty.report.requests.get') as fetch:
+        with patch('apps.realty.report._fetch_tile') as fetch:
             self.get_pdf()
         fetch.assert_not_called()  # el mapa guardado ya tiene buena resolución
 
-    @override_settings(GOOGLE_MAPS_API_KEY='key')
+    @override_settings(MAP_TILE_URL=TILE_URL)
     def test_low_resolution_map_is_replaced(self):
         old = self.listing.add_image(PILImage.new('RGB', (274, 203)), 'map')
-        old_path = old.img.path
-        response = MagicMock(content=png_bytes((800, 680)))
-        with patch('apps.realty.report.requests.get', return_value=response) as fetch:
+        with patch('apps.realty.report._fetch_tile', side_effect=gray_tile) as fetch:
             self.get_pdf()
-        fetch.assert_called_once()
-        self.assertEqual(fetch.call_args.kwargs['params']['markers'].split('|')[0], 'color:0x0B6E5F')
+        self.assertTrue(fetch.called)
         old.refresh_from_db()
         self.assertEqual(old.img.width, 800)
 
-    @override_settings(GOOGLE_MAPS_API_KEY='key')
+        # Ya guardado con buena resolución: no se vuelven a pedir tiles
+        with patch('apps.realty.report._fetch_tile') as fetch:
+            self.get_pdf()
+        fetch.assert_not_called()
+
+    @override_settings(MAP_TILE_URL=TILE_URL)
+    def test_static_map_is_built_from_tiles_with_the_brand_pin(self):
+        from apps.realty.report import _render_static_map
+
+        with patch('apps.realty.report._fetch_tile', side_effect=gray_tile) as fetch:
+            image = _render_static_map(self.listing)
+        self.assertEqual(image.size, (800, 680))
+        self.assertGreaterEqual(fetch.call_count, 4)  # 400×340 px lógicos cruzan al menos 2×2 tiles
+        zooms = {call.args[3] for call in fetch.call_args_list}
+        self.assertEqual(zooms, {16})
+        # Cuerpo del pin (verde de la marca) sobre el punto; fondo gris alrededor
+        r, g, b = image.getpixel((400, 302))
+        self.assertTrue(abs(r - 11) < 20 and abs(g - 110) < 20 and abs(b - 95) < 20, (r, g, b))
+        self.assertEqual(image.getpixel((40, 40)), (230, 230, 230))
+
+    @override_settings(MAP_TILE_URL=TILE_URL)
+    def test_map_is_skipped_when_tiles_fail(self):
+        import requests
+
+        with patch('apps.realty.report._fetch_tile', side_effect=requests.ConnectionError):
+            self.get_pdf()
+        self.assertIsNone(self.listing.get_last_image_by_code('map'))
+
+    @override_settings(MAP_TILE_URL=TILE_URL)
     def test_service_without_location_does_not_ask_for_a_map(self):
         service = create_listing(self.owner, kind=Category.SERVICE, name='Plomeros', title='Plomería')
         Category.objects.filter(pk=service.category_id).update(require_location=False)
-        with patch('apps.realty.report.requests.get') as fetch:
+        with patch('apps.realty.report._fetch_tile') as fetch:
             self.get_pdf(Property.objects.get(pk=service.pk))
         fetch.assert_not_called()
 

@@ -66,7 +66,7 @@ opcionales: si se dejan vacías, la funcionalidad correspondiente se oculta o se
 | `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` | Django |
 | `SITE_NAME`, `SITE_TAGLINE`, `SITE_URL`, `LEGAL_NAME`, `CONTACT_*`, `SOCIAL_*` | Marca, URL pública (enlaces absolutos y QR del PDF), razón social de los términos y datos de contacto |
 | `DATABASE_URL`, `REDIS_URL` | Base de datos (PostGIS) y capa de canales. Ya los define `docker-compose.yml`. |
-| `GOOGLE_MAPS_API_KEY` | Mapas, autocompletado, geocodificación y mapa estático del PDF |
+| `MAP_STYLE_URL`, `GEOCODER_URL`, `MAP_TILE_*`, `GEO_USER_AGENT` | Mapas libres, sin key: estilo de MapLibre (OpenFreeMap), búsqueda de lugares con Photon (OSM, vía `/api/places/`) y tiles del mapa del PDF (OSM). Traen valores por defecto; el Photon público es de uso justo, así que para producción conviene autoalojarlo. |
 | `PAYPAL_MODE`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | Pagos con PayPal (Orders v2) |
 | `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `TWITTER_API_KEY`, `TWITTER_API_SECRET` | Login social |
 | `TINIFY_API_KEY` | Compresión de imágenes con Tinify (sin key se usa Pillow) |
@@ -79,7 +79,7 @@ docker compose exec web python manage.py check
 docker compose exec web python manage.py makemigrations --check --dry-run
 docker compose exec web python manage.py test apps.project.tests apps.authentication.tests \
     apps.realty.tests apps.messenger.tests apps.auctions.tests apps.payments.tests apps.multimedia.tests \
-    apps.manual.tests
+    apps.manual.tests api.tests
 docker compose logs -f web
 ```
 

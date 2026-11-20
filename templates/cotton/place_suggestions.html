@@ -1,0 +1,22 @@
+{% comment %}
+Sugerencias del autocompletado de lugares (componente Alpine placeSearch, static/js/habitta/app.js).
+Va dentro del elemento con x-data="placeSearch", que debe ser `relative`.
+`up` abre la lista hacia arriba (p. ej. en el hero, que recorta lo que sobresale por abajo).
+{% endcomment %}
+<c-vars class="" up="" />
+<ul x-show="suggestOpen" x-cloak :id="suggestId" role="listbox" aria-label="Lugares sugeridos"
+    class="absolute inset-x-0 {% if up %}bottom-full mb-2{% else %}top-full mt-2{% endif %} z-50 max-h-80 overflow-y-auto rounded-box bg-base-100 p-1.5 text-left text-base-content shadow-float ring-1 ring-base-300 {{ class }}">
+    <template x-for="(place, i) in suggestions" :key="i">
+        <li :id="suggestId + '-' + i" role="option" :aria-selected="i === suggestIndex"
+            @mousedown.prevent @click="choosePlace(place)" @mousemove="suggestIndex = i"
+            :class="i === suggestIndex && 'bg-primary/10'"
+            class="flex cursor-pointer items-start gap-3 rounded-field px-3 py-2.5">
+            <c-icon name="map-pin" class="mt-0.5 size-4 shrink-0 text-primary" />
+            <span class="min-w-0">
+                <span class="block truncate font-semibold" x-text="place.name"></span>
+                <span class="block truncate text-sm text-base-content/60" x-text="place.detail"></span>
+            </span>
+        </li>
+    </template>
+    <li role="presentation" class="px-3 pb-1 pt-1.5 text-right text-[0.7rem] text-base-content/45">Lugares © OpenStreetMap</li>
+</ul>

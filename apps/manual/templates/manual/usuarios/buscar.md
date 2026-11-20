@@ -7,7 +7,7 @@ Arriba de la [portada]({% url 'home' %}) está el buscador:
 1. Elige el tipo de anuncio: **Todo**, **Inmuebles**, **Servicios** o **Empleos**.
 2. En **Quiero**, elige qué buscas: comprar, rentar, contratar… Las opciones cambian según el tipo.
 3. En **Categoría**, elige una o deja **Todas**.
-4. En **Ubicación**, escribe una ciudad o un sector. Mientras escribes aparecen sugerencias de lugares.
+4. En **Ubicación**, escribe una ciudad o un sector. Mientras escribes aparecen sugerencias de lugares: si eliges una, el explorador se abre centrado en ese lugar.
 5. Toca **Buscar**: se abre el explorador con esos filtros.
 
 Debajo del buscador, las categorías **populares** llevan directo a sus anuncios.
@@ -26,7 +26,7 @@ El [explorador]({% url 'finder' %}) también se abre desde **Inmuebles**, **Serv
 
 Encima de los resultados, cada filtro activo aparece como una etiqueta: tócala para quitarlo. **Limpiar todo** quita todos los filtros a la vez.
 
-{% figura 'usuarios/explorador.webp' 'El explorador en vista de lista.' %}
+{% figura 'usuarios/explorador.webp' 'El explorador: filtros, resultados y mapa.' %}
 
 Los servicios que atienden en una zona, y no en una dirección fija, aparecen aunque filtres por distancia.
 
@@ -37,16 +37,13 @@ Los servicios que atienden en una zona, y no en una dirección fija, aparecen au
 
 En la computadora, los botones **Mapa** y **Lista** cambian la vista. En el mapa:
 
-- cada pin muestra el precio, y al tocarlo aparece una vista previa del anuncio;
+- cada pin es un anuncio: al tocarlo aparece una vista previa con su foto y su precio;
 - los anuncios cercanos se agrupan en un círculo con un número: acércate para separarlos;
 - si mueves el mapa, toca **Buscar en esta zona** para ver lo que hay ahí.
 
 En el celular, los filtros están en el botón con el ícono de ajustes, junto al buscador; el número sobre él cuenta los filtros activos. El botón flotante **Mapa** abre el mapa y **Lista** te devuelve a los resultados.
 
 {% figura 'usuarios/explorador-filtros.webp' 'Los filtros en el celular.' 'angosta' %}
-
-!!! demo "En este demo"
-    El mapa puede aparecer oscurecido o con un aviso de Google: es una limitación de la clave de Google Maps del demo. La vista de lista funciona igual.
 
 ## Escanea el código QR de un afiche
 

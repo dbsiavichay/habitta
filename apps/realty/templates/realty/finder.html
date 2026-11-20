@@ -5,7 +5,6 @@
 {% block description %}Busca inmuebles, servicios y empleos en el mapa de {{ SITE_NAME }}. Filtra por categoría, precio y zona.{% endblock %}
 
 {% block scripts %}
-<script defer src="{% static 'vendor/markerclusterer/markerclusterer-2.6.2.umd.min.js' %}"></script>
 <script defer src="{% static 'js/habitta/explorer.js' %}"></script>
 {% endblock %}
 
@@ -26,16 +25,18 @@
             <div class="px-4 py-3 sm:px-6 lg:px-8">
                 {# Ubicación #}
                 <div class="flex items-center gap-2">
-                    <form class="relative flex-1" @submit.prevent="submitAddress()" role="search">
+                    <form class="relative flex-1" @submit.prevent="submitAddress()" role="search"
+                          x-data="placeSearch({ input: '#explorer-address', near: () => nearCenter() })" @place-selected="pickPlace($event.detail)">
                         <c-icon name="map-pin" class="pointer-events-none absolute left-4 top-1/2 z-10 size-5 -translate-y-1/2 text-primary" />
                         <label for="explorer-address" class="sr-only">Ciudad, sector o dirección</label>
-                        <input id="explorer-address" x-ref="address" type="search" x-model="filters.address" autocomplete="off"
+                        <input id="explorer-address" type="search" x-model="filters.address" autocomplete="off"
                                :placeholder="placeLabel ? 'Cambiar zona…' : 'Ciudad, sector o dirección'"
                                class="input h-12 w-full rounded-full border-base-300 bg-base-100 pl-11 pr-12 text-[0.95rem] font-medium shadow-soft focus:border-primary focus:outline-none">
                         <button type="button" @click="locateMe()" class="btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2 text-primary" aria-label="Buscar cerca de mí" title="Cerca de mí">
                             <span x-show="locating" class="loading loading-spinner loading-xs"></span>
                             <span x-show="!locating"><c-icon name="locate-fixed" class="size-5" /></span>
                         </button>
+                        <c-place-suggestions />
                     </form>
                     <button type="button" @click="filtersOpen = true" class="btn h-12 rounded-full border-base-300 bg-base-100 px-4 shadow-soft lg:hidden" aria-label="Abrir filtros">
                         <c-icon name="sliders-horizontal" class="size-5" />
@@ -221,7 +222,7 @@
 
     {# Botón flotante Mapa/Lista en móvil #}
     <button type="button" @click="mobileMap ? (mobileMap = false) : openMobileMap()"
-            class="btn fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] left-1/2 z-40 -translate-x-1/2 rounded-full border-0 bg-neutral px-6 font-bold text-neutral-content shadow-float hover:bg-neutral lg:hidden">
+            class="btn fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] left-1/2 z-40 -translate-x-1/2 rounded-full border-0 bg-neutral px-6 font-bold text-neutral-content shadow-float hover:bg-neutral lg:hidden">
         <span x-show="!mobileMap" class="inline-flex items-center gap-2"><c-icon name="map" class="size-5" />Mapa</span>
         <span x-show="mobileMap" x-cloak class="inline-flex items-center gap-2"><c-icon name="list" class="size-5" />Lista</span>
     </button>

@@ -18,8 +18,8 @@
     <meta property="og:image" content="{% block og_image %}{{ SITE_URL }}{% static 'brand/og-default.png' %}{% endblock %}">
     <meta name="twitter:card" content="summary_large_image">
     {% if FACEBOOK_APP_ID %}<meta property="fb:app_id" content="{{ FACEBOOK_APP_ID }}">{% endif %}
-    {# Key pública de Google Maps (restringida por dominio): habitta.loadMaps() la usa para cargar el SDK bajo demanda #}
-    {% if GOOGLE_MAPS_API_KEY %}<meta name="habitta:maps-key" content="{{ GOOGLE_MAPS_API_KEY }}">{% endif %}
+    {# Mapas (MapLibre + estilo vectorial): habitta.loadMaps() carga el JS y el CSS bajo demanda #}
+    {% if MAP_STYLE_URL %}<meta name="habitta:maps" content="{{ MAP_STYLE_URL }}" data-js="{% static 'vendor/maplibre/maplibre-gl-5.24.0.js' %}" data-css="{% static 'vendor/maplibre/maplibre-gl-5.24.0.css' %}">{% endif %}
 
     <link rel="icon" href="{% static 'brand/favicon.svg' %}" type="image/svg+xml">
     <link rel="icon" href="{% static 'brand/favicon.ico' %}" sizes="48x48">
