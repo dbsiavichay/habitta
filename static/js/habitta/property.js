@@ -29,30 +29,27 @@
                 },
                 load: function () {
                     var self = this;
+                    var center = { lat: lat, lng: lng };
+                    var fail = function (error) {
+                        habitta.mapError(error);
+                        self.status = 'unavailable';
+                    };
                     this.status = 'loading';
-                    habitta.loadMaps().then(function (maps) {
-                        var center = { lat: lat, lng: lng };
-                        var map = new maps.Map(self.$refs.canvas, {
-                            center: center,
-                            zoom: radiusMeters ? 13 : 15,
-                            styles: habitta.mapStyles,
-                            disableDefaultUI: true,
-                            zoomControl: true,
-                            gestureHandling: 'cooperative',
-                            clickableIcons: false,
+                    habitta.loadMaps().then(function (maplibregl) {
+                        var map = habitta.createMap(maplibregl, self.$refs.canvas, {
+                            center: center, zoom: radiusMeters ? 13 : 15, cooperative: true,
                         });
-                        if (radiusMeters) {
-                            var circle = new maps.Circle({
-                                map: map, center: center, radius: radiusMeters,
-                                strokeColor: '#0B6E5F', strokeOpacity: 0.7, strokeWeight: 2,
-                                fillColor: '#0B6E5F', fillOpacity: 0.12,
-                            });
-                            map.fitBounds(circle.getBounds(), 24);
-                        } else {
-                            new maps.Marker({ map: map, position: center, icon: habitta.pinIcon(maps, false) });
-                        }
-                        self.status = 'ready';
-                    }).catch(function () { self.status = 'unavailable'; });
+                        habitta.whenMapReady(map, function () {
+                            if (radiusMeters) {
+                                habitta.addCoverageLayer(map)(center, radiusMeters);
+                                map.fitBounds(habitta.circleBounds(center, radiusMeters), { padding: 24, duration: 0 });
+                            } else {
+                                new maplibregl.Marker({ element: habitta.pinElement(false), anchor: 'bottom' })
+                                    .setLngLat([lng, lat]).addTo(map);
+                            }
+                            self.status = 'ready';
+                        }, fail);
+                    }).catch(fail);
                 },
             };
         });

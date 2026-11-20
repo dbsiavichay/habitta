@@ -3,7 +3,9 @@
 Todo se dibuja con reportlab, sin plantillas de imagen: cabecera con el logo, portada, título y
 precio, descripción y características, y una fila con el mapa, el anunciante y un código QR que
 lleva al anuncio. Los colores son los del tema `habitta` (assets/tailwind/source.css).
+El mapa se arma con tiles raster de OpenStreetMap (MAP_TILE_URL) y se guarda como imagen del anuncio.
 """
+import math
 import os
 from io import BytesIO
 from urllib.parse import urlsplit
@@ -12,7 +14,7 @@ import qrcode
 import requests
 from django.conf import settings
 from django.utils import timezone
-from PIL import Image as PilImage, ImageOps
+from PIL import Image as PilImage, ImageDraw, ImageFont, ImageOps
 from reportlab.lib.colors import HexColor, white
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader, simpleSplit
@@ -44,8 +46,11 @@ LOGO_RATIO = 1200 / 297
 FONT_DIR = os.path.join(settings.BASE_DIR, 'assets', 'fonts', 'plus-jakarta-sans')
 FONT_STYLES = {'regular': 'Regular', 'semibold': 'SemiBold', 'bold': 'Bold', 'extrabold': 'ExtraBold'}
 FALLBACK_FONTS = {'regular': 'Helvetica', 'semibold': 'Helvetica-Bold', 'bold': 'Helvetica-Bold', 'extrabold': 'Helvetica-Bold'}
-STATIC_MAPS_URL = 'https://maps.googleapis.com/maps/api/staticmap'
-MAP_MIN_WIDTH = 800  # los mapas guardados por la versión anterior (274 px) se vuelven a pedir
+MAP_ZOOM = 16
+MAP_VIEW = (400, 340)   # área del mapa en px lógicos (como el antiguo mapa estático de 400×340 a escala 2)
+MAP_SIZE = (800, 680)   # imagen guardada: suficiente para imprimir la tarjeta de 196 pt
+MAP_MIN_WIDTH = 800     # los mapas guardados por la versión anterior (274 px) se vuelven a pedir
+TILE_SIZE = 256
 
 _fonts = {}
 
@@ -180,22 +185,98 @@ def _image_width(path):
         return 0
 
 
-def _fetch_static_map(obj):
-    key = settings.GOOGLE_MAPS_API_KEY
-    if not key:
-        return None
-    center = '%s,%s' % (obj.geopoint.y, obj.geopoint.x)
-    params = {
-        'center': center, 'zoom': 16, 'size': '400x340', 'scale': 2, 'maptype': 'roadmap',
-        'markers': 'color:0x0B6E5F|%s' % center, 'key': key,
-    }
+def _fetch_tile(session, x, y, zoom):
+    url = settings.MAP_TILE_URL.format(z=zoom, x=x, y=y)
+    response = session.get(url, timeout=settings.EXTERNAL_HTTP_TIMEOUT)
+    response.raise_for_status()
+    tile = PilImage.open(BytesIO(response.content))
+    tile.load()
+    return tile.convert('RGB')
+
+
+def _world_pixel(lat, lng, zoom, tile_size):
+    """Coordenadas en píxeles del mundo (Web Mercator) del punto, al zoom dado."""
+    scale = tile_size * 2 ** zoom
+    sin_lat = min(max(math.sin(math.radians(lat)), -0.9999), 0.9999)
+    x = (lng + 180) / 360 * scale
+    y = (0.5 - math.log((1 + sin_lat) / (1 - sin_lat)) / (4 * math.pi)) * scale
+    return x, y
+
+
+def _draw_pin(image, x, y, height):
+    """Pin de la marca con la punta en (x, y), suavizado dibujándolo a 4x y reduciéndolo."""
+    ss = 4
+    width = height * 36 / 46
+    layer = PilImage.new('RGBA', (round(width * ss), round(height * ss)), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(layer)
+    unit = height * ss / 46  # el pin del sitio mide 36×46 (static/js/habitta/app.js)
+
+    def drop(radius, tip, color):
+        cx, cy, tip = 18 * unit, 18 * unit, tip * unit
+        reach = math.acos(min(radius / (tip - cy), 1))  # ángulo de las tangentes desde la punta
+        points = [
+            (cx + radius * math.cos(math.pi / 2 + reach + i * (2 * math.pi - 2 * reach) / 48),
+             cy + radius * math.sin(math.pi / 2 + reach + i * (2 * math.pi - 2 * reach) / 48))
+            for i in range(49)
+        ]
+        draw.polygon(points + [(cx, tip)], fill=color)
+
+    drop(16.25 * unit, 45.5, '#ffffff')  # borde blanco
+    drop(13.75 * unit, 42.5, '#0B6E5F')
+    dot = 5.5 * unit
+    draw.ellipse((18 * unit - dot, 18 * unit - dot, 18 * unit + dot, 18 * unit + dot), fill='#ffffff')
+    layer = layer.resize((round(width), round(height)), PilImage.LANCZOS)
+    image.paste(layer, (round(x - width / 2), round(y - height)), layer)
+
+
+def _draw_attribution(image, text):
+    if not text:
+        return
+    size = max(14, image.width // 44)
     try:
-        response = requests.get(STATIC_MAPS_URL, params=params, timeout=settings.EXTERNAL_HTTP_TIMEOUT)
-        response.raise_for_status()
-        image = PilImage.open(BytesIO(response.content))
-        image.load()
-    except (requests.RequestException, OSError):
+        font = ImageFont.truetype(os.path.join(FONT_DIR, 'PlusJakartaSans-SemiBold.ttf'), size)
+    except OSError:
+        font = ImageFont.load_default(size=size)
+    draw = ImageDraw.Draw(image, 'RGBA')
+    left, top, right, bottom = draw.textbbox((0, 0), text, font=font)
+    pad = size // 2
+    box = (image.width - (right - left) - 2 * pad, image.height - (bottom - top) - 2 * pad, image.width, image.height)
+    draw.rectangle(box, fill=(255, 255, 255, 200))
+    draw.text((box[0] + pad - left, box[1] + pad - top), text, font=font, fill=(60, 72, 68, 255))
+
+
+def _render_static_map(obj):
+    """Mapa del punto del anuncio armado con tiles raster (OpenStreetMap por defecto), o None si falla."""
+    if not settings.MAP_TILE_URL:
         return None
+    scale = 2 if settings.MAP_TILE_SCALE == 2 else 1
+    tile_size = TILE_SIZE * scale
+    width, height = MAP_VIEW[0] * scale, MAP_VIEW[1] * scale
+    cx, cy = _world_pixel(obj.geopoint.y, obj.geopoint.x, MAP_ZOOM, tile_size)
+    left, top = cx - width / 2, cy - height / 2
+    count = 2 ** MAP_ZOOM
+
+    image = PilImage.new('RGB', (width, height), '#F7F4EF')
+    session = requests.Session()
+    session.headers['User-Agent'] = settings.GEO_USER_AGENT
+    try:
+        for tx in range(math.floor(left / tile_size), math.floor((left + width - 1) / tile_size) + 1):
+            for ty in range(math.floor(top / tile_size), math.floor((top + height - 1) / tile_size) + 1):
+                if not 0 <= ty < count:
+                    continue
+                tile = _fetch_tile(session, tx % count, ty, MAP_ZOOM)
+                if tile.size != (tile_size, tile_size):
+                    tile = tile.resize((tile_size, tile_size), PilImage.LANCZOS)
+                image.paste(tile, (round(tx * tile_size - left), round(ty * tile_size - top)))
+    except (requests.RequestException, OSError, ValueError):
+        return None
+    finally:
+        session.close()
+
+    if image.size != MAP_SIZE:
+        image = image.resize(MAP_SIZE, PilImage.LANCZOS)
+    _draw_pin(image, MAP_SIZE[0] / 2, MAP_SIZE[1] / 2, MAP_SIZE[1] * 0.135)
+    _draw_attribution(image, settings.MAP_TILE_ATTRIBUTION)
     return image
 
 
@@ -207,7 +288,7 @@ def _map_source(obj):
     cached = saved.img.path if saved and saved.img and os.path.isfile(saved.img.path) else None
     if cached and _image_width(cached) >= MAP_MIN_WIDTH:
         return cached
-    fresh = _fetch_static_map(obj)
+    fresh = _render_static_map(obj)
     if fresh is not None:
         return obj.update_image(fresh, 'map').img.path
     return cached

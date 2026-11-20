@@ -19,7 +19,7 @@ La administración no tiene registro abierto. Si quieres recorrerla, pídele acc
 
 - Los planes de la portada son ilustrativos: publicar es gratis y no tiene límite de anuncios.
 - Las ofertas de las subastas todavía no se envían desde el sitio. El botón «Quiero participar» abre el chat con el dueño.
-- Si el mapa aparece oscurecido con el aviso «For development purposes only», es una limitación de la clave de Google Maps del demo.
+- Los mapas y las sugerencias de lugares usan datos de OpenStreetMap: algunas direcciones con número de casa no aparecen. En ese caso, marca el punto en el mapa.
 {% if not purchasable_categories %}- La compra de archivos (planos, catálogos) no está activa: ninguna categoría tiene anuncios con archivos a la venta.
 {% endif %}{% if not EMAIL_ENABLED %}- Este demo no envía correos: no llegarán el enlace para recuperar la contraseña ni los avisos de pago.
 {% endif %}{% if not PAYPAL_ENABLED %}- El pago con PayPal está desactivado. Para pagar sólo está la transferencia bancaria.

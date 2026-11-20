@@ -1,12 +1,16 @@
 {% comment %}
-Buscador principal: pestañas por tipo, propósito y categoría filtrados en el navegador, y lugar con Google Places.
+Buscador principal: pestañas por tipo, propósito y categoría filtrados en el navegador, y lugar con
+autocompletado de OpenStreetMap (placeSearch).
 Requiere en la página: {{ search_data|json_script:"search-data" }}
-Envía por GET al explorador (URL compartible): kind, search_purpose, search_category, search_address.
+Envía por GET al explorador (URL compartible): kind, search_purpose, search_category, search_address y,
+si se eligió un lugar sugerido, lat y lng (el explorador abre centrado ahí).
 {% endcomment %}
 <c-vars class="" />
 <form method="get" action="{% url 'finder' %}" x-data="heroSearch" role="search" aria-label="Buscar anuncios"
       class="rounded-[1.75rem] bg-base-100 p-2.5 text-base-content shadow-float ring-1 ring-black/5 {{ class }}">
     <input type="hidden" name="kind" :value="kind">
+    <input type="hidden" name="lat" :value="lat" :disabled="lat === ''">
+    <input type="hidden" name="lng" :value="lng" :disabled="lng === ''">
 
     <div class="flex gap-1 overflow-x-auto scrollbar-none p-1 pb-2" role="tablist" aria-label="Tipo de anuncio">
         <button type="button" role="tab" :aria-selected="kind === ''" @click="setKind('')"
@@ -56,14 +60,17 @@ Envía por GET al explorador (URL compartible): kind, search_purpose, search_cat
                 </select>
             </span>
         </label>
-        <label class="flex items-center gap-3 rounded-2xl px-4 py-2.5 transition-colors focus-within:bg-base-100 hover:bg-base-100/60 md:rounded-l-none md:border-l md:border-base-300">
-            <c-icon name="map-pin" class="size-5 shrink-0 text-primary" />
-            <span class="min-w-0 flex-1">
-                <span class="block text-xs font-bold text-base-content/60">Ubicación</span>
-                <input type="text" name="search_address" x-ref="address" autocomplete="off"
-                       placeholder="Ciudad o sector" class="w-full bg-transparent font-semibold outline-none placeholder:font-medium placeholder:text-base-content/40">
-            </span>
-        </label>
+        <div class="relative" x-data="placeSearch" @place-selected="pickPlace($event.detail)">
+            <label class="flex h-full items-center gap-3 rounded-2xl px-4 py-2.5 transition-colors focus-within:bg-base-100 hover:bg-base-100/60 md:rounded-l-none md:border-l md:border-base-300">
+                <c-icon name="map-pin" class="size-5 shrink-0 text-primary" />
+                <span class="min-w-0 flex-1">
+                    <span class="block text-xs font-bold text-base-content/60">Ubicación</span>
+                    <input type="text" name="search_address" autocomplete="off" @input="typedPlace($event)"
+                           placeholder="Ciudad o sector" class="w-full bg-transparent font-semibold outline-none placeholder:font-medium placeholder:text-base-content/40">
+                </span>
+            </label>
+            <c-place-suggestions up class="md:min-w-80" />
+        </div>
         <button type="submit" class="btn btn-secondary btn-lg h-14 rounded-2xl px-7 text-base font-bold shadow-none md:ml-1">
             <c-icon name="search" class="size-5" /><span>Buscar</span>
         </button>

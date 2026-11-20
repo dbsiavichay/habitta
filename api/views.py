@@ -5,9 +5,14 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
 from django.db.models import Q
 from rest_framework import generics
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
+from rest_framework.throttling import SimpleRateThrottle
+from rest_framework.views import APIView
 
 from apps.realty.models import Property
 
+from . import geocoding
 from .serializers import PropertySerializer
 
 
@@ -64,3 +69,53 @@ class PropertyListAPIView(generics.ListAPIView):
 			# El precio vive en el JSON de especificaciones: se filtra en Python.
 			queryset = [obj for obj in queryset if (price := obj.get_price_value()) is not None and low <= price <= high]
 		return queryset
+
+
+class PlacesThrottle(SimpleRateThrottle):
+	"""Límite por IP, con o sin sesión: cuida el uso justo del geocodificador."""
+	scope = 'places'
+	rate = '60/min'
+
+	def get_cache_key(self, request, view):
+		return self.cache_format % {'scope': self.scope, 'ident': self.get_ident(request)}
+
+
+def _coordinate(params, name, limit):
+	value = _number(params.get(name))
+	if value is None or not -limit <= value <= limit:
+		raise ValidationError({name: 'Coordenada inválida.'})
+	return value
+
+
+class PlaceSearchAPIView(APIView):
+	"""Lugares de Ecuador para el autocompletado (api/geocoding.py).
+
+	Parámetros: q (3 a 120 caracteres); lat y lng opcionales para priorizar lo cercano.
+	Respuesta: [{name, detail, label, lat, lng}].
+	"""
+	throttle_classes = [PlacesThrottle]
+
+	def get(self, request):
+		params = request.query_params
+		query = ' '.join(params.get('q', '').split())
+		if not 3 <= len(query) <= 120:
+			raise ValidationError({'q': 'Escribe entre 3 y 120 caracteres.'})
+		near = None
+		if params.get('lat') or params.get('lng'):
+			near = (_coordinate(params, 'lat', 90), _coordinate(params, 'lng', 180))
+		return Response(geocoding.search(query, near=near))
+
+
+class PlaceReverseAPIView(APIView):
+	"""Dirección de un punto. Parámetros: lat, lng y zone=1 para sólo «ciudad, provincia».
+
+	Respuesta: {label} (null si no se encontró).
+	"""
+	throttle_classes = [PlacesThrottle]
+
+	def get(self, request):
+		params = request.query_params
+		lat = _coordinate(params, 'lat', 90)
+		lng = _coordinate(params, 'lng', 180)
+		zone = params.get('zone') in ('1', 'true')
+		return Response({'label': geocoding.reverse(lat, lng, zone=zone)})

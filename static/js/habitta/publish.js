@@ -1,13 +1,11 @@
 /*
  * Habitta: asistente de publicación (elegir categoría, datos, ubicación, portada y revisar).
  * Se carga sólo en esas páginas, en el bloque `scripts` (antes que Alpine).
- * Usa habitta.loadMaps(), habitta.mapStyles, habitta.pinIcon y habitta.formatPrice de app.js.
+ * Usa los mapas (habitta.loadMaps, createMap, pinElement…), habitta.places y habitta.formatPrice de app.js.
  */
 (function () {
     'use strict';
 
-    var DEFAULT_CENTER = { lat: -1.8312, lng: -78.1834 }; // Ecuador completo
-    var BRAND = '#0B6E5F';
     var STEP_SLUGS = { 1: 'datos', 2: 'ubicacion', 3: 'portada', 4: 'revisar' };
     var LAST_STEP = 4;
 
@@ -146,7 +144,7 @@
                     var el = event.target;
                     if (el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON' || el.tagName === 'A') return;
                     event.preventDefault();
-                    // En la dirección, Enter elige la sugerencia de Google Places
+                    // En la dirección, Enter elige la sugerencia resaltada (placeSearch)
                     if (el.name === 'address') return;
                     if (this.step < LAST_STEP) this.next();
                 },
@@ -251,16 +249,17 @@
         });
 
         /*
-         * Paso 2: ubicación con Google Maps (autocompletado de Places, pin arrastrable, geocodificación
-         * inversa y radio de operación para los servicios). Sin Maps se puede usar la geolocalización.
+         * Paso 2: ubicación con MapLibre (búsqueda de lugares con placeSearch, pin arrastrable, dirección
+         * del punto vía /api/places/reverse/ y radio de operación para los servicios).
+         * Sin mapa se puede usar la geolocalización.
          */
         Alpine.data('locationPicker', function (options) {
             options = options || {};
-            var maps = null;
+            var maplibregl = null;
             var map = null;
             var marker = null;
-            var circle = null;
-            var geocoder = null;
+            var updateCoverage = null;
+            var reverseSeq = 0;
             return {
                 lat: toNumber(options.lat),
                 lng: toNumber(options.lng),
@@ -287,49 +286,39 @@
                     var self = this;
                     if (this.mapState !== 'idle') return;
                     this.mapState = 'loading';
-                    habitta.loadMaps().then(function (googleMaps) {
-                        maps = googleMaps;
-                        self.mapState = 'ready';
-                        self.$nextTick(function () { self.buildMap(); });
-                    }).catch(function () {
+                    var fail = function (error) {
+                        habitta.mapError(error);
                         self.mapState = 'error';
-                    });
+                    };
+                    habitta.loadMaps().then(function (lib) {
+                        maplibregl = lib;
+                        self.buildMap();
+                        habitta.whenMapReady(map, function () {
+                            updateCoverage = habitta.addCoverageLayer(map);
+                            self.mapState = 'ready';
+                            if (self.hasPoint) {
+                                self.placeMarker();
+                                self.drawCircle(true);
+                            }
+                        }, fail);
+                    }).catch(fail);
                 },
                 buildMap: function () {
                     var self = this;
-                    map = new maps.Map(this.$refs.map, {
-                        center: this.hasPoint ? { lat: this.lat, lng: this.lng } : DEFAULT_CENTER,
+                    map = habitta.createMap(maplibregl, this.$refs.map, {
+                        center: this.hasPoint ? { lat: this.lat, lng: this.lng } : null,
                         zoom: this.hasPoint ? (this.fixed ? 16 : 11) : 6,
-                        styles: habitta.mapStyles,
-                        disableDefaultUI: true,
-                        zoomControl: true,
-                        fullscreenControl: true,
-                        clickableIcons: false,
-                        gestureHandling: 'cooperative',
+                        cooperative: true,
+                        fullscreen: true,
                     });
-                    geocoder = new maps.Geocoder();
-                    map.addListener('click', function (event) {
-                        self.setPoint(event.latLng.lat(), event.latLng.lng(), { geocode: true });
+                    map.on('click', function (event) {
+                        self.setPoint(event.lngLat.lat, event.lngLat.lng, { geocode: true });
                     });
-                    if (this.hasPoint) {
-                        this.placeMarker();
-                        this.drawCircle(true);
-                    }
-
-                    var input = this.$root.querySelector('input[name="address"]');
-                    if (input && maps.places) {
-                        var autocomplete = new maps.places.Autocomplete(input, {
-                            componentRestrictions: { country: 'ec' },
-                            fields: ['formatted_address', 'geometry', 'name'],
-                        });
-                        autocomplete.addListener('place_changed', function () {
-                            var place = autocomplete.getPlace();
-                            if (!place || !place.geometry || !place.geometry.location) return;
-                            var location = place.geometry.location;
-                            self.setPoint(location.lat(), location.lng(), { geocode: false, zoom: true });
-                            if (place.formatted_address) self.setAddress(place.formatted_address);
-                        });
-                    }
+                },
+                /* Lugar elegido en el buscador de la dirección (placeSearch) */
+                pickPlace: function (place) {
+                    this.setPoint(place.lat, place.lng, { geocode: false, zoom: true });
+                    this.setAddress(place.label);
                 },
                 setPoint: function (lat, lng, opts) {
                     opts = opts || {};
@@ -338,60 +327,39 @@
                     this.needPoint = false;
                     this.geoError = '';
                     this.placeMarker();
-                    if (map && opts.zoom) {
-                        map.setCenter({ lat: this.lat, lng: this.lng });
-                        map.setZoom(this.fixed ? 16 : 11);
-                    }
+                    if (map && opts.zoom) map.jumpTo({ center: [this.lng, this.lat], zoom: this.fixed ? 16 : 11 });
                     this.drawCircle(!!opts.zoom);
                     if (opts.geocode) this.reverseGeocode();
                     this.$dispatch('input'); // marca el formulario como modificado
                 },
                 placeMarker: function () {
-                    if (!map || !this.hasPoint) return;
+                    if (!map || this.mapState !== 'ready' || !this.hasPoint) return;
                     var self = this;
-                    var position = { lat: this.lat, lng: this.lng };
                     if (marker) {
-                        marker.setPosition(position);
+                        marker.setLngLat([this.lng, this.lat]);
                         return;
                     }
-                    marker = new maps.Marker({
-                        map: map,
-                        position: position,
-                        draggable: true,
-                        icon: habitta.pinIcon(maps, true),
-                        title: 'Arrastra para ajustar',
+                    marker = new maplibregl.Marker({ element: habitta.pinElement(true), anchor: 'bottom', draggable: true });
+                    marker.getElement().title = 'Arrastra para ajustar';
+                    marker.on('dragend', function () {
+                        var position = marker.getLngLat();
+                        self.setPoint(position.lat, position.lng, { geocode: true });
                     });
-                    marker.addListener('dragend', function (event) {
-                        self.setPoint(event.latLng.lat(), event.latLng.lng(), { geocode: true });
-                    });
+                    marker.setLngLat([this.lng, this.lat]).addTo(map);
                 },
                 drawCircle: function (fit) {
-                    if (this.fixed || !map || !this.hasPoint) return;
+                    if (this.fixed || !updateCoverage || !this.hasPoint) return;
                     var center = { lat: this.lat, lng: this.lng };
-                    if (!circle) {
-                        circle = new maps.Circle({
-                            map: map, center: center, radius: this.radius, clickable: false,
-                            strokeColor: BRAND, strokeOpacity: 0.8, strokeWeight: 2, fillColor: BRAND, fillOpacity: 0.1,
-                        });
-                    } else {
-                        circle.setCenter(center);
-                        circle.setRadius(this.radius);
-                    }
-                    if (fit) map.fitBounds(circle.getBounds(), 24);
+                    updateCoverage(center, this.radius);
+                    if (fit) map.fitBounds(habitta.circleBounds(center, this.radius), { padding: 24, duration: 0 });
                 },
                 reverseGeocode: function () {
                     var self = this;
-                    if (!geocoder) return;
-                    geocoder.geocode({ location: { lat: this.lat, lng: this.lng } }).then(function (response) {
-                        var results = (response && response.results) || [];
-                        var best = results[0];
-                        if (!self.fixed) {
-                            // Para una zona de trabajo basta con la ciudad o el cantón
-                            best = results.find(function (r) { return r.types.indexOf('locality') !== -1; }) ||
-                                results.find(function (r) { return r.types.indexOf('administrative_area_level_2') !== -1; }) || best;
-                        }
-                        if (best) self.setAddress(best.formatted_address);
-                    }).catch(function () { /* sin geocodificación: la dirección queda como la escribió */ });
+                    var current = ++reverseSeq;
+                    // Para una zona de trabajo basta con la ciudad o el cantón
+                    habitta.places.reverse(this.lat, this.lng, !this.fixed).then(function (label) {
+                        if (current === reverseSeq && label) self.setAddress(label);
+                    }).catch(function () { /* sin dirección: queda como la escribió */ });
                 },
                 setAddress: function (text) {
                     var input = this.$root.querySelector('input[name="address"]');

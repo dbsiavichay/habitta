@@ -7,18 +7,14 @@
     'use strict';
 
     var habitta = window.habitta;
-    var DEFAULT_CENTER = { lat: -1.8312, lng: -78.1834 }; // Ecuador
+    var BRAND = '#0B6E5F';
 
     document.addEventListener('alpine:init', function () {
         window.Alpine.data('explorer', function () {
-            // Objetos de Google Maps fuera del estado reactivo de Alpine (no deben envolverse en proxies)
+            // Objetos de MapLibre fuera del estado reactivo de Alpine (no deben envolverse en proxies)
             var map = null;
-            var maps = null;
-            var markers = {};
-            var clusterer = null;
+            var maplibregl = null;
             var centerMarker = null;
-            var autocomplete = null;
-            var userMoved = false;
             var requestId = 0;
 
             return {
@@ -60,7 +56,6 @@
                     this.search();
                     var desktop = window.matchMedia('(min-width: 1024px)');
                     if (desktop.matches && this.view === 'map') this.ensureMap();
-                    this.setupAutocomplete();
 
                     this.$watch('filters.kind', function () { self.normalizeSelects(); self.queueSearch(); });
                     this.$watch('filters.purpose', function () { self.normalizeSelects(); self.queueSearch(); });
@@ -107,7 +102,7 @@
                     this.center = null;
                     this.placeLabel = '';
                     this.filters.address = '';
-                    if (centerMarker) centerMarker.setMap(null);
+                    if (centerMarker) centerMarker.remove();
                     this.search({ fit: true });
                 },
                 clearAll: function () {
@@ -184,7 +179,7 @@
                             if (current !== requestId) return; // respuesta vieja
                             self.results = data;
                             self.loading = false;
-                            self.renderMarkers(opts.fit !== false && !opts.keepView);
+                            self.renderResults(opts.fit !== false && !opts.keepView);
                         })
                         .catch(function () {
                             if (current !== requestId) return;
@@ -200,11 +195,17 @@
                 },
                 setActive: function (id) {
                     if (this.activeId === id) return;
-                    var prev = this.activeId;
                     this.activeId = id;
-                    if (!maps) return;
-                    if (prev && markers[prev]) { markers[prev].setIcon(habitta.pinIcon(maps, false)); markers[prev].setZIndex(1); }
-                    if (id && markers[id]) { markers[id].setIcon(habitta.pinIcon(maps, true)); markers[id].setZIndex(999); }
+                    this.drawActive();
+                },
+                /* El pin activo va en su propia fuente (sin agrupar): se ve aunque su anuncio esté en un grupo */
+                drawActive: function () {
+                    if (!map || this.mapStatus !== 'ready') return;
+                    var id = this.activeId;
+                    var item = id && this.results.find(function (r) { return r.id === id; });
+                    map.getSource('active').setData(item && hasPoint(item)
+                        ? { type: 'FeatureCollection', features: [toFeature(item)] }
+                        : habitta.EMPTY_GEOJSON);
                 },
 
                 /* ---------- Vista ---------- */
@@ -218,7 +219,7 @@
                     var self = this;
                     this.$nextTick(function () {
                         self.ensureMap();
-                        if (map) maps.event.trigger(map, 'resize');
+                        if (map) map.resize();
                     });
                 },
 
@@ -227,101 +228,109 @@
                     var self = this;
                     if (map || this.mapStatus === 'loading' || this.mapStatus === 'unavailable') return;
                     this.mapStatus = 'loading';
-                    habitta.loadMaps().then(function (gmaps) {
-                        maps = gmaps;
-                        map = new maps.Map(self.$refs.map, {
-                            center: self.center || DEFAULT_CENTER,
-                            zoom: self.center ? 12 : 7,
-                            styles: habitta.mapStyles,
-                            disableDefaultUI: true,
-                            zoomControl: true,
-                            zoomControlOptions: { position: maps.ControlPosition.RIGHT_BOTTOM },
-                            gestureHandling: 'greedy',
-                            clickableIcons: false,
-                        });
-                        map.addListener('dragend', function () { userMoved = true; self.areaChanged = true; });
-                        map.addListener('zoom_changed', function () { if (userMoved) self.areaChanged = true; });
-                        map.addListener('click', function () { self.preview = null; self.setActive(null); });
-                        self.mapStatus = 'ready';
-                        self.renderMarkers(true);
-                    }).catch(function () {
+                    var fail = function (error) {
+                        habitta.mapError(error);
                         self.mapStatus = 'unavailable';
-                    });
+                    };
+                    habitta.loadMaps().then(function (lib) {
+                        maplibregl = lib;
+                        map = habitta.createMap(lib, self.$refs.map, { center: self.center, zoom: self.center ? 12 : 6 });
+                        habitta.whenMapReady(map, function () {
+                            habitta.addPinImages(map).then(function () {
+                                self.addLayers();
+                                self.mapStatus = 'ready';
+                                self.renderResults(true);
+                            }).catch(fail);
+                        }, fail);
+                    }).catch(fail);
                 },
-                renderMarkers: function (fit) {
+                addLayers: function () {
                     var self = this;
-                    if (!map || !maps) return;
-                    if (clusterer) clusterer.clearMarkers();
-                    Object.keys(markers).forEach(function (id) { markers[id].setMap(null); });
-                    markers = {};
-                    var bounds = new maps.LatLngBounds();
-                    var list = [];
-                    this.results.forEach(function (item) {
-                        if (!item.latitude || !item.longitude) return;
-                        var position = { lat: item.latitude, lng: item.longitude };
-                        var marker = new maps.Marker({ position: position, icon: habitta.pinIcon(maps, false), title: item.title || item.category, zIndex: 1 });
-                        marker.addListener('click', function () {
-                            self.preview = item;
-                            self.setActive(item.id);
-                            map.panTo(position);
-                        });
-                        markers[item.id] = marker;
-                        list.push(marker);
-                        // Coordenadas fuera de Ecuador suelen ser datos erróneos: se muestran pero no mueven el encuadre.
-                        if (inEcuador(position)) bounds.extend(position);
+                    var symbol = { 'icon-anchor': 'bottom', 'icon-allow-overlap': true, 'icon-ignore-placement': true };
+                    var isCluster = ['has', 'point_count'];
+                    map.addSource('results', { type: 'geojson', data: habitta.EMPTY_GEOJSON, cluster: true, clusterRadius: 50, clusterMaxZoom: 14 });
+                    map.addSource('active', { type: 'geojson', data: habitta.EMPTY_GEOJSON });
+                    map.addLayer({
+                        id: 'cluster-halo', type: 'circle', source: 'results', filter: isCluster,
+                        paint: { 'circle-color': BRAND, 'circle-opacity': 0.22, 'circle-radius': ['step', ['get', 'point_count'], 22, 10, 26, 50, 30] },
                     });
-                    if (window.markerClusterer && list.length) {
-                        clusterer = new window.markerClusterer.MarkerClusterer({
-                            map: map,
-                            markers: list,
-                            renderer: {
-                                render: function (cluster) {
-                                    var count = cluster.count;
-                                    var size = count < 10 ? 44 : count < 50 ? 52 : 60;
-                                    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 60 60">' +
-                                        '<circle cx="30" cy="30" r="28" fill="#0B6E5F" fill-opacity=".22"/><circle cx="30" cy="30" r="21" fill="#0B6E5F" stroke="#fff" stroke-width="3"/></svg>';
-                                    return new maps.Marker({
-                                        position: cluster.position,
-                                        icon: { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg), scaledSize: new maps.Size(size, size), anchor: new maps.Point(size / 2, size / 2) },
-                                        label: { text: String(count), color: '#fff', fontWeight: '800', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif' },
-                                        zIndex: 1000 + count,
-                                    });
-                                },
-                            },
-                        });
-                    } else {
-                        list.forEach(function (m) { m.setMap(map); });
-                    }
-                    if (this.center) {
-                        if (!centerMarker) {
-                            centerMarker = new maps.Marker({
-                                map: map,
-                                clickable: false,
-                                zIndex: 2000,
-                                icon: { path: maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#2F80ED', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 3 },
+                    map.addLayer({
+                        id: 'clusters', type: 'circle', source: 'results', filter: isCluster,
+                        paint: {
+                            'circle-color': BRAND, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3,
+                            'circle-radius': ['step', ['get', 'point_count'], 16, 10, 19, 50, 22],
+                        },
+                    });
+                    // La fuente del conteo tiene que existir en los glifos del estilo (OpenFreeMap: Noto Sans)
+                    map.addLayer({
+                        id: 'cluster-count', type: 'symbol', source: 'results', filter: isCluster,
+                        layout: {
+                            'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Noto Sans Bold'], 'text-size': 13,
+                            'text-allow-overlap': true, 'text-ignore-placement': true,
+                        },
+                        paint: { 'text-color': '#fff' },
+                    });
+                    map.addLayer({ id: 'pins', type: 'symbol', source: 'results', filter: ['!', isCluster], layout: Object.assign({ 'icon-image': 'pin' }, symbol) });
+                    map.addLayer({ id: 'pin-active', type: 'symbol', source: 'active', layout: Object.assign({ 'icon-image': 'pin-active' }, symbol) });
+
+                    map.on('click', function (event) {
+                        var hit = map.queryRenderedFeatures(event.point, { layers: ['pin-active', 'pins', 'clusters'] })[0];
+                        if (!hit) {
+                            self.preview = null;
+                            self.setActive(null);
+                        } else if (hit.layer.id === 'clusters') {
+                            map.getSource('results').getClusterExpansionZoom(hit.properties.cluster_id).then(function (zoom) {
+                                map.easeTo({ center: hit.geometry.coordinates, zoom: zoom });
                             });
+                        } else {
+                            var id = hit.properties.id;
+                            var item = self.results.find(function (r) { return r.id === id; });
+                            if (!item) return;
+                            self.preview = item;
+                            self.setActive(id);
+                            map.panTo([item.longitude, item.latitude]);
                         }
-                        centerMarker.setPosition(this.center);
-                        centerMarker.setMap(map);
-                        bounds.extend(this.center);
+                    });
+                    ['clusters', 'pins', 'pin-active'].forEach(function (layer) {
+                        map.on('mouseenter', layer, function () { map.getCanvas().style.cursor = 'pointer'; });
+                        map.on('mouseleave', layer, function () { map.getCanvas().style.cursor = ''; });
+                    });
+                    // Sólo los movimientos del usuario (no los de fitBounds/easeTo) ofrecen «Buscar en esta zona»
+                    map.on('dragend', function () { self.areaChanged = true; });
+                    map.on('zoomend', function (event) { if (event.originalEvent) self.areaChanged = true; });
+                },
+                renderResults: function (fit) {
+                    if (!map || this.mapStatus !== 'ready') return;
+                    var bounds = new maplibregl.LngLatBounds();
+                    var features = [];
+                    this.results.forEach(function (item) {
+                        if (!hasPoint(item)) return;
+                        features.push(toFeature(item));
+                        // Coordenadas fuera de Ecuador suelen ser datos erróneos: se muestran pero no mueven el encuadre.
+                        if (inEcuador(item)) bounds.extend([item.longitude, item.latitude]);
+                    });
+                    map.getSource('results').setData({ type: 'FeatureCollection', features: features });
+                    this.drawActive();
+                    if (this.center) {
+                        if (!centerMarker) centerMarker = new maplibregl.Marker({ element: centerDot() });
+                        centerMarker.setLngLat([this.center.lng, this.center.lat]).addTo(map);
+                        bounds.extend([this.center.lng, this.center.lat]);
+                    } else if (centerMarker) {
+                        centerMarker.remove();
                     }
                     if (fit && !bounds.isEmpty()) {
-                        userMoved = false;
-                        map.fitBounds(bounds, 64);
-                        maps.event.addListenerOnce(map, 'idle', function () {
-                            if (map.getZoom() > 15) map.setZoom(15);
-                            self.areaChanged = false;
-                        });
+                        map.fitBounds(bounds, { padding: 64, maxZoom: 15 });
+                        this.areaChanged = false;
                     }
                 },
                 searchThisArea: function () {
                     if (!map) return;
                     var c = map.getCenter();
                     var ne = map.getBounds().getNorthEast();
-                    this.center = { lat: c.lat(), lng: c.lng() };
+                    this.center = { lat: c.lat, lng: c.lng };
                     this.placeLabel = 'Zona del mapa';
                     this.filters.address = '';
-                    this.filters.radius = String(Math.max(1, Math.ceil(haversineKm(this.center, { lat: ne.lat(), lng: ne.lng() }))));
+                    this.filters.radius = String(Math.max(1, Math.ceil(haversineKm(this.center, { lat: ne.lat, lng: ne.lng }))));
                     this.areaChanged = false;
                     this.search({ keepView: true });
                 },
@@ -340,35 +349,46 @@
                         window.alert('No pudimos obtener tu ubicación. Revisa los permisos del navegador.');
                     }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
                 },
-                setupAutocomplete: function () {
-                    var self = this;
-                    var input = this.$refs.address;
-                    if (!input) return;
-                    habitta.loadMaps().then(function (gmaps) {
-                        maps = gmaps;
-                        if (!gmaps.places) return;
-                        autocomplete = new gmaps.places.Autocomplete(input, {
-                            componentRestrictions: { country: 'ec' },
-                            fields: ['formatted_address', 'geometry', 'name'],
-                        });
-                        autocomplete.addListener('place_changed', function () {
-                            var place = autocomplete.getPlace();
-                            if (!place.geometry) return;
-                            var loc = place.geometry.location;
-                            self.center = { lat: loc.lat(), lng: loc.lng() };
-                            self.placeLabel = place.name || place.formatted_address;
-                            self.filters.address = '';
-                            input.value = '';
-                            self.search({ fit: true });
-                        });
-                    }).catch(function () {});
+
+                /* ---------- Buscador de lugares (placeSearch) ---------- */
+                pickPlace: function (place) {
+                    this.center = { lat: place.lat, lng: place.lng };
+                    this.placeLabel = place.name;
+                    this.filters.address = '';
+                    document.getElementById('explorer-address').value = '';
+                    this.search({ fit: true });
+                },
+                /* Prioriza lugares cerca de lo que se está viendo (sólo con el mapa acercado: el centro de Ecuador no dice nada) */
+                nearCenter: function () {
+                    if (map && this.mapStatus === 'ready' && map.getZoom() >= 9) {
+                        var c = map.getCenter();
+                        return { lat: c.lat, lng: c.lng };
+                    }
+                    return this.center;
                 },
             };
         });
     });
 
-    function inEcuador(p) {
-        return p.lat > -6 && p.lat < 2.5 && p.lng > -93 && p.lng < -74;
+    function hasPoint(item) {
+        return !!(item.latitude && item.longitude);
+    }
+
+    function toFeature(item) {
+        return { type: 'Feature', properties: { id: item.id }, geometry: { type: 'Point', coordinates: [item.longitude, item.latitude] } };
+    }
+
+    /* Punto azul de «aquí buscas» (centro de la búsqueda por zona) */
+    function centerDot() {
+        var el = document.createElement('div');
+        el.setAttribute('aria-hidden', 'true');
+        el.style.cssText = 'width:18px;height:18px;border-radius:9999px;background:#2F80ED;border:3px solid #fff;' +
+            'box-shadow:0 0 0 6px rgba(47,128,237,.2);pointer-events:none';
+        return el;
+    }
+
+    function inEcuador(item) {
+        return item.latitude > -6 && item.latitude < 2.5 && item.longitude > -93 && item.longitude < -74;
     }
 
     function haversineKm(a, b) {
