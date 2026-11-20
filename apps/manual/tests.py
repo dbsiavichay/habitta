@@ -106,6 +106,17 @@ class ManualContentTests(TestCase):
             self.assertIn(screen, names, f'"{screen}" no es un nombre de URL')
 
 
+class CaptureDataCommandTests(TestCase):
+    def test_refuses_any_database_but_the_capture_copy(self):
+        from django.core.management import CommandError, call_command
+
+        user = create_user('real')
+        with self.assertRaisesMessage(CommandError, '_capturas'):
+            call_command('manual_capture_data')
+        user.refresh_from_db()
+        self.assertEqual(user.email, 'real@example.com')
+
+
 class ManualLinksTests(TestCase):
     def test_footer_and_help_link_to_manuals(self):
         self.assertContains(self.client.get(reverse('home')), f'href="{reverse("manual")}"')
