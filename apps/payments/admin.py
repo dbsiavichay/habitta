@@ -1,15 +1,19 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
+
 from .models import Bank, BankPayment, PaypalPayment
 
-class BankAdmin(admin.ModelAdmin):
+
+@admin.register(Bank)
+class BankAdmin(ModelAdmin):
 	pass
 
-class BankPaymentAdmin(admin.ModelAdmin):
+
+@admin.register(BankPayment)
+class BankPaymentAdmin(ModelAdmin):
 	pass
 
-class PaypalPaymentAdmin(admin.ModelAdmin):
-	pass
 
-admin.site.register(Bank, BankAdmin)
-admin.site.register(BankPayment, BankPaymentAdmin)
-admin.site.register(PaypalPayment, PaypalPaymentAdmin)
+@admin.register(PaypalPayment)
+class PaypalPaymentAdmin(ModelAdmin):
+	pass

@@ -134,6 +134,29 @@ Sin Node: todo se instala con pip y se compila con el binario standalone de Tail
   Los formularios se pintan con `{% include 'hydra/form.html' %}` o `{% render_field campo %}`
   (`{% load hydra %}`), que usa la plantilla del widget en `templates/hydra/forms/`.
 
+## Admin
+
+`/admin/` usa [django-unfold](https://unfoldadmin.com), que trae su propio CSS compilado (no pasa
+por nuestro Tailwind).
+
+- **Configuración:** `config/unfold.py` reúne la marca, los colores (escalas OKLCH sacadas de la
+  paleta), el menú lateral por tareas y los callbacks. Cada ítem del menú se oculta si el usuario no
+  tiene permiso de lectura sobre ese modelo.
+- **Dashboard:** `templates/admin/index.html` + `apps/project/admin_dashboard.py`. Sólo usa
+  componentes de Unfold y clases que ya existen en `unfold/static/unfold/css/styles.css`.
+- **ModelAdmin:** heredan de `unfold.admin.ModelAdmin`/`TabularInline`. Si heredan del admin de
+  Django, la pantalla queda sin estilos.
+- **Retoques:** `static/css/admin.css` (tipografía) y `static/js/admin.js` (fuente de los gráficos).
+- **Traducciones:** Unfold no trae español, así que `locale/es/LC_MESSAGES/django.po` traduce sus
+  cadenas. Después de editarlo hay que compilarlo y subir el `.mo` a git (en la Mac,
+  `brew install gettext`):
+
+  ```bash
+  msgfmt --check -o locale/es/LC_MESSAGES/django.mo locale/es/LC_MESSAGES/django.po
+  ```
+
+  Al actualizar Unfold conviene revisar si tiene cadenas nuevas sin traducir.
+
 ## Estructura
 
 | Ruta | Contenido |

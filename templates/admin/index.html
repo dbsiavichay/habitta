@@ -1,0 +1,120 @@
+{% extends 'admin/base.html' %}
+{% comment %}
+Dashboard del admin (Unfold). Los datos los arma apps/project/admin_dashboard.py:dashboard_callback;
+cada bloque llega vacío (None) si el usuario no puede ver ese modelo.
+Sólo se usan componentes y clases que ya trae el CSS compilado de Unfold (no pasa por nuestro Tailwind).
+{% endcomment %}
+{% load i18n unfold %}
+
+{% block title %}Inicio | {{ site_title }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8">
+    <div>
+        {% component "unfold/components/title.html" %}Hola, {{ greeting_name }}{% endcomponent %}
+        {% component "unfold/components/text.html" with class="mt-1 text-font-subtle-light dark:text-font-subtle-dark" %}
+            Esto es lo que está pasando en {{ site_header }}.
+        {% endcomponent %}
+    </div>
+
+    {% if kpis %}
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {% for kpi in kpis %}
+                {% component "unfold/components/card.html" with href=kpi.href %}
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                            <p class="font-medium">{{ kpi.title }}</p>
+                            <p class="mt-2 font-semibold text-3xl tracking-tight text-font-important-light dark:text-font-important-dark">{{ kpi.value }}</p>
+                        </div>
+                        <span class="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-default {% if kpi.alert %}bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400{% else %}bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400{% endif %}">{{ kpi.icon }}</span>
+                    </div>
+                    <p class="mt-4 text-xs {% if kpi.alert %}font-semibold text-orange-700 dark:text-orange-400{% else %}text-font-subtle-light dark:text-font-subtle-dark{% endif %}">{{ kpi.footer }}</p>
+                {% endcomponent %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if activity or top_categories is not None %}
+        <div class="grid gap-6 xl:grid-cols-3">
+            {% if activity %}
+                <div class="flex flex-col min-w-0 xl:col-span-2">
+                    {% component "unfold/components/card.html" with title="Actividad" description="Últimos 12 meses" %}
+                        <div class="flex flex-wrap gap-4 mb-4">
+                            {% for serie in activity.legend %}
+                                <span class="flex items-center gap-2">
+                                    <span class="h-3 w-3 rounded-full" style="background: {{ serie.color }}"></span>
+                                    {{ serie.label }}
+                                    <strong class="text-font-important-light dark:text-font-important-dark">{{ serie.total }}</strong>
+                                </span>
+                            {% endfor %}
+                        </div>
+                        <div class="relative">
+                            {% component "unfold/components/chart/line.html" with data=activity.data height=260 %}{% endcomponent %}
+                            {% if activity.empty %}
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <p class="bg-white border border-base-200 px-3 py-2 rounded-default text-font-subtle-light dark:bg-base-900 dark:border-base-800 dark:text-font-subtle-dark">
+                                        Sin actividad en los últimos 12 meses
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endcomponent %}
+                </div>
+            {% endif %}
+
+            {% if top_categories is not None %}
+                <div class="flex flex-col min-w-0">
+                    {% component "unfold/components/card.html" with title="Categorías con más publicaciones" %}
+                        {% if top_categories %}
+                            <div class="flex flex-col gap-1">
+                                {% for category in top_categories %}
+                                    <a href="{{ category.href }}" class="block -mx-3 px-3 py-2 rounded-default hover:bg-base-100 dark:hover:bg-white/[.06]">
+                                        {% component "unfold/components/progress.html" with title=category.name description=category.total value=category.percent %}{% endcomponent %}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-font-subtle-light dark:text-font-subtle-dark">Todavía no hay publicaciones.</p>
+                        {% endif %}
+                    {% endcomponent %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if pending_payments or latest_properties %}
+        <div class="grid gap-6 xl:grid-cols-2">
+            {% if pending_payments %}
+                {% url 'admin:payments_bankpayment_changelist' as payments_url %}
+                {% capture as payments_action silent %}<a href="{{ payments_url }}?status__exact=1" class="font-medium text-primary-600 dark:text-primary-500">Ver todas</a>{% endcapture %}
+                {% component "unfold/components/card.html" with title="Transferencias por revisar" action=payments_action %}
+                    {% if pending_payments.rows %}
+                        {% component "unfold/components/table.html" with table=pending_payments card_included=1 striped=1 %}{% endcomponent %}
+                    {% else %}
+                        <div class="flex flex-col items-center gap-2 py-6 text-center">
+                            <span class="material-symbols-outlined text-3xl text-primary-600 dark:text-primary-500">task_alt</span>
+                            <p class="text-font-subtle-light dark:text-font-subtle-dark">No hay transferencias pendientes.</p>
+                        </div>
+                    {% endif %}
+                {% endcomponent %}
+            {% endif %}
+
+            {% if latest_properties %}
+                {% url 'admin:realty_property_changelist' as properties_url %}
+                {% capture as properties_action silent %}<a href="{{ properties_url }}" class="font-medium text-primary-600 dark:text-primary-500">Ver todas</a>{% endcapture %}
+                {% component "unfold/components/card.html" with title="Últimas publicaciones" action=properties_action %}
+                    {% if latest_properties.rows %}
+                        {% component "unfold/components/table.html" with table=latest_properties card_included=1 striped=1 %}{% endcomponent %}
+                    {% else %}
+                        <p class="py-6 text-center text-font-subtle-light dark:text-font-subtle-dark">Todavía no hay publicaciones.</p>
+                    {% endif %}
+                {% endcomponent %}
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

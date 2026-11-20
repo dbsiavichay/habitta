@@ -20,6 +20,7 @@ django-cotton==2.9.0
 django-environ==0.14.0
 django-htmx==1.29.0
 django-tailwind-cli==4.9.0
+django-unfold==0.110.1
 djangorestframework==3.18.3
 hyperlink==21.0.0
 idna==3.20

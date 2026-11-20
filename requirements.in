@@ -16,3 +16,5 @@ django-tailwind-cli>=4.9
 django-cotton>=2.9
 django-htmx>=1.29
 lucide>=1.1
+# Admin de Django con la marca (tema Tailwind, dashboard, filtros y acciones)
+django-unfold>=0.110

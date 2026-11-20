@@ -1,0 +1,290 @@
+# Traducciones al español de las cadenas de django-unfold (el paquete no trae catálogo en español).
+# Las de Django (admin) ya vienen traducidas; aquí sólo van las propias de Unfold.
+# Compilar después de editar: msgfmt --check -o locale/es/LC_MESSAGES/django.mo locale/es/LC_MESSAGES/django.po
+msgid ""
+msgstr ""
+"Project-Id-Version: habitta\n"
+"PO-Revision-Date: 2026-11-19 00:00-0500\n"
+"Last-Translator: Habitta\n"
+"Language-Team: Español\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%(counter)s result"
+msgid_plural "%(counter)s results"
+msgstr[0] "%(counter)s resultado"
+msgstr[1] "%(counter)s resultados"
+
+msgid "%(full_result_count)s total"
+msgstr "%(full_result_count)s en total"
+
+msgid "Add new item"
+msgstr "Agregar elemento"
+
+msgid "Add row"
+msgstr "Agregar fila"
+
+msgid "After you've created a user, you’ll be able to edit more user options."
+msgstr "Después de crear el usuario podrás editar el resto de sus datos."
+
+msgid "All applications"
+msgstr "Todas las aplicaciones"
+
+msgid "Apply Filters"
+msgstr "Aplicar filtros"
+
+msgid "Available shortcuts"
+msgstr "Atajos disponibles"
+
+msgid "Bold"
+msgstr "Negrita"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Changelist shortcuts"
+msgstr "Atajos de las listas"
+
+msgid "Choose file to upload"
+msgstr "Elige un archivo"
+
+msgid "Click to cancel"
+msgstr "Haz clic para deshacer"
+
+msgid "Click to download"
+msgstr "Haz clic para descargar"
+
+msgid "Code"
+msgstr "Código"
+
+msgid "Command tool shortcuts"
+msgstr "Atajos del buscador"
+
+msgid "Create new record"
+msgstr "Crear un registro"
+
+msgid "Dark"
+msgstr "Oscuro"
+
+msgid "Dataset not found. No action performed."
+msgstr "No se encontró el conjunto de datos; no se hizo ningún cambio."
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Date from"
+msgstr "Desde"
+
+msgid "Date to"
+msgstr "Hasta"
+
+msgid "Enter an URL"
+msgstr "Escribe una URL"
+
+msgid "False"
+msgstr "No"
+
+msgid "Forgotten your password or username?"
+msgstr "¿Olvidaste tu contraseña o tu usuario?"
+
+msgid "\n            Found <span class=\"font-medium text-important\">%(counter)s</span> result in %(time)s seconds\n        "
+msgid_plural "\n            Found <span class=\"font-medium text-important\">%(counter)s</span> results in %(time)s seconds\n        "
+msgstr[0] "\n            Se encontró <span class=\"font-medium text-important\">%(counter)s</span> resultado en %(time)s segundos\n        "
+msgstr[1] "\n            Se encontraron <span class=\"font-medium text-important\">%(counter)s</span> resultados en %(time)s segundos\n        "
+
+msgid "From"
+msgstr "Desde"
+
+msgid "General"
+msgstr "General"
+
+msgid "Global shortcuts"
+msgstr "Atajos generales"
+
+msgid "Go back"
+msgstr "Volver"
+
+msgid "Heading"
+msgstr "Título"
+
+msgid "Image preview"
+msgstr "Vista previa de la imagen"
+
+msgid "Indent decrease"
+msgstr "Reducir sangría"
+
+msgid "Indent increase"
+msgstr "Aumentar sangría"
+
+msgid "Italic"
+msgstr "Cursiva"
+
+msgid "Light"
+msgstr "Claro"
+
+msgid "Link"
+msgstr "Enlace"
+
+msgid "Navigate"
+msgstr "Moverse"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "No"
+msgstr "No"
+
+msgid "No data"
+msgstr "Sin datos"
+
+msgid "No results found"
+msgstr "No hay resultados"
+
+msgid "Not enough data."
+msgstr "No hay datos suficientes."
+
+msgid "Nothing matched your search"
+msgstr "Nada coincide con tu búsqueda"
+
+msgid "Open command tool"
+msgstr "Abrir el buscador"
+
+msgid "Open selection"
+msgstr "Abrir lo seleccionado"
+
+msgid "Open selection in new tab"
+msgstr "Abrir lo seleccionado en otra pestaña"
+
+msgid "Open shortcuts list"
+msgstr "Ver los atajos de teclado"
+
+msgid "Ordered list"
+msgstr "Lista numerada"
+
+msgid "Paragraph"
+msgstr "Párrafo"
+
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "Corrige el error que se indica abajo."
+msgstr[1] "Corrige los errores que se indican abajo."
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Quote"
+msgstr "Cita"
+
+msgid "Raw passwords are not stored, so there is no way to see this user’s password, but you can change the password using <a href=\"{}\" class=\"text-primary-600 dark:text-primary-500\">this form</a>."
+msgstr "La contraseña no se guarda en texto plano, así que no hay forma de verla, pero puedes cambiarla con <a href=\"{}\" class=\"text-primary-600 dark:text-primary-500\">este formulario</a>."
+
+msgid "Recent searches"
+msgstr "Búsquedas recientes"
+
+msgid "Record picture"
+msgstr "Imagen del registro"
+
+msgid "Redo"
+msgstr "Rehacer"
+
+msgid "Reset filters"
+msgstr "Quitar filtros"
+
+msgid "Return to site"
+msgstr "Volver al sitio"
+
+msgid "Run"
+msgstr "Aplicar"
+
+msgid "Search apps and models..."
+msgstr "Buscar en el menú…"
+
+msgid "Select"
+msgstr "Elegir"
+
+msgid "Select action"
+msgstr "Elige una acción"
+
+msgid "Select action to run"
+msgstr "Elige la acción que quieres aplicar"
+
+msgid "Select currency"
+msgstr "Elige la moneda"
+
+msgid "Select record"
+msgstr "Elige un registro"
+
+msgid "Select value"
+msgstr "Elige un valor"
+
+msgid "Strike"
+msgstr "Tachado"
+
+msgid "Submit"
+msgstr "Enviar"
+
+msgid "System"
+msgstr "Sistema"
+
+msgid "This item will be deleted."
+msgstr "Este elemento se eliminará al guardar."
+
+msgid "This page yielded into no results."
+msgstr "Esta página no tiene resultados."
+
+msgid "To"
+msgstr "Hasta"
+
+msgid "Toggle dark/light mode"
+msgstr "Cambiar entre modo claro y oscuro"
+
+msgid "Toggle filter"
+msgstr "Mostrar u ocultar los filtros"
+
+msgid "Toggle password visibility"
+msgstr "Mostrar u ocultar la contraseña"
+
+msgid "Toggle sidebar"
+msgstr "Mostrar u ocultar el menú"
+
+msgid "True"
+msgstr "Sí"
+
+msgid "Type to search"
+msgstr "Escribe para buscar"
+
+msgid "Underlined"
+msgstr "Subrayado"
+
+msgid "Undo"
+msgstr "Deshacer"
+
+msgid "Unlink"
+msgstr "Quitar el enlace"
+
+msgid "Unordered list"
+msgstr "Lista con viñetas"
+
+msgid "Value"
+msgstr "Valor"
+
+msgid "Welcome"
+msgstr "Hola"
+
+msgid "Welcome back to"
+msgstr "Te damos la bienvenida a"
+
+msgid "You can not create nested object without parent"
+msgstr "No se puede crear un elemento anidado sin su elemento principal"
+
+msgid "You have been successfully logged out from the administration"
+msgstr "Cerraste sesión en la administración"
+
+msgid "entry"
+msgid_plural "entries"
+msgstr[0] "entrada"
+msgstr[1] "entradas"
+

@@ -21,7 +21,7 @@ from django.urls import reverse
 from apps.logs.models import Log
 from apps.project.models import Help, Icons, Settings, Term
 from apps.project.templatetags.habitta import money, spec_text, whatsapp_url
-from apps.project.testing import IN_MEMORY_LAYER, create_listing
+from apps.project.testing import IN_MEMORY_LAYER, create_listing, create_user
 
 
 class PublicPagesTests(TestCase):
@@ -280,3 +280,105 @@ class RebrandContentTests(TestCase):
         self.assertFalse(default_storage.exists('larbitfonts/style.css'))
         self.assertEqual(get_spec_icons(), [('bath-tub', 'Bath tub'), ('bed', 'Bed')])
         self.assertTrue(brand(RequestFactory().get('/'))['icons_url'].endswith('/spec_icons/spec-icons.css'))
+
+
+class AdminTests(TestCase):
+    """Admin con Unfold (config/unfold.py): pantallas, dashboard, menú y acceso."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from django.contrib.contenttypes.models import ContentType
+
+        from apps.payments.models import Bank, BankPayment, Payment
+        from apps.realty.models import Property
+
+        cls.superuser = create_user('jefa', is_staff=True, is_superuser=True)
+        cls.owner = create_user('dueno')
+        cls.listing = create_listing(cls.owner)
+        bank = Bank.objects.create(name='Banco Andino', account_number='123', account_type=1,
+                                   recipient_name='Habitta', recipient_charter='0999999999')
+        content_type = ContentType.objects.get_for_model(Property)
+        payments = [
+            BankPayment.objects.create(user=cls.owner, object_id=cls.listing.pk, content_type=content_type,
+                                       amount='12.50', status=status, bank=bank, voucher='payments/bankvouchers/v.png')
+            for status in (Payment.REGISTRY, Payment.CONFIRMED, Payment.REJECTED)
+        ]
+        cls.pending = payments[0]
+
+    def setUp(self):
+        self.client.force_login(self.superuser)
+
+    def test_every_registered_model_lists_and_adds(self):
+        from django.contrib import admin
+
+        for model in admin.site._registry:
+            opts = model._meta
+            with self.subTest(model=opts.label):
+                for view in ('changelist', 'add'):
+                    response = self.client.get(reverse(f'admin:{opts.app_label}_{opts.model_name}_{view}'))
+                    self.assertEqual(response.status_code, 200, view)
+
+    def test_change_views(self):
+        for obj in (self.listing, self.owner, self.pending, self.listing.category):
+            opts = obj._meta
+            with self.subTest(model=opts.label):
+                response = self.client.get(reverse(f'admin:{opts.app_label}_{opts.model_name}_change', args=[obj.pk]))
+                self.assertEqual(response.status_code, 200)
+
+    def test_dashboard(self):
+        response = self.client.get(reverse('admin:index'))
+        self.assertContains(response, 'Hola, Jefa')
+        kpis = {kpi['title']: kpi for kpi in response.context['kpis']}
+        self.assertEqual(kpis['Pagos pendientes']['value'], 1)
+        self.assertTrue(kpis['Pagos pendientes']['alert'])
+        self.assertEqual(kpis['Publicaciones']['footer'], '+1 nueva en 30 días')
+        self.assertEqual(len(response.context['pending_payments']['rows']), 1)
+        self.assertEqual(len(response.context['latest_properties']['rows']), 1)
+        self.assertEqual(response.context['top_categories'][0]['name'], 'Casas')
+        # La publicación y los dos usuarios de hoy caen en el último mes del gráfico.
+        totals = {serie['label']: serie['total'] for serie in response.context['activity']['legend']}
+        self.assertEqual(totals, {'Publicaciones': 1, 'Usuarios nuevos': 2})
+        self.assertFalse(response.context['activity']['empty'])
+
+    def test_sidebar_badge_counts_only_pending_transfers(self):
+        from apps.payments.models import Payment
+        from apps.project.admin_dashboard import pending_bank_payments_badge
+
+        self.assertEqual(pending_bank_payments_badge(None), 1)
+        self.pending.status = Payment.CONFIRMED
+        self.pending.save()
+        self.assertIsNone(pending_bank_payments_badge(None))
+
+    def test_staff_without_permissions_sees_nothing_sensitive(self):
+        staff = create_user('ayudante', is_staff=True)
+        self.client.force_login(staff)
+        response = self.client.get(reverse('admin:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['kpis'], [])
+        self.assertIsNone(response.context['pending_payments'])
+        self.assertNotContains(response, reverse('admin:payments_bankpayment_changelist'))
+
+    def test_non_staff_is_sent_to_login(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse('admin:index'))
+        self.assertRedirects(response, f"{reverse('admin:login')}?next={reverse('admin:index')}")
+
+    def test_spanish_strings_for_unfold(self):
+        self.client.logout()
+        response = self.client.get(reverse('admin:login'))
+        self.assertContains(response, 'Te damos la bienvenida a')
+        self.assertContains(response, 'Volver al sitio')
+
+    def test_environment_label(self):
+        from apps.project.admin_dashboard import environment_callback
+
+        with override_settings(DEBUG=True):
+            self.assertEqual(environment_callback(None), ['Desarrollo', 'warning'])
+        with override_settings(DEBUG=False):
+            self.assertIsNone(environment_callback(None))
+
+    def test_navbar_links_admin_only_for_staff(self):
+        admin_url = reverse('admin:index')
+        self.assertContains(self.client.get(reverse('home')), f'href="{admin_url}"')
+        self.client.force_login(self.owner)
+        self.assertNotContains(self.client.get(reverse('home')), f'href="{admin_url}"')
