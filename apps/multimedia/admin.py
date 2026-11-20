@@ -1,7 +1,9 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
+
 from .models import Image
 
-class ImageAdmin(admin.ModelAdmin):
-	model = Image
 
-admin.site.register(Image, ImageAdmin)
+@admin.register(Image)
+class ImageAdmin(ModelAdmin):
+	pass

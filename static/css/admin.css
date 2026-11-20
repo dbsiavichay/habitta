@@ -1,0 +1,9 @@
+/*
+ * Ajustes del admin (django-unfold) para la marca Habitta. Lo carga UNFOLD["STYLES"] (config/unfold.py).
+ * Los colores no van aquí: Unfold los toma de UNFOLD["COLORS"]. Este archivo se carga ANTES del CSS de
+ * Unfold, que define sus variables en una capa de Tailwind; las reglas sin capa de aquí ganan igual,
+ * y `:root:root` deja clara la intención.
+ */
+:root:root {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}

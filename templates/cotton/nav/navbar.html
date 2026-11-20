@@ -55,6 +55,9 @@ Barra de navegación principal. Con `overlay` empieza transparente sobre el hero
                     <li><a href="{% url 'list_bank_payment' %}"><c-icon name="receipt-text" class="size-4" />Mis pagos</a></li>
                     <li><a href="{% url 'downloads' %}"><c-icon name="download" class="size-4" />Descargas</a></li>
                     <li><a href="{% url 'update_profile' %}"><c-icon name="user-round-cog" class="size-4" />Mi perfil</a></li>
+                    {% if user.is_staff %}
+                    <li><a href="{% url 'admin:index' %}"><c-icon name="shield-check" class="size-4" />Administración</a></li>
+                    {% endif %}
                     <div class="divider my-1"></div>
                     <li x-data="themeToggle">
                         <button type="button" @click="cycle()">

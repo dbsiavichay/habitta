@@ -1,34 +1,40 @@
 from django.contrib import admin
-from .models import Specification, Category, Purpose, Property, Group, GroupCategory
+from unfold.admin import ModelAdmin, TabularInline
 
-from .forms import SpecificationForm, GroupForm, CategoryForm
+from .forms import CategoryForm, GroupForm, SpecificationForm
+from .models import Category, Group, GroupCategory, Property, Purpose, Specification
 
-class SpecificationAdmin(admin.ModelAdmin):
+
+@admin.register(Specification)
+class SpecificationAdmin(ModelAdmin):
     form = SpecificationForm
-    list_display = ['name', 'internal_name', 'is_required',]
+    list_display = ['name', 'internal_name', 'is_required']
 
-class GroupAdmin(admin.ModelAdmin):
+
+@admin.register(Group)
+class GroupAdmin(ModelAdmin):
     form = GroupForm
     list_display = ['name', 'internal_name']
 
-class GroupCategoryInline(admin.TabularInline):
+
+class GroupCategoryInline(TabularInline):
     model = GroupCategory
 
-class CategoryAdmin(admin.ModelAdmin):
+
+@admin.register(Category)
+class CategoryAdmin(ModelAdmin):
     form = CategoryForm
     list_display = ['name', 'singular_name', 'kind']
     inlines = [
         GroupCategoryInline,
     ]
 
-class PurposeAdmin(admin.ModelAdmin):
+
+@admin.register(Purpose)
+class PurposeAdmin(ModelAdmin):
     pass
 
-class PropertyAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'address', 'pub_date')
 
-admin.site.register(Specification, SpecificationAdmin)
-admin.site.register(Group, GroupAdmin)
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Purpose, PurposeAdmin)
-admin.site.register(Property, PropertyAdmin)
+@admin.register(Property)
+class PropertyAdmin(ModelAdmin):
+    list_display = ('title', 'description', 'address', 'pub_date')

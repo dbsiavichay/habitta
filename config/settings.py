@@ -43,6 +43,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880
 # Application definition
 DJANGO_APPS = [
     'daphne',
+    # Tema del admin (config/unfold.py): debe ir antes de django.contrib.admin.
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
+    'unfold.contrib.inlines',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -136,6 +141,8 @@ LANGUAGE_CODE = 'es-EC'
 TIME_ZONE = 'America/Guayaquil'
 USE_I18N = True
 USE_TZ = True
+# Catálogo propio: traduce las cadenas de django-unfold, que no trae español (ver locale/es).
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
 # Mantiene el punto decimal (comportamiento previo con USE_L10N=False):
 # coordenadas y precios se usan en atributos HTML y JavaScript.
 FORMAT_MODULE_PATH = ['config.formats']
@@ -188,6 +195,11 @@ CONTACT_ADDRESS = env('CONTACT_ADDRESS', default='')
 SOCIAL_FACEBOOK = env('SOCIAL_FACEBOOK', default='')
 SOCIAL_INSTAGRAM = env('SOCIAL_INSTAGRAM', default='')
 SOCIAL_X = env('SOCIAL_X', default='')
+
+# Admin con la marca (django-unfold): colores, menú por tareas y dashboard.
+from .unfold import build_unfold  # noqa: E402
+
+UNFOLD = build_unfold(SITE_NAME)
 
 
 # Integraciones externas (todas opcionales: vacías = deshabilitadas)
