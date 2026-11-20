@@ -3,6 +3,8 @@ from django.db import models
 class Log(models.Model):
 	class Meta:
 		unique_together = ('type', 'property', 'user')
+		verbose_name = 'vista o me gusta'
+		verbose_name_plural = 'vistas y me gusta'
 
 	VIEW, LIKE = (1, 2,)
 

@@ -12,12 +12,9 @@ from django.forms import (
 from django.forms.widgets import (
     TextInput, NumberInput, HiddenInput,
     Select, RadioSelect,
-    CheckboxSelectMultiple
 )
 
-from .widgets import ColumnCheckboxSelectMultiple
-
-from .models import Specification, Group, Category, Purpose, Property
+from .models import Specification, Group, Purpose, Property
 from django.contrib.gis.geos import Point
 
 from django.core.files.storage import FileSystemStorage
@@ -62,22 +59,6 @@ def parse_widget_attributes(attributes):
         except (ValueError, SyntaxError):
             attrs[name.strip()] = value
     return attrs
-
-class GroupForm(ModelForm):
-    class Meta:
-        model = Group
-        fields = '__all__'
-        widgets = {
-            'specifications': ColumnCheckboxSelectMultiple(columns=4, css_class='col-md-3', wrapper_css_class='row',)           
-        }
-
-class CategoryForm(ModelForm):
-    class Meta:
-        model = Category
-        fields = '__all__'
-        widgets = {
-            'purposes': CheckboxSelectMultiple,
-        }
 
 class SpecificationForm(ModelForm):
     class Meta:

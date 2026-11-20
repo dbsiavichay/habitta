@@ -145,7 +145,15 @@ por nuestro Tailwind).
 - **Dashboard:** `templates/admin/index.html` + `apps/project/admin_dashboard.py`. Sólo usa
   componentes de Unfold y clases que ya existen en `unfold/static/unfold/css/styles.css`.
 - **ModelAdmin:** heredan de `unfold.admin.ModelAdmin`/`TabularInline`. Si heredan del admin de
-  Django, la pantalla queda sin estilos.
+  Django, la pantalla queda sin estilos. Las piezas comunes están en `apps/project/admin_utils.py`:
+  - `user_header`, `site_link`, `image_preview` y `short_date`.
+  - `label_html`: `@display(label=…)` no se aplica a los campos de sólo lectura del detalle.
+  - `ReadOnlyChangeFormMixin`: oculta "Guardar" en fichas sin campos editables.
+  - `back_to_page`: respuesta de las acciones con diálogo.
+- **Transferencias:** se confirman o rechazan con las acciones de Unfold (`actions_row`,
+  `actions_detail` y en lote), que abren un diálogo. Cada cambio avisa al usuario por correo
+  (`apps/payments/notifications.py`). Sólo se resuelven las que están "por confirmar".
+- **Conversaciones:** son mensajes privados. Sólo las ven los superusuarios, en modo de sólo lectura.
 - **Retoques:** `static/css/admin.css` (tipografía) y `static/js/admin.js` (fuente de los gráficos).
 - **Traducciones:** Unfold no trae español, así que `locale/es/LC_MESSAGES/django.po` traduce sus
   cadenas. Después de editarlo hay que compilarlo y subir el `.mo` a git (en la Mac,

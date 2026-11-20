@@ -21,6 +21,11 @@ class Conversation(models.Model):
 
     class Meta:
         unique_together = ('owner', 'member')
+        verbose_name = 'conversación'
+        verbose_name_plural = 'conversaciones'
+
+    def __str__(self):
+        return f'{self.owner.get_full_name() or self.owner} y {self.member.get_full_name() or self.member}'
 
 
 class MessageQuerySet(models.QuerySet):
@@ -39,3 +44,7 @@ class Message(models.Model):
     read_at = models.DateTimeField('leído', null=True, blank=True)
 
     objects = MessageQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = 'mensaje'
+        verbose_name_plural = 'mensajes'

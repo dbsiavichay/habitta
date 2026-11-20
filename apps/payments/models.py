@@ -32,6 +32,9 @@ class Payment(models.Model):
 	status = models.PositiveSmallIntegerField(default=1, choices=STATUS_CHOICES, verbose_name='estado')
 	date = models.DateTimeField(auto_now_add=True)
 
+	def __str__(self):
+		return 'Pago de %s ($%s)' % (self.user.get_full_name() or self.user.get_username(), self.amount)
+
 	def get_object(self):
 		return self.content_type.get_object_for_this_type(pk=self.object_id)
 

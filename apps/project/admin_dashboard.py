@@ -113,7 +113,7 @@ def _kpis(can, since):
             'value': open_auctions,
             'footer': 'Con fecha de cierre por delante' if open_auctions else 'Ninguna en curso',
             'icon': 'gavel',
-            'href': None,  # el admin de subastas llega en la fase B
+            'href': _changelist(Auction, f'stage__exact={Auction.OPEN}'),
         })
     return kpis
 

@@ -6,7 +6,7 @@ from .managers import ImageManager
 class Image(models.Model):
 	class Meta:
 		verbose_name = 'imagen'
-		verbose_name_plural = 'imagenes'
+		verbose_name_plural = 'imágenes'
 
 	code = models.CharField(max_length=16, blank=True, null=True)
 	img = models.ImageField(upload_to='images', verbose_name='imagen')

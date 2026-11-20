@@ -1,0 +1,16 @@
+{% autoescape off %}Hola{% if user.first_name %}, {{ user.first_name }}{% endif %}:
+{% if confirmed %}
+Confirmamos tu transferencia de {{ amount }}{% if paid_for %} por «{{ paid_for }}»{% endif %}. Ya puedes descargar los archivos desde tus descargas:
+
+{{ site_url }}{% url 'downloads' %}
+{% else %}
+Revisamos tu transferencia de {{ amount }}{% if paid_for %} por «{{ paid_for }}»{% endif %} y no pudimos confirmarla.
+{% if reason %}
+Motivo: {{ reason }}
+{% endif %}
+Si crees que es un error, responde este correo. También puedes registrar el pago de nuevo con el comprobante correcto desde tus pagos:
+
+{{ site_url }}{% url 'list_bank_payment' %}
+{% endif %}
+— El equipo de {{ site_name }}
+{% endautoescape %}

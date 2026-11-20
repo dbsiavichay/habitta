@@ -311,10 +311,16 @@ class AdminTests(TestCase):
     def test_every_registered_model_lists_and_adds(self):
         from django.contrib import admin
 
-        for model in admin.site._registry:
+        request = RequestFactory().get('/')
+        request.user = self.superuser
+        for model, model_admin in admin.site._registry.items():
             opts = model._meta
             with self.subTest(model=opts.label):
-                for view in ('changelist', 'add'):
+                views = ['changelist']
+                # Pagos, publicaciones, subastas y lo que sólo se consulta no se crean desde el admin.
+                if model_admin.has_add_permission(request):
+                    views.append('add')
+                for view in views:
                     response = self.client.get(reverse(f'admin:{opts.app_label}_{opts.model_name}_{view}'))
                     self.assertEqual(response.status_code, 200, view)
 
@@ -382,3 +388,81 @@ class AdminTests(TestCase):
         self.assertContains(self.client.get(reverse('home')), f'href="{admin_url}"')
         self.client.force_login(self.owner)
         self.assertNotContains(self.client.get(reverse('home')), f'href="{admin_url}"')
+
+    # ---------- Fase B: pantallas por módulo ----------
+
+    def test_conversations_only_for_superusers(self):
+        from apps.messenger.models import Conversation, Message
+
+        conversation = Conversation.objects.create(owner=self.owner, member=self.superuser)
+        Message.objects.create(sender=self.owner, content='Hola, ¿sigue disponible?', conversation=conversation)
+        changelist = reverse('admin:messenger_conversation_changelist')
+        change = reverse('admin:messenger_conversation_change', args=[conversation.pk])
+
+        response = self.client.get(change)
+        self.assertContains(response, 'Hola, ¿sigue disponible?')
+        self.assertContains(response, 'Mensajes privados entre usuarios')
+        self.assertNotContains(response, 'name="_save"')
+        self.assertEqual(self.client.get(changelist).context['cl'].result_list[0].messages_count, 1)
+
+        staff = create_user('ayudante', is_staff=True)
+        from django.contrib.auth.models import Permission
+        staff.user_permissions.add(*Permission.objects.filter(codename__in=['view_conversation', 'view_message']))
+        self.client.force_login(staff)
+        self.assertEqual(self.client.get(changelist).status_code, 403)
+        self.assertNotContains(self.client.get(reverse('admin:index')), changelist)
+
+    def test_group_form_saves_specifications(self):
+        from apps.realty.models import Group, Specification
+
+        spec = Specification.objects.create(name='Piscina', internal_name='piscina', field_type='BooleanField')
+        response = self.client.post(reverse('admin:realty_group_add'), {
+            'name': 'Extras', 'internal_name': 'extras', 'columns': 'col-xs-6', 'specifications': [spec.pk],
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(list(Group.objects.get(internal_name='extras').specifications.all()), [spec])
+
+    def test_specification_choices_only_for_selectors(self):
+        from apps.realty.models import Specification
+
+        spec = Specification.objects.get(internal_name='precio')
+        response = self.client.get(reverse('admin:realty_specification_change', args=[spec.pk]))
+        self.assertContains(response, "x-show=\"field_type &amp;&amp; field_type.startsWith(&#x27;ChoiceField&#x27;)\"")
+
+    def test_new_terms_go_to_the_end(self):
+        Term.objects.create(title='Uso', description='x', order=1)
+        Term.objects.create(title='Pagos', description='x', order=5)
+        response = self.client.post(reverse('admin:project_term_add'), {'title': 'Cookies', 'description': 'Texto.'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Term.objects.get(title='Cookies').order, 6)
+        self.assertEqual(Term.objects.last().title, 'Cookies')
+
+    def test_cancel_open_auction(self):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from apps.auctions.models import Auction
+
+        auction = Auction.objects.create(property=self.listing, start_date=timezone.now(),
+                                         ending_date=timezone.now() + timedelta(days=3), base_amount='100.00')
+        url = reverse('admin:auctions_auction_cancel_auction', args=[auction.pk])
+        self.assertContains(self.client.get(reverse('admin:auctions_auction_change', args=[auction.pk])), url)
+        self.client.post(url, {'_form_submitted': 'on'})
+        auction.refresh_from_db()
+        self.assertEqual(auction.stage, Auction.CANCELED)
+        self.assertNotContains(self.client.get(reverse('admin:auctions_auction_change', args=[auction.pk])), url)
+
+    def test_user_change_shows_profile_inline(self):
+        response = self.client.get(reverse('admin:auth_user_change', args=[self.owner.pk]))
+        self.assertContains(response, 'name="profile-0-phone"')
+        # Al crear no hay inline: el perfil lo hace la señal de post_save.
+        response = self.client.post(reverse('admin:auth_user_add'), {
+            'username': 'nueva', 'password1': 'Clave-muy-segura-123', 'password2': 'Clave-muy-segura-123',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.get(username='nueva').profile)
+
+    def test_category_list_shows_kind_badge(self):
+        response = self.client.get(reverse('admin:realty_category_changelist'))
+        self.assertContains(response, 'Inmuebles')

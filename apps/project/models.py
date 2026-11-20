@@ -7,15 +7,15 @@ class Settings(models.Model):
 		verbose_name = 'Configuración'
 		verbose_name_plural = 'Configuración'
 
-	title = models.CharField(max_length=128, verbose_name='título principal')
-	subtitle = models.CharField(max_length=128, verbose_name='subtitulo')
-	cover = models.ImageField(upload_to='covers')
-	subcover = models.ImageField(upload_to='covers')
-	#subcover_2 = models.ImageField(upload_to='covers')
-	term_cover = models.ImageField(upload_to='covers', verbose_name='cover de términos')
-	help_cover = models.ImageField(upload_to='covers', verbose_name='cover de ayuda')
-	service_cover = models.ImageField(upload_to='covers', verbose_name='cover de servicios')
-	is_active = models.BooleanField(default=False, verbose_name='activo?')
+	# El diseño actual usa `cover`, `term_cover` y `help_cover`; los demás campos quedan del diseño anterior.
+	title = models.CharField(max_length=128, verbose_name='nombre', help_text='Para reconocer esta configuración en el admin.')
+	subtitle = models.CharField(max_length=128, blank=True, verbose_name='subtítulo')
+	cover = models.ImageField(upload_to='covers', verbose_name='fondo de la página de inicio')
+	subcover = models.ImageField(upload_to='covers', blank=True, verbose_name='imagen secundaria')
+	term_cover = models.ImageField(upload_to='covers', verbose_name='fondo de términos')
+	help_cover = models.ImageField(upload_to='covers', verbose_name='fondo de ayuda')
+	service_cover = models.ImageField(upload_to='covers', blank=True, verbose_name='fondo de servicios')
+	is_active = models.BooleanField(default=False, verbose_name='activa')
 
 	def __str__(self):
 		return self.title
@@ -44,7 +44,7 @@ class Term(models.Model):
 
 	title = models.CharField(max_length=64, verbose_name='título')
 	description = models.TextField(verbose_name='descripción')
-	order = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='orden')
+	order = models.PositiveSmallIntegerField(default=0, verbose_name='orden')
 
 	def __str__(self):
 		return self.title
@@ -57,7 +57,7 @@ class Help(models.Model):
 	title = models.CharField(max_length=64, verbose_name='título')
 	description = models.TextField(verbose_name='descripción')
 	pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación')
-	sequence = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='secuencia')
+	sequence = models.PositiveSmallIntegerField(default=0, verbose_name='orden')
 	user = models.ForeignKey('auth.User', verbose_name='usuario', on_delete=models.CASCADE)
 
 	def __str__(self):

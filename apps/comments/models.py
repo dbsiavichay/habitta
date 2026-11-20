@@ -3,6 +3,7 @@ from django.db import models
 class Comment(models.Model):
 	class Meta:
 		ordering = ['-date',]
+		verbose_name = 'comentario'
 
 	content = models.TextField(blank=True, null=True)	
 	date = models.DateTimeField(auto_now_add=True)

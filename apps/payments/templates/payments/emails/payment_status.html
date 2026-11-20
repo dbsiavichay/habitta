@@ -1,0 +1,40 @@
+{% extends 'emails/base.html' %}
+
+{% block preheader %}{% if confirmed %}Tu transferencia de {{ amount }} fue confirmada.{% else %}No pudimos confirmar tu transferencia de {{ amount }}.{% endif %}{% endblock %}
+
+{% block content %}{% if confirmed %}{% url 'downloads' as action_path %}{% else %}{% url 'list_bank_payment' as action_path %}{% endif %}
+<h1 style="margin:0 0 16px;font-size:24px;line-height:32px;font-weight:800;letter-spacing:-0.02em;color:#13211e;">
+    {% if confirmed %}¡Tu pago está confirmado!{% else %}No pudimos confirmar tu pago{% endif %}
+</h1>
+<p style="margin:0 0 12px;font-size:16px;line-height:26px;color:#3b4845;">Hola{% if user.first_name %}, {{ user.first_name }}{% endif %}:</p>
+<p style="margin:0 0 24px;font-size:16px;line-height:26px;color:#3b4845;">
+    {% if confirmed %}
+        Confirmamos tu transferencia de <strong style="color:#13211e;">{{ amount }}</strong>{% if paid_for %} por <strong style="color:#13211e;">{{ paid_for }}</strong>{% endif %}. Ya puedes descargar los archivos.
+    {% else %}
+        Revisamos tu transferencia de <strong style="color:#13211e;">{{ amount }}</strong>{% if paid_for %} por <strong style="color:#13211e;">{{ paid_for }}</strong>{% endif %} y no pudimos confirmarla.
+    {% endif %}
+</p>
+{% if not confirmed and reason %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+    <tr>
+        <td style="background:#f7f4ef;border-left:4px solid #c8502e;border-radius:8px;padding:14px 16px;font-size:15px;line-height:24px;color:#3b4845;">
+            <strong style="color:#13211e;">Motivo:</strong> {{ reason|linebreaksbr }}
+        </td>
+    </tr>
+</table>
+{% endif %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td style="border-radius:999px;background:#0b6e5f;">
+            <a href="{{ site_url }}{{ action_path }}" style="display:inline-block;padding:14px 28px;border-radius:999px;font-size:16px;font-weight:700;line-height:20px;color:#ffffff;text-decoration:none;">{% if confirmed %}Ir a mis descargas{% else %}Ver mis pagos{% endif %}</a>
+        </td>
+    </tr>
+</table>
+{% if not confirmed %}
+<p style="margin:28px 0 0;font-size:14px;line-height:22px;color:#6b7774;">
+    Si crees que es un error, responde este correo. También puedes registrar el pago de nuevo con el comprobante correcto.
+</p>
+{% endif %}
+{% endblock %}
+
+{% block footer %}Te escribimos porque registraste un pago por transferencia en {{ site_name }}.{% endblock %}
