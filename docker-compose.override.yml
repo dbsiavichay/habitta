@@ -22,6 +22,9 @@ services:
     environment:
       DEBUG: "True"
     entrypoint: []
+    # Misma imagen que web, pero aquí no hay servidor HTTP que chequear.
+    healthcheck:
+      disable: true
     volumes:
       - .:/app
     # El CLI de Tailwind termina el modo watch si stdin se cierra; así sigue vivo en segundo plano.

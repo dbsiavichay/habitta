@@ -44,7 +44,11 @@ docker compose down -v && docker compose up -d
 
 ### Modo producción
 
-Usa sólo el archivo base, sin el override de desarrollo:
+El despliegue real (https://habitta.dbsiavichay.dev, VPS compartido, GitHub Actions en cada
+push a `master`) está en [`deploy/README.md`](deploy/README.md).
+
+Para probar la imagen de producción en local, usa sólo el archivo base, sin el override de
+desarrollo:
 
 ```bash
 docker compose -f docker-compose.yml up -d --build

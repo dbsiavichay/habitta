@@ -1,8 +1,13 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import DatabaseError, connection
 from django.db.models import Count
+from django.http import JsonResponse
 from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET
 from django.views.generic import ListView, TemplateView
 
 from apps.auctions.models import Auction
@@ -95,3 +100,14 @@ class TermListView(ProjectMixin, ListView):
 
 class HelpListView(ProjectMixin, ListView):
 	model = Help
+
+
+@never_cache
+@require_GET
+def healthz(request):
+	"""Lo consultan el HEALTHCHECK de la imagen y el deploy: 200 si hay base de datos, con el commit."""
+	try:
+		connection.ensure_connection()
+	except DatabaseError:
+		return JsonResponse({'status': 'error', 'sha': settings.APP_VERSION}, status=503)
+	return JsonResponse({'status': 'ok', 'sha': settings.APP_VERSION})

@@ -26,6 +26,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env.local'))
 
 DEBUG = env('DEBUG')
 
+# Commit de la imagen (el Dockerfile lo recibe como GIT_SHA); lo informa /healthz.
+APP_VERSION = env('APP_VERSION', default='dev')
+
 # En producción SECRET_KEY es obligatoria; en desarrollo se usa una clave insegura fija.
 SECRET_KEY = env('SECRET_KEY', default='')
 if not SECRET_KEY:
@@ -267,6 +270,8 @@ EMAIL_BACKEND = env(
 if env('SECURE_SSL'):
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
+    # El HEALTHCHECK del contenedor llama por HTTP plano, sin pasar por el proxy.
+    SECURE_REDIRECT_EXEMPT = [r'^healthz$']
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=3600)

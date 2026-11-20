@@ -43,7 +43,17 @@ RUN TAILWIND_CLI_PATH=/tmp/tailwind SECRET_KEY=build-only-key DEBUG=False python
 
 USER app
 
+# Commit con el que se construyó (CI pasa --build-arg GIT_SHA); lo informa /healthz.
+# Va al final para no invalidar la caché de las capas anteriores en cada commit.
+ARG GIT_SHA=dev
+ENV APP_VERSION=$GIT_SHA
+
 EXPOSE 8000
+
+# /healthz responde 200 si Django y la base de datos están arriba. Host: localhost porque el chequeo
+# no pasa por el proxy (ALLOWED_HOSTS lo incluye); start-period cubre la espera de la BD y migrate.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=90s --retries=3 \
+    CMD ["python", "-c", "import urllib.request as u; u.urlopen(u.Request('http://127.0.0.1:8000/healthz', headers={'Host': 'localhost'}), timeout=4)"]
 
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]

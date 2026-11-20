@@ -1,0 +1,139 @@
+# Stack de producción de Habitta. Se despliega en /opt/habitta del VPS que corre el
+# proxy compartido (/opt/edge, de grazia-infra). Ver deploy/README.md.
+#
+# Ningún servicio publica puertos: el edge llega a `web` y a `media` por la red externa
+# `edge` (alias habitta-web y habitta-media). db y redis quedan en la red propia del
+# proyecto, fuera del alcance de los demás proyectos del servidor.
+#
+# Los secretos y las integraciones vienen de /opt/habitta/.env (ver .env.example). Lo que
+# describe cómo está cableado el stack va fijo aquí, en `environment`, y le gana al .env.
+
+name: habitta
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  web:
+    image: ghcr.io/dbsiavichay/habitta:${WEB_TAG:-latest}
+    restart: unless-stopped
+    # daphne sirve HTTP y WebSocket. --proxy-headers toma la IP del visitante de
+    # X-Forwarded-For: sólo el edge llega a este contenedor.
+    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "--proxy-headers", "config.asgi:application"]
+    # Reenvía SIGTERM y recoge procesos huérfanos; sin esto cada deploy espera los 10 s de Docker.
+    init: true
+    env_file: .env
+    environment:
+      DEBUG: "False"
+      # Detrás del edge (HTTPS): cookies seguras y redirección a https.
+      SECURE_SSL: "True"
+      # El HSTS lo manda el edge (sin includeSubDomains: otros subdominios viven en otro lado).
+      SECURE_HSTS_SECONDS: "0"
+      # localhost: el HEALTHCHECK de la imagen llama desde dentro del contenedor.
+      ALLOWED_HOSTS: habitta.dbsiavichay.dev,localhost
+      CSRF_TRUSTED_ORIGINS: https://habitta.dbsiavichay.dev
+      SITE_URL: https://habitta.dbsiavichay.dev
+      DATABASE_URL: postgis://habitta:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in .env}@db:5432/habitta
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      # Archivos subidos. La imagen crea /app/media del usuario app (999), así que un
+      # volumen nuevo hereda ese dueño.
+      - media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      default: {}
+      edge:
+        aliases: [habitta-web]
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # Sirve /media/* (el edge le quita el prefijo). Sólo lectura, sin listados de carpetas,
+  # con el mismo uid que escribe los archivos en web.
+  media:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    command: ["caddy", "file-server", "--root", "/srv", "--listen", ":8080"]
+    user: "999:999"
+    read_only: true
+    tmpfs:
+      - /data:uid=999,gid=999,mode=0700,size=8m
+      - /config:uid=999,gid=999,mode=0700,size=8m
+    cap_drop: [ALL]
+    # El binario de la imagen trae la capability de archivo cap_net_bind_service: sin ella
+    # en el conjunto, el kernel no deja ni ejecutarlo ("operation not permitted"). Escuchar
+    # en 8080 no la usa.
+    cap_add: [NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - media:/srv:ro
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "8080"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      edge:
+        aliases: [habitta-media]
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
+  db:
+    image: imresamu/postgis:17-3.5
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: habitta
+      POSTGRES_USER: habitta
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # NUNCA agregar `ports:` aquí: los puertos publicados por Docker se saltan ufw.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U habitta -d habitta"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # Sólo la capa de canales del chat: los mensajes viven segundos, no hace falta persistir.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
+networks:
+  edge:
+    name: edge
+    external: true
+
+volumes:
+  pgdata:
+  media:

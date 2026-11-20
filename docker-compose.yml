@@ -1,5 +1,5 @@
-# Stack base (sirve como punto de partida para producción).
-# En desarrollo se combina automáticamente con docker-compose.override.yml.
+# Stack local. En desarrollo se combina automáticamente con docker-compose.override.yml.
+# La producción real (VPS) usa deploy/compose.yml: ver deploy/README.md.
 name: habitta
 
 services:

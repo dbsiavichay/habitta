@@ -1,0 +1,38 @@
+# Habitta: Django (daphne, HTTP y WebSocket) en habitta-web:8000 y los archivos subidos
+# en habitta-media:8080. scripts/apply-edge.sh instala este archivo como
+# /opt/edge/caddy/sites/habitta.caddy; el snippet `security` viene del Caddyfile del edge.
+#
+# El dominio va escrito aquí y no en /opt/edge/.env: el compose del edge sólo pasa las
+# variables de los sitios de grazia-infra, y sumar este sitio no debe tocar sus archivos.
+#
+# Sin Content-Security-Policy por ahora: Alpine, MapLibre (workers blob:), PayPal y el SDK
+# de Facebook la complican; queda pendiente.
+
+habitta.dbsiavichay.dev {
+	import security
+
+	encode zstd gzip
+
+	# Las fotos suben de a una (5 MB máx. cada una); el asistente de publicación manda la
+	# portada y los adjuntos en un solo POST. El margen es a propósito: Django responde con
+	# un mensaje que la app muestra, Caddy con un 413 pelado.
+	request_body {
+		max_size 25MB
+	}
+
+	# handle_path quita /media: el sidecar sirve la raíz del volumen.
+	handle_path /media/* {
+		# Adjuntos que se venden (planos, etc.): sólo salen por la vista que cobra.
+		@private path /files/*
+		respond @private 404
+
+		# Un día y no más: las fotos de los anuncios llevan nombres únicos (uuid), pero una
+		# foto de perfil puede volver a subirse con el mismo nombre de archivo que una anterior.
+		header Cache-Control "public, max-age=86400"
+		reverse_proxy habitta-media:8080
+	}
+
+	handle {
+		reverse_proxy habitta-web:8000
+	}
+}

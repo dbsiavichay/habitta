@@ -466,3 +466,21 @@ class AdminTests(TestCase):
     def test_category_list_shows_kind_badge(self):
         response = self.client.get(reverse('admin:realty_category_changelist'))
         self.assertContains(response, 'Inmuebles')
+
+
+class HealthzTests(TestCase):
+    @override_settings(APP_VERSION='abc1234')
+    def test_reports_ok_and_commit(self):
+        response = self.client.get('/healthz')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'ok', 'sha': 'abc1234'})
+        self.assertIn('no-cache', response['Cache-Control'])
+
+    def test_answers_plain_http_behind_ssl_redirect(self):
+        # En producción SECURE_SSL_REDIRECT está activo, pero el HEALTHCHECK llama por HTTP.
+        with override_settings(SECURE_SSL_REDIRECT=True, SECURE_REDIRECT_EXEMPT=[r'^healthz$']):
+            self.assertEqual(self.client.get('/healthz').status_code, 200)
+            self.assertEqual(self.client.get(reverse('home')).status_code, 301)
+
+    def test_only_get(self):
+        self.assertEqual(self.client.post('/healthz').status_code, 405)
