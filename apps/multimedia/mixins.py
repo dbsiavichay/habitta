@@ -4,6 +4,7 @@ from io import BytesIO
 import uuid
 
 from .models import Image
+from .utils import delete_image_file_on_commit
 
 
 def _png_file(img):
@@ -55,11 +56,13 @@ class ImageMixin(object):
 		return image
 
 	def update_image(self, img, code):
+		"""Reemplaza la imagen `code` (miniatura, mapa…) y borra el archivo anterior."""
 		image = self.get_last_image_by_code(code)
 		if not image:
 			return self.add_image(img, code)
-		else:
-			image.img.save(*_png_file(img))
 
-		image.save()
+		old_name = image.img.name
+		image.img.save(*_png_file(img))
+		if old_name and old_name != image.img.name:
+			delete_image_file_on_commit(image.img.storage, old_name)
 		return image

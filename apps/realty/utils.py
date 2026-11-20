@@ -41,6 +41,32 @@ def get_spec_icons():
 	return [(icon, ' '.join(icon.capitalize().split('-'))) for icon in _read_icon_names(path, 'lb')]
 
 
+def attachment_paths(details):
+	"""Rutas de los adjuntos (planos, PDFs…) guardados en ``details['specifications']``.
+
+	Los guarda ``GroupDetailsForm`` como rutas absolutas dentro de ``MEDIA_ROOT/files/``; sólo se
+	devuelven las que de verdad están ahí (el resto de valores son textos o números).
+	"""
+	root = os.path.join(os.path.realpath(settings.MEDIA_ROOT), 'files') + os.sep
+	values = ((details or {}).get('specifications') or {}).values()
+	return [value for value in values if isinstance(value, str) and os.path.realpath(value).startswith(root)]
+
+
+def delete_attachments_on_commit(paths):
+	"""Borra los adjuntos cuando la transacción se confirma (si se revierte, siguen ahí)."""
+	from django.db import transaction
+
+	def delete():
+		for path in paths:
+			try:
+				os.remove(path)
+			except OSError:
+				pass
+
+	if paths:
+		transaction.on_commit(delete)
+
+
 def property_photos(obj):
 	"""Portada + galería de un anuncio con sus dimensiones (las necesita el visor PhotoSwipe).
 

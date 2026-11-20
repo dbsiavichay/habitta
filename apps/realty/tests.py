@@ -3,6 +3,7 @@
     docker compose exec web python manage.py test apps.realty.tests
 """
 import base64
+import os
 import shutil
 import tempfile
 from io import BytesIO
@@ -221,6 +222,56 @@ class PublishWizardTests(TestCase):
         listing.refresh_from_db()
         self.assertEqual(listing.title, 'Casa renovada')
         self.assertEqual(listing.category, self.category)
+
+    def cover_data_url(self, color):
+        buffer = BytesIO()
+        PILImage.new('RGB', (160, 90), color).save(buffer, format='JPEG')
+        return 'data:image/jpeg;base64,' + base64.b64encode(buffer.getvalue()).decode()
+
+    def test_replacing_the_cover_keeps_a_single_one(self):
+        self.client.post(reverse('add_property', args=[self.category.pk]), self.data(base64image=self.cover_data_url((200, 0, 0))))
+        listing = Property.objects.get(title='Casa en Cumbayá')
+        old_cover = listing.get_cover_instance()
+        old_path = old_cover.img.path
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(reverse('update_property', args=[listing.pk]), self.data(base64image=self.cover_data_url((0, 0, 200))))
+        covers = Image.objects.filter(object_id=listing.pk, is_cover=True)
+        self.assertEqual(covers.count(), 1)
+        self.assertNotEqual(covers.get().img.path, old_path)
+        self.assertFalse(os.path.exists(old_path))
+        self.assertEqual(Image.objects.filter(object_id=listing.pk, code='thumbnail').count(), 1)
+
+    def test_attachments_are_kept_or_replaced_when_editing(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.realty.models import Group
+
+        group = Group.objects.create(name='Documentos', internal_name='documentos')
+        GroupCategory.objects.create(group=group, category=self.category, sequence=2)
+        plans = Specification.objects.create(name='Planos', internal_name='planos', field_type='FileField')
+        group.specifications.add(plans)
+        key = str(plans.pk)
+
+        def upload(name):
+            return SimpleUploadedFile(name, b'%PDF-1.4', content_type='application/pdf')
+
+        self.client.post(reverse('add_property', args=[self.category.pk]), self.data(**{key: upload('a.pdf')}))
+        listing = Property.objects.get(title='Casa en Cumbayá')
+        first = listing.details['specifications'][key]
+        self.assertTrue(os.path.exists(first))
+
+        # Editar sin volver a subir el archivo lo conserva
+        self.client.post(reverse('update_property', args=[listing.pk]), self.data(title='Casa editada'))
+        listing.refresh_from_db()
+        self.assertEqual(listing.details['specifications'][key], first)
+
+        # Reemplazarlo borra el anterior
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(reverse('update_property', args=[listing.pk]), self.data(**{key: upload('b.pdf')}))
+        listing.refresh_from_db()
+        second = listing.details['specifications'][key]
+        self.assertNotEqual(second, first)
+        self.assertFalse(os.path.exists(first))
+        self.assertTrue(os.path.exists(second))
 
     def test_photos_step_lists_the_gallery(self):
         listing = create_listing(self.owner, category=self.category)

@@ -14,7 +14,7 @@ from apps.multimedia.forms import ImageForm
 from .models import Category, Property
 from .mixins import PropertyViewMixin
 from .search import search_data
-from .utils import property_photos
+from .utils import attachment_paths, delete_attachments_on_commit, property_photos
 from apps.authentication.mixins import OwnerQuerysetMixin
 from apps.project.templatetags.habitta import KIND_ICONS, KIND_LABELS
 
@@ -90,12 +90,21 @@ class PropertyUpdateView(OwnerQuerysetMixin, PropertyViewMixin, UpdateView):
         return forms
 
     def get_form_specifications(self, forms):
+        """Un adjunto ya subido se conserva si no se elige otro; si se reemplaza, el anterior se borra
+        del disco al guardar."""
         specifications = super().get_form_specifications(forms)
         previous = self.get_previous_specifications()
+        stored = set(attachment_paths({'specifications': previous}))
+        replaced = []
         for form in forms:
             for key, field in form.fields.items():
-                if field.__class__.__name__ == 'FileField' and key not in specifications and previous.get(key):
+                if field.__class__.__name__ != 'FileField' or not previous.get(key):
+                    continue
+                if key not in specifications:
                     specifications[key] = previous[key]
+                elif specifications[key] != previous[key] and previous[key] in stored:
+                    replaced.append(previous[key])
+        delete_attachments_on_commit(replaced)
         return specifications
 
     def get_cover_form(self):

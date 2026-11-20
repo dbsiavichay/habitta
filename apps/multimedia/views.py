@@ -60,7 +60,5 @@ class ImageDeleteView(DeleteView):
 		owner = getattr(self.object.get_object(), 'user', None)
 		if owner != self.request.user:
 			return JsonResponse({'error': 'No estás autorizado para realizar esta acción'}, status=403)
-		if self.object.img:
-			self.object.img.delete()
-		self.object.delete()
+		self.object.delete()  # la señal post_delete borra el archivo
 		return JsonResponse({}, status=200)

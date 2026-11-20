@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.gis.db import models
 from django.db.models import Q
 from django.urls import reverse_lazy
@@ -119,6 +120,8 @@ class Property(ImageMixin, models.Model):
     pub_date = models.DateTimeField(auto_now_add=True, verbose_name='fecha de publicación') 
     category = models.ForeignKey(Category, verbose_name='categoría', on_delete=models.CASCADE)  
     user = models.ForeignKey('auth.User', verbose_name='propietario', on_delete=models.CASCADE)
+    # Portada, galería, miniatura y mapa: se borran con el anuncio (los archivos, vía señal de Image)
+    images = GenericRelation('multimedia.Image')
 
     def __str__(self):
         return self.title or self.description
