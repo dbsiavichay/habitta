@@ -29,6 +29,7 @@ urlpatterns = [
     path('multimedia/', include('apps.multimedia.urls')),
     path('logs/', include('apps.logs.urls')),
     path('payments/', include('apps.payments.urls')),
+    path('manual/', include('apps.manual.urls')),
 ]
 
 # En producción los archivos de media deben servirse desde nginx o un storage externo.

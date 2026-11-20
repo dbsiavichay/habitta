@@ -10,7 +10,7 @@ Bloques:
   auth_aside  contenido del panel de la marca (tiene uno por defecto)
 Las páginas que sobrescriban `scripts` deben incluir {{ block.super }}.
 {% endcomment %}
-{% load static %}
+{% load static manual %}
 
 {% block navbar %}{% endblock %}
 {% block footer %}{% endblock %}
@@ -54,6 +54,8 @@ Las páginas que sobrescriban `scripts` deben incluir {{ block.super }}.
             <p>© {% now "Y" %} {{ SITE_NAME }}</p>
             <nav class="flex gap-5" aria-label="Enlaces de ayuda">
                 <a href="{% url 'help' %}" class="hover:text-primary">Ayuda</a>
+                {% manual_help_for_view as manual_help %}
+                <a href="{% if manual_help %}{{ manual_help.url }}{% else %}{% url 'manual' %}{% endif %}" class="hover:text-primary">Manual</a>
                 <a href="{% url 'terms' %}" class="hover:text-primary">Términos</a>
             </nav>
         </footer>

@@ -10,8 +10,10 @@ Bloques:
   panel_body     contenido
   panel_header   todo el encabezado (para reemplazarlo, p. ej. en el asistente de publicación)
 Las páginas que sobrescriban `head` o `scripts` deben incluir {{ block.super }}.
+Bajo el título aparece "¿Cómo funciona?" si un capítulo del manual explica la pantalla
+(`screens` en apps/manual/content.py).
 {% endcomment %}
-{% load habitta %}
+{% load habitta manual %}
 
 {% block head %}<meta name="robots" content="noindex">{% endblock %}
 {% block footer %}{% endblock %}
@@ -40,6 +42,8 @@ Las páginas que sobrescriban `head` o `scripts` deben incluir {{ block.super }}
             <div class="min-w-0">
                 <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{% block panel_title %}{% endblock %}</h1>
                 <p class="mt-1.5 text-base-content/65 text-pretty empty:hidden">{% block panel_lead %}{% endblock %}</p>
+                {% manual_help_for_view as manual_help %}
+                {% if manual_help %}<c-manual.help-link :help="manual_help" class="mt-2" />{% endif %}
             </div>
             <div class="flex flex-wrap gap-2 empty:hidden">{% block panel_actions %}{% endblock %}</div>
         </header>

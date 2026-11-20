@@ -76,6 +76,7 @@ MY_APPS = [
     'apps.realty',
     'apps.multimedia',
     'apps.logs',
+    'apps.manual',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS

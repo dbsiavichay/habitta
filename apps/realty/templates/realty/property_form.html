@@ -4,7 +4,7 @@ Asistente de publicación (crear y editar): Datos → Ubicación → Portada →
 Los pasos se validan en el navegador (publishWizard en static/js/habitta/publish.js); si el servidor
 devuelve errores, el asistente se abre en el primer paso con errores (initial_step).
 {% endcomment %}
-{% load static habitta hydra %}
+{% load static habitta hydra manual %}
 
 {% block title %}{% if object %}Editar anuncio{% else %}Publicar · {{ category.singular_name }}{% endif %}{% endblock %}
 {% block head %}{{ block.super }}<link rel="stylesheet" href="{% static 'vendor/cropperjs/cropper-1.6.2.min.css' %}">{% endblock %}
@@ -33,6 +33,8 @@ devuelve errores, el asistente se abre en el primer paso con errores (initial_st
             <h1 class="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">
                 {% if object %}Editar «{{ object.title|default:category.singular_name }}»{% else %}Publica tu anuncio{% endif %}
             </h1>
+            {% manual_help_for_view as manual_help %}
+            {% if manual_help %}<c-manual.help-link :help="manual_help" class="mt-2" />{% endif %}
         </div>
         {% if object %}<c-button variant="ghost" size="sm" icon="eye" href="{{ object.get_absolute_url }}">Ver anuncio</c-button>{% endif %}
     </header>

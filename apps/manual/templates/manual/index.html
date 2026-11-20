@@ -1,0 +1,26 @@
+{% extends 'layouts/manual.html' %}
+
+{% block title %}{{ manual.title }}{% endblock %}
+{% block description %}{{ manual.lead }}{% endblock %}
+
+{% block manual_title %}{{ manual.audience }}{% endblock %}
+{% block manual_lead %}{{ manual.lead }}{% endblock %}
+
+{% block manual_body %}
+<ol class="grid gap-4 sm:grid-cols-2">
+    {% for item in chapters %}
+    <li>
+        <a href="{{ item.url }}" class="card-lift group flex h-full gap-4 rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 hover:ring-primary/40 sm:p-6">
+            <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+                <c-icon name="{{ item.chapter.icon }}" class="size-6" />
+            </span>
+            <span class="min-w-0">
+                <span class="text-xs font-bold uppercase tracking-wider text-secondary">Capítulo {{ item.number }}</span>
+                <span class="mt-0.5 block text-lg font-bold group-hover:text-primary">{{ item.chapter.title }}</span>
+                <span class="mt-1 block text-base-content/65 text-pretty">{{ item.chapter.summary }}</span>
+            </span>
+        </a>
+    </li>
+    {% endfor %}
+</ol>
+{% endblock %}
