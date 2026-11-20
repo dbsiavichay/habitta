@@ -5,8 +5,8 @@ El dump trae datos reales y los manuales son públicos. Este comando:
 - quita teléfonos y correos de las descripciones y especificaciones de los anuncios;
 - borra mensajes, pagos, sesiones, inicios de sesión con redes y el historial del admin;
 - deja cuentas bancarias, comentarios y comprobantes de ejemplo;
-- siembra lo que muestran los manuales: pagos en cada estado, una subasta con ofertas,
-  conversaciones y favoritos.
+- siembra lo que muestran los manuales: pagos en cada estado (por los archivos de un anuncio de
+  Planos, que marca como vendible), una subasta con ofertas, conversaciones y favoritos.
 
 Sólo corre sobre una base cuyo nombre termine en `_capturas`. Ver "Capturas de los manuales" en el
 README. Nunca borra anuncios ni imágenes: sus señales borrarían archivos de media/, que se comparte
@@ -36,7 +36,9 @@ from apps.comments.models import Comment
 from apps.logs.models import Log
 from apps.messenger.models import Conversation, Message
 from apps.payments.models import Bank, BankPayment, Payment, PaypalPayment
-from apps.realty.models import Property
+from apps.payments.views import get_server_price
+from apps.project.models import Settings as ProjectSettings
+from apps.realty.models import Category, Property, Specification
 
 FIRST_NAMES = ('Ana', 'Carlos', 'Sofía', 'Diego', 'Valeria', 'Andrés', 'Camila', 'Mateo', 'Lucía', 'Javier',
                'Paula', 'Gabriel', 'Daniela', 'Martín', 'Isabel', 'Tomás', 'Elena', 'Ricardo', 'Natalia', 'Felipe')
@@ -44,17 +46,28 @@ LAST_NAMES = ('Torres', 'Mena', 'Andrade', 'Vega', 'Paredes', 'Salazar', 'Corder
               'Castro', 'Ortiz', 'Rojas', 'Navarro', 'Benítez', 'Cevallos', 'Aguirre', 'Delgado', 'Romero', 'Flores')
 COMMENTS = ('¿Sigue disponible?', 'Me interesa, ¿se puede visitar el fin de semana?', '¿El precio es negociable?')
 
-# Celulares (09…, +593 9…) y fijos con código de área, también entre paréntesis: (07) 2700 337.
-PHONE_RE = re.compile(r'(?:\+?593[\s-]?\(?|\(?\b0)[2-9]\)?(?:[\s.-]?\d){6,8}\b')
+# Celulares (09…, +593 9…, 9 dígitos sin el 0) y fijos con código de área, también entre paréntesis:
+# (07) 2700 337.
+PHONE_RE = re.compile(r'(?:\+?593[\s-]?\(?|\(?\b0)[2-9]\)?(?:[\s.-]?\d){6,8}\b|\b9\d{8}\b')
+# Especificaciones con datos de contacto: su valor se reemplaza entero (un fijo de 7 dígitos no se
+# distingue de un precio por el formato).
+CONTACT_SPEC_RE = re.compile(r'\btel|whats|celu|fijo|contacto|correo electr|\be-?mail|sitio web|nombre', re.IGNORECASE)
 EMAIL_RE = re.compile(r'[\w.+-]+@[\w-]+(?:\.[\w-]+)+')
+# Nombre de una persona tras "Informes:", "Contacto:"…: "INFORMES: Josué Aguilera 099…".
+CONTACT_NAME_RE = re.compile(
+    r'((?i:informes|información|contactos?|atención|llamar a)\s*:?\s+)'
+    r'([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})'
+)
 VOUCHER_NAME = 'payments/bankvouchers/capturas-comprobante.png'
 
 
-def scrub(text):
-    """Quita teléfonos y correos de un texto libre."""
+def scrub(text, owner_name='Habitta'):
+    """Quita teléfonos, correos y nombres de contacto de un texto libre (el nombre pasa a ser el del dueño)."""
     if not isinstance(text, str):
         return text
-    return EMAIL_RE.sub('contacto@ejemplo.com', PHONE_RE.sub('099 000 0000', text))
+    text = PHONE_RE.sub('099 000 0000', text)
+    text = EMAIL_RE.sub('contacto@ejemplo.com', text)
+    return CONTACT_NAME_RE.sub(lambda match: match.group(1) + owner_name, text)
 
 
 class Command(BaseCommand):
@@ -88,6 +101,7 @@ class Command(BaseCommand):
             self.anonymize()
             self.spread_dates()
             ana, carlos, others = self.demo_users()
+            self.scrub_listings()
             self.seed_payments(ana, carlos, others)
             self.seed_conversations(ana, carlos, others)
             self.seed_auction(ana, carlos, others)
@@ -98,26 +112,50 @@ class Command(BaseCommand):
         ))
 
     def sessions(self):
-        """{'ana': clave, 'carlos': clave, 'sofia': clave}: cookies `sessionid` para el navegador."""
+        """Cookies `sessionid` de los usuarios demo ({'ana': clave, 'carlos': …, 'sofia': …}) y, en 'ids',
+        los registros de ejemplo que usan las rutas de las capturas ('/admin/…/{pago_pendiente}/change/')."""
         from django.contrib.auth import BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY
         from django.contrib.sessions.backends.db import SessionStore
 
-        keys = {}
+        data = {}
+        users = {}
         for alias, username in (('ana', 'ana.torres'), ('carlos', 'carlos.mena'), ('sofia', 'sofia')):
-            user = User.objects.get(username=username)
+            user = users[alias] = User.objects.get(username=username)
             session = SessionStore()
             session[SESSION_KEY] = str(user.pk)
             session[BACKEND_SESSION_KEY] = 'django.contrib.auth.backends.ModelBackend'
             session[HASH_SESSION_KEY] = user.get_session_auth_hash()
             session.create()
-            keys[alias] = session.session_key
-        return keys
+            data[alias] = session.session_key
+
+        auction = Auction.objects.filter(stage=Auction.OPEN, property__user=users['ana']).order_by('-pk').first()
+        listings = Property.objects.filter(user=users['ana']).exclude(pk=auction.property_id if auction else None)
+        listing = listings.annotate(photos=Count('images')).filter(photos__gte=4).order_by('pk').first()
+        salable = Property.objects.filter(category__is_salable=True).exclude(user=users['ana']).order_by('pk').first()
+        pending = BankPayment.objects.filter(status=Payment.REGISTRY).order_by('-date').first()
+        spec = Specification.objects.filter(field_type='ChoiceField').order_by('pk').first()
+        data['ids'] = {
+            'ana': users['ana'].pk,
+            'anuncio': listing.pk if listing else 0,
+            'anuncio_subasta': auction.property_id if auction else 0,
+            'subasta': auction.pk if auction else 0,
+            'planos': salable.pk if salable else 0,
+            'pago_pendiente': pending.pk if pending else 0,
+            'conversacion': Conversation.objects.filter(owner=users['carlos'], member=users['ana']).values_list('pk', flat=True).first() or 0,
+            'categoria': listing.category_id if listing else 0,
+            'especificacion': spec.pk if spec else 0,
+            'portada': ProjectSettings.objects.filter(is_active=True).values_list('pk', flat=True).first() or 0,
+        }
+        return data
 
     # ------------------------------------------------------------------ anonimizar
     def anonymize(self):
+        reserved = {('Ana', 'Torres'), ('Carlos', 'Mena'), ('Sofía', 'Andrade')}  # los de demo_users
         for index, user in enumerate(User.objects.order_by('pk')):
             first = FIRST_NAMES[index % len(FIRST_NAMES)]
             last = LAST_NAMES[(index * 7 + index // len(LAST_NAMES)) % len(LAST_NAMES)]
+            if (first, last) in reserved:
+                last = LAST_NAMES[(LAST_NAMES.index(last) + 1) % len(LAST_NAMES)]
             username = f'usuario{user.pk}'
             User.objects.filter(pk=user.pk).update(
                 first_name=first, last_name=last, username=username, email=f'{username}@ejemplo.com',
@@ -125,13 +163,6 @@ class Command(BaseCommand):
         Profile.objects.update(image=None)
         for profile in Profile.objects.all():
             Profile.objects.filter(pk=profile.pk).update(phone=f'0990000{profile.user_id % 1000:03d}')
-
-        for listing in Property.objects.all():
-            details = listing.details or {}
-            specs = details.get('specifications')
-            if isinstance(specs, dict):
-                details['specifications'] = {key: scrub(value) for key, value in specs.items()}
-            Property.objects.filter(pk=listing.pk).update(description=scrub(listing.description), details=details)
 
         for index, bank in enumerate(Bank.objects.order_by('pk'), start=1):
             Bank.objects.filter(pk=bank.pk).update(
@@ -148,6 +179,34 @@ class Command(BaseCommand):
         SocialNetworkProfile.objects.all().delete()
         Session.objects.all().delete()
         LogEntry.objects.all().delete()
+
+    def scrub_listings(self):
+        """Contactos en descripciones y especificaciones; va después de demo_users para usar sus nombres."""
+        contact_specs = {
+            str(spec.pk): spec.name for spec in Specification.objects.all()
+            if CONTACT_SPEC_RE.search(f'{spec.name} {spec.internal_name}')
+        }
+        for listing in Property.objects.select_related('user'):
+            owner = listing.user.get_full_name() or settings.SITE_NAME
+            details = listing.details or {}
+            specs = details.get('specifications')
+            if isinstance(specs, dict):
+                details['specifications'] = {
+                    key: (self.fake_contact(contact_specs[key], owner) if key in contact_specs and value else scrub(value, owner))
+                    for key, value in specs.items()
+                }
+            Property.objects.filter(pk=listing.pk).update(description=scrub(listing.description, owner), details=details)
+
+    @staticmethod
+    def fake_contact(spec_name, owner):
+        name = spec_name.lower()
+        if 'correo' in name or 'mail' in name:
+            return 'contacto@ejemplo.com'
+        if 'web' in name:
+            return 'www.ejemplo.com'
+        if 'nombre' in name:
+            return owner
+        return '099 000 0000'
 
     def spread_dates(self):
         """Reparte publicaciones y registros en los últimos 12 meses: el dump es de 2020 y el gráfico del
@@ -186,17 +245,18 @@ class Command(BaseCommand):
         return ana, carlos, others
 
     # ------------------------------------------------------------------ sembrar
-    def voucher(self):
-        from PIL import Image, ImageDraw
+    def voucher(self, amount):
+        from PIL import Image, ImageDraw, ImageFont
 
         image = Image.new('RGB', (720, 960), '#ffffff')
         draw = ImageDraw.Draw(image)
         draw.rectangle((0, 0, 720, 150), fill='#0b6e5f')
-        draw.text((48, 60), 'COMPROBANTE DE TRANSFERENCIA (EJEMPLO)', fill='#ffffff')
+        draw.text((48, 52), 'Comprobante de transferencia', fill='#ffffff', font=ImageFont.load_default(size=34))
+        draw.text((48, 98), 'Documento de ejemplo', fill='#cfe7e2', font=ImageFont.load_default(size=22))
         rows = ('Banco: Banco de ejemplo', 'Cuenta destino: 2200000001', f'Beneficiario: {settings.SITE_NAME} Demo S.A.',
-                'Monto: USD 25,00', 'Referencia: 000123456', 'Estado: Acreditada')
+                f'Monto: USD {amount}', 'Referencia: 000123456', 'Estado: Acreditada')
         for line, text in enumerate(rows):
-            draw.text((48, 220 + line * 70), text, fill='#13211e')
+            draw.text((48, 220 + line * 70), text, fill='#13211e', font=ImageFont.load_default(size=28))
         buffer = BytesIO()
         image.save(buffer, format='PNG')
         if default_storage.exists(VOUCHER_NAME):
@@ -204,27 +264,33 @@ class Command(BaseCommand):
         return default_storage.save(VOUCHER_NAME, ContentFile(buffer.getvalue()))
 
     def seed_payments(self, ana, carlos, others):
-        listing = Property.objects.filter(user=ana).order_by('pk').first()
+        """Compras de los archivos de un anuncio de Planos: la categoría que vende archivos, aunque en el
+        dump no está marcada como vendible."""
+        Category.objects.filter(name__iexact='Planos').update(is_salable=True)
+        listing = (Property.objects.filter(category__is_salable=True).exclude(user__in=[ana, carlos]).order_by('pk').first()
+                   or Property.objects.filter(user=ana).order_by('pk').first())
         bank = Bank.objects.order_by('pk').first()
         if not (listing and bank):
             return
+        amount = get_server_price(listing) or Decimal('25.00')
         content_type = ContentType.objects.get_for_model(Property)
-        voucher = self.voucher()
+        voucher = self.voucher(amount)
         now = timezone.now()
-        payers = [carlos, *others]
-        for payer, amount, status, days in (
-            (carlos, '25.00', Payment.REGISTRY, 0),
-            (payers[1], '25.00', Payment.REGISTRY, 1),
-            (payers[2], '15.00', Payment.CONFIRMED, 4),
-            (payers[3], '40.00', Payment.REJECTED, 9),
+        for payer, status, days in (
+            (carlos, Payment.REJECTED, 12),
+            (carlos, Payment.CONFIRMED, 10),
+            (others[0], Payment.REGISTRY, 0),
+            (others[1], Payment.REGISTRY, 1),
+            (others[2], Payment.CONFIRMED, 4),
+            (others[3], Payment.REJECTED, 9),
         ):
             payment = BankPayment.objects.create(
-                user=payer, amount=Decimal(amount), status=status, bank=bank, voucher=voucher,
+                user=payer, amount=amount, status=status, bank=bank, voucher=voucher,
                 content_type=content_type, object_id=listing.pk,
             )
             Payment.objects.filter(pk=payment.pk).update(date=now - timedelta(days=days, hours=2))
         paypal = PaypalPayment.objects.create(
-            user=payers[4 % len(payers)], amount=Decimal('25.00'), status=Payment.CONFIRMED, payment_id='CAPTURA-0001',
+            user=others[-1], amount=amount, status=Payment.CONFIRMED, payment_id='CAPTURA-0001',
             payer_id='DEMO', payer_email='comprador@ejemplo.com', content_type=content_type, object_id=listing.pk,
         )
         Payment.objects.filter(pk=paypal.pk).update(date=now - timedelta(days=6))
@@ -240,7 +306,7 @@ class Command(BaseCommand):
 
     def seed_conversations(self, ana, carlos, others):
         listing = Property.objects.filter(user=ana).order_by('pk').first()
-        title = listing.title.strip().lower() if listing else 'tu anuncio'
+        title = ((listing.title or '').strip() or listing.category.singular_name).capitalize() if listing else 'Casa'
         self.conversation(carlos, ana, [
             (carlos, f'Hola, Ana. Vi tu anuncio «{title}». ¿Sigue disponible?'),
             (ana, '¡Hola, Carlos! Sí, sigue disponible. ¿Te gustaría visitarlo?'),
@@ -260,7 +326,10 @@ class Command(BaseCommand):
 
     def seed_auction(self, ana, carlos, others):
         busy = Auction.objects.filter(stage=Auction.OPEN).values('property')
-        listing = Property.objects.filter(user=ana).exclude(pk__in=busy).order_by('-pk').first()
+        # Un anuncio con fotos; el primero queda libre para las capturas de «Ver un anuncio».
+        candidates = list(Property.objects.filter(user=ana).exclude(pk__in=busy)
+                          .annotate(photos=Count('images')).filter(photos__gte=4).order_by('pk')[:2])
+        listing = candidates[-1] if candidates else Property.objects.filter(user=ana).exclude(pk__in=busy).first()
         if not listing:
             return
         now = timezone.now()

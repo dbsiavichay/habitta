@@ -189,9 +189,13 @@ por nuestro Tailwind).
 ### Capturas de los manuales
 
 El dump tiene datos reales y los manuales son públicos, así que las capturas salen de una **copia
-anonimizada** de la base. `manual_capture_data` reemplaza nombres, correos y teléfonos, borra
-mensajes y pagos, y siembra ejemplos: pagos en cada estado, una subasta con ofertas y
-conversaciones. Se niega a correr si el nombre de la base no termina en `_capturas`.
+anonimizada** de la base. `manual_capture_data`:
+
+- reemplaza nombres, correos y teléfonos, también dentro de las descripciones y especificaciones;
+- borra mensajes y pagos;
+- siembra ejemplos: pagos en cada estado, una subasta con ofertas y conversaciones;
+- marca **Planos** como vendible para mostrar la compra de archivos;
+- se niega a correr si el nombre de la base no termina en `_capturas`.
 
 ```bash
 # 1. Copia anonimizada
@@ -216,8 +220,11 @@ docker compose exec -T db dropdb -U habitta habitta_capturas
 ```
 
 Las tomas están en `SHOTS`, dentro de `scripts/manual_screenshots.py`: URL, usuario, tamaño y acciones
-antes de capturar. Revisa cada imagen antes de subirla. Algunas descripciones de anuncios del dump
-tienen nombres o teléfonos fijos que el comando no reemplaza.
+antes de capturar. Las rutas usan los ids de los registros de ejemplo, que el JSON de `--sesiones`
+trae en `ids` (`/admin/…/{pago_pendiente}/change/`).
+
+Revisa cada imagen antes de subirla: algún dato de contacto escrito de forma inusual en un anuncio
+puede escaparse del reemplazo.
 
 ## Estructura
 
