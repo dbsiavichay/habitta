@@ -279,6 +279,8 @@ class PublishWizardTests(TestCase):
         self.assertTrue(response.context['is_new'])
         self.assertEqual(response.context['photos'], [])
         self.assertContains(response, 'galleryManager(')
+        # galleryManager se registra en property.js: sin él no se pueden subir fotos.
+        self.assertContains(response, 'js/habitta/property.js')
 
 
 def png_bytes(size=(160, 90), color=(11, 110, 95)):

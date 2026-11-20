@@ -4,7 +4,7 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.contrib.filters.admin import RangeDateFilter
 from unfold.decorators import display
 
-from apps.project.admin_utils import short_date, user_header
+from apps.project.admin_utils import short_date, short_datetime, user_header
 
 from .models import Conversation, Message
 
@@ -30,17 +30,27 @@ class SuperuserReadOnlyMixin:
 
 class MessageInline(SuperuserReadOnlyMixin, TabularInline):
     model = Message
-    fields = ('author', 'content', 'create_date', 'read_at')
+    fields = ('author', 'message', 'sent', 'read_at')
     readonly_fields = fields
     ordering = ('create_date', 'pk')
     extra = 0
     tab = True
+    show_title = False  # sin la fila "Message object (n)"
     verbose_name = 'mensaje'
     verbose_name_plural = 'Mensajes'
 
     @display(description='Autor')
     def author(self, obj):
         return obj.sender.get_full_name() or obj.sender.get_username()
+
+    # Message no tiene verbose_name en estos campos: sin estas columnas se verían "Content" y "Create date".
+    @display(description='Mensaje')
+    def message(self, obj):
+        return obj.content
+
+    @display(description='Enviado')
+    def sent(self, obj):
+        return short_datetime(obj.create_date)
 
 
 @admin.register(Conversation)

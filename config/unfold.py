@@ -60,6 +60,8 @@ def _model(title, icon, app_label, model_name, **extra):
     }
 
 
+MANUAL_URL = reverse_lazy('manual_index', kwargs={'manual': 'administracion'})
+
 SIDEBAR_NAVIGATION = [
     {
         'items': [
@@ -119,6 +121,15 @@ SIDEBAR_NAVIGATION = [
             _model('Imágenes', 'photo_library', 'multimedia', 'image'),
         ],
     },
+    {
+        # No se llama "Ayuda" para no confundirla con las preguntas frecuentes de "Contenido del sitio".
+        'title': 'Manuales',
+        'separator': True,
+        'items': [
+            # Página pública del sitio (apps/manual): la ve todo el staff.
+            {'title': 'Manual de administración', 'icon': 'menu_book', 'link': MANUAL_URL},
+        ],
+    },
 ]
 
 
@@ -136,6 +147,7 @@ def build_unfold(site_name):
         'SITE_DROPDOWN': [
             {'icon': 'public', 'title': 'Ver el sitio', 'link': '/'},
             {'icon': 'person', 'title': 'Mi panel', 'link': reverse_lazy('properties')},
+            {'icon': 'menu_book', 'title': 'Manual de administración', 'link': MANUAL_URL},
         ],
         'ENVIRONMENT': f'{DASHBOARD}.environment_callback',
         'ENVIRONMENT_TITLE_PREFIX': f'{DASHBOARD}.environment_title_prefix',

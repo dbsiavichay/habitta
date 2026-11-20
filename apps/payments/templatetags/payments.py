@@ -24,10 +24,15 @@ def _user_payment(obj, user):
     )
 
 
-@register.inclusion_tag('payments/payment_button.html')
-def check_payment(object, user, label='Pagar'):
-    """Botón de pago, de descarga o de pago pendiente, según el estado."""
+@register.inclusion_tag('payments/payment_button.html', takes_context=True)
+def check_payment(context, object, user, label='Pagar'):
+    """Botón de pago, de descarga o de pago pendiente, según el estado.
+
+    Pasa el `request` a la plantilla: sin él, {% payment_form %} no pone el token CSRF y el pago
+    responde 403.
+    """
     return {
+        'request': context.get('request'),
         'object': object,
         'payment': _user_payment(object, user),
         'price': object.get_price_area(),

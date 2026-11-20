@@ -18,3 +18,5 @@ django-htmx>=1.29
 lucide>=1.1
 # Admin de Django con la marca (tema Tailwind, dashboard, filtros y acciones)
 django-unfold>=0.110
+# Manuales de uso (/manual/): capítulos escritos en Markdown
+markdown>=3.7

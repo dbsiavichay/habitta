@@ -9,7 +9,7 @@ from unfold.decorators import action, display
 from unfold.enums import ActionVariant
 
 from apps.project.admin_utils import (
-    ReadOnlyChangeFormMixin, back_to_page, label_html, short_date, site_link, user_header,
+    ReadOnlyChangeFormMixin, back_to_page, label_html, short_date, short_datetime, site_link, user_header,
 )
 from apps.project.templatetags.habitta import money
 
@@ -20,12 +20,13 @@ STAGE_LABEL = {Auction.OPEN: 'success', Auction.CLOSED: 'info', Auction.CANCELED
 
 class OfferInline(TabularInline):
     model = Offer
-    fields = ('bidder', 'amount_display', 'date')
+    fields = ('bidder', 'amount_display', 'offer_date')
     readonly_fields = fields
     ordering = ('-amount', 'date')
     extra = 0
     can_delete = False
     tab = True
+    show_title = False  # sin la fila "Offer object (n)" sobre cada oferta
     verbose_name = 'oferta'
     verbose_name_plural = 'Ofertas'
 
@@ -39,6 +40,10 @@ class OfferInline(TabularInline):
     @display(description='Monto')
     def amount_display(self, obj):
         return money(obj.amount)
+
+    @display(description='Fecha')
+    def offer_date(self, obj):
+        return short_datetime(obj.date)
 
 
 @admin.register(Auction)

@@ -1,6 +1,9 @@
 {% extends 'layouts/app.html' %}
+{% load static %}
 
 {% block title %}Fotos de tu anuncio{% endblock %}
+{# galleryManager (gestor de fotos) vive en property.js #}
+{% block scripts %}<script defer src="{% static 'js/habitta/property.js' %}"></script>{% endblock %}
 {% block breadcrumbs %}
 {% if is_new %}
 <c-panel.steps :current="6" />

@@ -1,0 +1,53 @@
+{% extends 'layouts/manual.html' %}
+
+{% block title %}{{ chapter.title }} · {{ manual.title }}{% endblock %}
+{% block description %}{{ chapter.summary }}{% endblock %}
+{% block og_title %}{{ chapter.title }} · {{ manual.title }} de {{ SITE_NAME }}{% endblock %}
+{% block og_description %}{{ chapter.summary }}{% endblock %}
+
+{% block manual_title %}<span class="mr-1 text-base-content/35 tabular-nums">{{ number }}.</span>{{ chapter.title }}{% endblock %}
+{% block manual_lead %}{{ chapter.summary }}{% endblock %}
+
+{% block manual_body %}
+<article class="rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60 sm:p-10">
+    <div class="prose prose-manual max-w-none">{{ body }}</div>
+</article>
+
+<nav aria-label="Capítulos anterior y siguiente" class="mt-6 grid gap-3 sm:grid-cols-2">
+    {% if previous %}
+    <a href="{{ previous.url }}" class="group flex items-center gap-4 rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 transition hover:ring-primary/40">
+        <c-icon name="arrow-left" class="size-5 text-base-content/40 transition-transform group-hover:-translate-x-0.5 group-hover:text-primary" />
+        <span class="min-w-0">
+            <span class="block text-sm text-base-content/55">Anterior</span>
+            <span class="block truncate font-bold">{{ previous.chapter.title }}</span>
+        </span>
+    </a>
+    {% else %}<span class="hidden sm:block"></span>{% endif %}
+    {% if next %}
+    <a href="{{ next.url }}" class="group flex items-center justify-end gap-4 rounded-box bg-base-100 p-5 text-right shadow-soft ring-1 ring-base-300/60 transition hover:ring-primary/40">
+        <span class="min-w-0">
+            <span class="block text-sm text-base-content/55">Siguiente</span>
+            <span class="block truncate font-bold">{{ next.chapter.title }}</span>
+        </span>
+        <c-icon name="arrow-right" class="size-5 text-base-content/40 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+    </a>
+    {% else %}
+    <a href="{{ manual.get_absolute_url }}" class="group flex items-center justify-end gap-4 rounded-box bg-base-100 p-5 text-right shadow-soft ring-1 ring-base-300/60 transition hover:ring-primary/40">
+        <span class="min-w-0">
+            <span class="block text-sm text-base-content/55">Terminaste el manual</span>
+            <span class="block truncate font-bold">Volver al índice</span>
+        </span>
+        <c-icon name="list" class="size-5 text-base-content/40 group-hover:text-primary" />
+    </a>
+    {% endif %}
+</nav>
+{% endblock %}
+
+{% block manual_aside %}{% if toc|length > 1 %}<nav aria-label="En esta página" class="sticky top-24">
+    <p class="text-xs font-bold uppercase tracking-wider text-base-content/45">En esta página</p>
+    <ul class="mt-3 space-y-2 border-l border-base-300 text-sm">
+        {% for item in toc %}
+        <li><a href="#{{ item.id }}" class="-ml-px block border-l-2 border-transparent pl-3 text-base-content/65 transition-colors hover:border-primary hover:text-primary">{{ item.name }}</a></li>
+        {% endfor %}
+    </ul>
+</nav>{% endif %}{% endblock %}

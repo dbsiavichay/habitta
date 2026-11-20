@@ -26,6 +26,7 @@ hyperlink==21.0.0
 idna==3.20
 Incremental==24.11.0
 lucide==1.1.4
+Markdown==3.11.3
 msgpack==1.2.4
 oauthlib==4.0.1
 packaging==26.3

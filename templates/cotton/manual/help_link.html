@@ -1,0 +1,10 @@
+{% comment %}
+Enlace "¿Cómo funciona?" hacia el capítulo del manual que explica la pantalla actual.
+  {% load manual %}{% manual_help_for_view as manual_help %}
+  {% if manual_help %}<c-manual.help-link :help="manual_help" />{% endif %}
+{% endcomment %}
+<c-vars help="" class="" />
+<a href="{{ help.url }}" title="Manual: {{ help.title }}"
+   class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-2 hover:underline {{ class }}">
+    <c-icon name="circle-question-mark" class="size-4" />¿Cómo funciona?
+</a>

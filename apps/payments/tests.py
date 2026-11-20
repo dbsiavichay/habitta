@@ -2,6 +2,7 @@
 
     docker compose exec web python manage.py test apps.payments.tests
 """
+import re
 import shutil
 import tempfile
 from decimal import Decimal
@@ -83,6 +84,26 @@ class PaymentPanelTests(TestCase):
         payment = BankPayment.objects.get(user=self.buyer)
         self.assertEqual(payment.object_id, self.listing.pk)
         self.assertNotIn('object_id', self.client.session)
+
+    def test_buy_button_works_with_csrf_checks(self):
+        """El botón «Comprar» del anuncio lleva el token CSRF (con un navegador real daba 403)."""
+        from django.test import Client
+
+        self.listing.category.is_salable = True
+        self.listing.category.save()
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.buyer)
+        response = client.get(self.listing.get_absolute_url())
+        self.assertContains(response, 'Comprar por')
+        token = re.search(r'action="%s".*?name="csrfmiddlewaretoken" value="([^"]+)"'
+                          % reverse('select_method_payment'), response.content.decode(), re.S)
+        self.assertIsNotNone(token, 'El formulario de «Comprar» no tiene token CSRF')
+        response = client.post(reverse('select_method_payment'), {
+            'csrfmiddlewaretoken': token.group(1),
+            'amount': '1', 'object_id': self.listing.pk, 'content_type': self.content_type.pk,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Banco Pichincha')
 
     def test_without_pending_payment_shows_empty_state(self):
         for url in (reverse('select_method_payment'), reverse('add_bank_payment')):

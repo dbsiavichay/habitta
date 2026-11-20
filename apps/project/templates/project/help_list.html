@@ -22,6 +22,14 @@
         </div>
 
         <aside class="lg:sticky lg:top-24 h-fit space-y-4">
+            <nav aria-label="Manuales de uso" class="rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60">
+                <a href="{% url 'manual' %}" class="flex items-center gap-2 font-bold hover:text-primary"><c-icon name="library" class="size-5 text-primary" />Manuales de uso</a>
+                <p class="mt-1 text-sm text-base-content/65">Guías paso a paso, con capturas de cada pantalla.</p>
+                <ul class="mt-3 space-y-0.5">
+                    <li><a href="{% url 'manual_index' 'usuarios' %}" class="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold transition-colors hover:bg-base-200 hover:text-primary"><c-icon name="book-open" class="size-4 text-base-content/55" />Manual del usuario<c-icon name="chevron-right" class="ml-auto size-4 opacity-50" /></a></li>
+                    <li><a href="{% url 'manual_index' 'administracion' %}" class="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold transition-colors hover:bg-base-200 hover:text-primary"><c-icon name="shield-check" class="size-4 text-base-content/55" />Manual de administración<c-icon name="chevron-right" class="ml-auto size-4 opacity-50" /></a></li>
+                </ul>
+            </nav>
             <div class="rounded-box bg-primary text-primary-content p-6">
                 <c-icon name="message-circle-more" class="size-8 opacity-80" />
                 <h2 class="mt-4 text-xl font-bold">¿No encuentras lo que buscas?</h2>

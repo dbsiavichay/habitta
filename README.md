@@ -78,7 +78,8 @@ opcionales: si se dejan vacías, la funcionalidad correspondiente se oculta o se
 docker compose exec web python manage.py check
 docker compose exec web python manage.py makemigrations --check --dry-run
 docker compose exec web python manage.py test apps.project.tests apps.authentication.tests \
-    apps.realty.tests apps.messenger.tests apps.auctions.tests apps.payments.tests apps.multimedia.tests
+    apps.realty.tests apps.messenger.tests apps.auctions.tests apps.payments.tests apps.multimedia.tests \
+    apps.manual.tests
 docker compose logs -f web
 ```
 
@@ -165,6 +166,66 @@ por nuestro Tailwind).
 
   Al actualizar Unfold conviene revisar si tiene cadenas nuevas sin traducir.
 
+## Manuales de uso
+
+`/manual/` (portada), `/manual/usuarios/` y `/manual/administracion/` son páginas públicas que viven en
+`apps/manual`.
+
+- **Capítulos:** `apps/manual/content.py` define los manuales y sus capítulos (orden, ícono, resumen).
+  También define `screens`, las pantallas que explica cada capítulo; con eso el panel y las páginas
+  de ingreso enlazan al capítulo correspondiente ("¿Cómo funciona?").
+- **Contenido:** cada capítulo es un archivo `apps/manual/templates/manual/<manual>/<capitulo>.md`.
+  Primero se renderiza como plantilla de Django, así que admite `{% url %}`, `{% static %}`,
+  `{{ SITE_NAME }}` y condiciones como `{% if PAYPAL_ENABLED %}`. Después pasa por Markdown, con:
+  - tablas;
+  - recuadros `!!! tip "Título"` (también `note`, `warning` y `demo`);
+  - botones `[texto](url){.manual-go}`.
+
+  `{% figura 'usuarios/x.webp' 'Pie de foto' %}` inserta una captura de `static/manual/`; con
+  `'angosta'` como tercer argumento se usa para celulares y recortes. `{#` abre un comentario de
+  Django: para darle un id a un título usa `{: #id }`.
+- **Demo:** `manual/demo.md` es el bloque "Cómo probar el demo" de la portada.
+
+### Capturas de los manuales
+
+El dump tiene datos reales y los manuales son públicos, así que las capturas salen de una **copia
+anonimizada** de la base. `manual_capture_data`:
+
+- reemplaza nombres, correos y teléfonos, también dentro de las descripciones y especificaciones;
+- borra mensajes y pagos;
+- siembra ejemplos: pagos en cada estado, una subasta con ofertas y conversaciones;
+- marca **Planos** como vendible para mostrar la compra de archivos;
+- se niega a correr si el nombre de la base no termina en `_capturas`.
+
+```bash
+# 1. Copia anonimizada
+docker compose exec -T db sh -c 'createdb -U habitta habitta_capturas && pg_dump -U habitta habitta | psql -q -U habitta habitta_capturas'
+docker compose run --rm -T -e DATABASE_URL=postgis://habitta:habitta@db:5432/habitta_capturas \
+    web python manage.py manual_capture_data
+
+# 2. Servidor de capturas en :8001 y sesiones de ana.torres, carlos.mena y sofia (superusuaria)
+docker compose run --rm -d --name habitta-capturas -p 8001:8000 \
+    -e DATABASE_URL=postgis://habitta:habitta@db:5432/habitta_capturas \
+    web python manage.py runserver 0.0.0.0:8000
+docker exec habitta-capturas python manage.py manual_capture_data --sesiones > /tmp/sesiones.json
+
+# 3. Capturas con Chrome headless, en la Mac (todas, o sólo algunas con --solo)
+python3 -m venv /tmp/capturas && /tmp/capturas/bin/pip install websocket-client pillow
+/tmp/capturas/bin/python scripts/manual_screenshots.py --sesiones /tmp/sesiones.json --solo usuarios/registro
+
+# 4. Limpieza
+docker exec habitta-capturas python manage.py manual_capture_data --limpiar
+docker rm -f habitta-capturas
+docker compose exec -T db dropdb -U habitta habitta_capturas
+```
+
+Las tomas están en `SHOTS`, dentro de `scripts/manual_screenshots.py`: URL, usuario, tamaño y acciones
+antes de capturar. Las rutas usan los ids de los registros de ejemplo, que el JSON de `--sesiones`
+trae en `ids` (`/admin/…/{pago_pendiente}/change/`).
+
+Revisa cada imagen antes de subirla: algún dato de contacto escrito de forma inusual en un anuncio
+puede escaparse del reemplazo.
+
 ## Estructura
 
 | Ruta | Contenido |
@@ -177,6 +238,8 @@ por nuestro Tailwind).
 | `apps/authentication` | Registro, perfiles y login social |
 | `apps/logs`, `apps/multimedia`, `apps/project` | "Me gusta", imágenes y contenido del sitio |
 | `apps/comments` | Comentarios antiguos: no se muestran en el sitio, sólo en el admin |
+| `apps/manual`, `static/manual/` | Manuales de uso (`/manual/`) y sus capturas |
+| `scripts/` | Utilidades fuera de Django, como las capturas de los manuales |
 | `hydra/` | Librería interna de template tags para formularios |
 | `templates/layouts/`, `templates/cotton/` | Layout base y componentes del diseño Habitta |
 | `assets/tailwind/`, `assets/fonts/` | Hoja fuente de Tailwind con los temas de la marca y la fuente del PDF |

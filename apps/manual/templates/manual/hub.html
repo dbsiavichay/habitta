@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Manuales de uso{% endblock %}
+{% block description %}Manuales de {{ SITE_NAME }}: cómo buscar, publicar y conversar en el sitio, y cómo operar la administración.{% endblock %}
+
+{% block content %}
+<c-page-header title="Manuales de uso" icon="library"
+               description="Guías paso a paso para usar {{ SITE_NAME }}, con capturas de cada pantalla."
+               :breadcrumbs="[('Manuales', '')]" />
+
+<section class="container-page py-12 sm:py-16">
+    <div class="grid gap-6 lg:grid-cols-2">
+        {% for manual in manuals %}
+        <a href="{{ manual.get_absolute_url }}" class="card-lift group flex flex-col rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60 hover:ring-primary/40 sm:p-8">
+            <span class="grid size-14 place-items-center rounded-2xl {% if forloop.first %}bg-primary/10 text-primary{% else %}bg-secondary/10 text-secondary{% endif %}">
+                <c-icon name="{{ manual.icon }}" class="size-7" />
+            </span>
+            <span class="mt-5 text-sm font-bold uppercase tracking-wider text-base-content/50">{{ manual.audience }}</span>
+            <span class="mt-1 text-2xl font-extrabold tracking-tight group-hover:text-primary">{{ manual.title }}</span>
+            <span class="mt-2 text-base-content/70 text-pretty">{{ manual.lead }}</span>
+            <ol class="mt-5 grid gap-x-6 gap-y-1.5 text-sm text-base-content/70 sm:grid-cols-2">
+                {% for chapter in manual.chapters %}
+                <li class="flex gap-2"><span class="w-4 shrink-0 text-right tabular-nums text-base-content/40">{{ forloop.counter }}</span>{{ chapter.title }}</li>
+                {% endfor %}
+            </ol>
+            <span class="mt-auto inline-flex items-center gap-2 pt-6 font-semibold text-primary transition-all group-hover:gap-3">
+                Leer el manual <c-icon name="arrow-right" class="size-4" />
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <article class="rounded-box bg-base-100 p-6 shadow-soft ring-1 ring-base-300/60 sm:p-10">
+            <h2 class="flex items-center gap-3 text-2xl font-extrabold tracking-tight">
+                <c-icon name="flask-conical" class="size-6 text-secondary" />Cómo probar el demo
+            </h2>
+            <div class="prose prose-manual mt-4 max-w-none">{{ demo_html }}</div>
+        </article>
+
+        <aside class="h-fit space-y-4 lg:sticky lg:top-24">
+            <a href="{% url 'help' %}" class="flex items-center gap-3 rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 transition hover:ring-primary/40">
+                <c-icon name="life-buoy" class="size-6 text-primary" />
+                <span class="font-semibold">Preguntas frecuentes</span>
+                <c-icon name="chevron-right" class="ml-auto size-4 opacity-50" />
+            </a>
+            <a href="{% url 'terms' %}" class="flex items-center gap-3 rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 transition hover:ring-primary/40">
+                <c-icon name="scroll-text" class="size-6 text-secondary" />
+                <span class="font-semibold">Términos y condiciones</span>
+                <c-icon name="chevron-right" class="ml-auto size-4 opacity-50" />
+            </a>
+        </aside>
+    </div>
+</section>
+{% endblock %}

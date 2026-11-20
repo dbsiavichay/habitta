@@ -61,6 +61,7 @@ class PropertyImageInline(GenericTabularInline):
     extra = 0
     can_delete = False
     tab = True
+    show_title = False  # sin la fila "Image object (n)"
     verbose_name = 'foto'
     verbose_name_plural = 'Fotos'
 

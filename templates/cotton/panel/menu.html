@@ -18,6 +18,12 @@ Menú del panel. Recibe las secciones de {% panel_menu as panel_sections %} (app
             </a>
         </li>
         {% endfor %}{% endfor %}
+        <li class="shrink-0">
+            <a href="{% url 'manual_index' 'usuarios' %}"
+               class="inline-flex items-center gap-1.5 rounded-full bg-base-100 px-3.5 py-2 text-sm font-semibold ring-1 ring-base-300 transition-colors hover:ring-primary/50">
+                <c-icon name="book-open" class="size-4" />Manual
+            </a>
+        </li>
     </ul>
 </nav>
 {% else %}
@@ -38,11 +44,17 @@ Menú del panel. Recibe las secciones de {% panel_menu as panel_sections %} (app
         </ul>
     </div>
     {% endfor %}
-    <form method="post" action="{% url 'logout' %}" class="border-t border-base-300 pt-4">
-        {% csrf_token %}
-        <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 font-semibold text-error transition-colors hover:bg-error/10">
-            <c-icon name="log-out" class="size-[1.1rem]" />Cerrar sesión
-        </button>
-    </form>
+    <div class="space-y-0.5 border-t border-base-300 pt-4">
+        <a href="{% url 'manual_index' 'usuarios' %}"
+           class="flex items-center gap-3 rounded-xl px-3 py-2 font-semibold text-base-content/75 transition-colors hover:bg-base-100 hover:text-base-content">
+            <c-icon name="book-open" class="size-[1.1rem]" />Manual de uso
+        </a>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 font-semibold text-error transition-colors hover:bg-error/10">
+                <c-icon name="log-out" class="size-[1.1rem]" />Cerrar sesión
+            </button>
+        </form>
+    </div>
 </nav>
 {% endif %}
