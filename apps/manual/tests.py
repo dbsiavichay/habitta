@@ -139,14 +139,24 @@ class ManualLinksTests(TestCase):
     def test_contextual_help_link(self):
         """Las pantallas del panel listadas en `screens` muestran "¿Cómo funciona?" hacia su capítulo."""
         self.client.force_login(create_user('ana'))
-        manual = MANUALS['usuarios']
-        chapter = manual.chapters[-1]
-        with mock.patch.dict(SCREENS, {'choose_category': (manual, chapter)}):
-            response = self.client.get(reverse('choose_category'))
-            self.assertContains(response, '¿Cómo funciona?')
-            self.assertContains(response, f'href="{manual.chapter_url(chapter)}"')
+        panel_screens = ('properties', 'choose_category', 'favorite_properties', 'conversations', 'auctions',
+                         'add_auction', 'list_bank_payment', 'downloads', 'update_profile', 'change_password')
+        for screen in panel_screens:
+            with self.subTest(screen=screen):
+                manual, chapter = SCREENS[screen]
+                response = self.client.get(reverse(screen))
+                self.assertContains(response, '¿Cómo funciona?')
+                self.assertContains(response, f'href="{manual.chapter_url(chapter)}"')
         with mock.patch.dict(SCREENS, clear=True):
             self.assertNotContains(self.client.get(reverse('choose_category')), '¿Cómo funciona?')
+
+    def test_publish_wizard_links_to_its_chapter(self):
+        """El asistente reemplaza el encabezado del panel, pero también enlaza al capítulo."""
+        from apps.project.testing import create_category
+
+        self.client.force_login(create_user('ana'))
+        response = self.client.get(reverse('add_property', args=[create_category().pk]))
+        self.assertContains(response, reverse('manual_chapter', args=['usuarios', 'publicar']))
 
     def test_admin_menu_links_to_admin_manual(self):
         from django.conf import settings

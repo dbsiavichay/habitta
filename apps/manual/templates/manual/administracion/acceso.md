@@ -10,7 +10,7 @@ Cada cuenta tiene uno de estos tres niveles:
 | Equipo (staff) | Entra y ve sólo los módulos que sus permisos le permiten leer. Para confirmar transferencias o cancelar subastas necesita, además, permiso para modificarlas. |
 | Superusuario | Ve y modifica todo. Es el único que ve las conversaciones privadas. |
 
-El acceso lo da un superusuario desde **Usuarios** y **Grupos y permisos**.
+El acceso lo da un superusuario desde **Usuarios** y **Grupos y permisos**. El capítulo [Usuarios y permisos]({% url 'manual_chapter' 'administracion' 'usuarios' %}) explica cómo.
 
 ## Cómo entrar
 
@@ -80,6 +80,6 @@ Todos los módulos funcionan igual:
 
 - **Lista.** Muestra los registros con una caja de búsqueda y el botón **Filtros**. Elige los filtros y toca **Aplicar filtros**. Mientras haya filtros activos, **Quitar filtros** te devuelve a la lista completa. Para ordenar, toca el título de una columna.
 - **Acciones.** Algunos módulos tienen acciones en cada fila, como confirmar una transferencia. Otras se aplican a varios registros a la vez: marca las casillas de la izquierda y elige la acción en **Elige una acción**.
-- **Ficha.** Al abrir un registro ves su ficha, a veces dividida en pestañas. Si cambias algo y quieres irte sin guardar, la administración te avisa.
+- **Ficha.** Al abrir un registro ves su ficha, a veces dividida en pestañas. Arriba, **Histórico** muestra los cambios hechos desde la administración y **Ver en el sitio** abre el registro en el sitio. Abajo están los botones para guardar y para eliminar. Si cambias algo y quieres irte sin guardar, la administración te avisa.
 
 Los capítulos siguientes explican cada módulo.

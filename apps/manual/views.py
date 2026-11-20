@@ -2,7 +2,20 @@ from django.http import Http404
 from django.urls import reverse
 from django.views.generic import TemplateView
 
+from apps.payments.views import get_server_price
+from apps.realty.models import Category
+
 from .content import MANUALS, render_markdown
+
+
+def purchasable_categories():
+    """Categorías en las que hoy se pueden comprar archivos: marcadas como vendibles y con algún
+    anuncio que tenga precio (sin precio, el pago se rechaza)."""
+    return [
+        category.name
+        for category in Category.objects.filter(is_salable=True).prefetch_related('property_set').order_by('name')
+        if any(get_server_price(listing) for listing in category.property_set.all())
+    ]
 
 
 class ManualHubView(TemplateView):
@@ -12,7 +25,9 @@ class ManualHubView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['manuals'] = list(MANUALS.values())
-        context['demo_html'], _ = render_markdown('manual/demo.md', self.request)
+        context['demo_html'], _ = render_markdown(
+            'manual/demo.md', self.request, {'purchasable_categories': purchasable_categories()},
+        )
         return context
 
 

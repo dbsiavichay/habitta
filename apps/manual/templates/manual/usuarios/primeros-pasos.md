@@ -57,12 +57,13 @@ Con la sesión iniciada, arriba a la derecha aparecen tu foto o tus iniciales. A
 | Subastas | Las subastas de tus anuncios |
 | Mis pagos y Descargas | Lo que compraste y los archivos que puedes bajar |
 | Mi perfil | Tus datos, tu foto y tus redes |
+| Manuales de uso | Este manual y el de administración |
 | Tema | Cambiar entre claro y oscuro |
 | Cerrar sesión | Salir de tu cuenta |
 
 {% figura 'usuarios/menu-cuenta.webp' 'El menú de tu cuenta.' %}
 
-Cada opción abre tu **panel**: a la izquierda tienes las mismas secciones, y en el celular aparecen como botones arriba del contenido. Junto al título de cada pantalla verás **¿Cómo funciona?**, que te trae al capítulo de este manual que la explica.
+Cada opción abre tu **panel**: a la izquierda tienes las mismas secciones, y en el celular aparecen como botones arriba del contenido. Bajo el título de cada pantalla verás **¿Cómo funciona?**, que te trae al capítulo de este manual que la explica.
 
 En el celular también tienes una barra fija abajo con **Inicio**, **Explorar**, **Publicar** (el botón grande del centro), **Favoritos** y **Mensajes**.
 
