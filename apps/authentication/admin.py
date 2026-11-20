@@ -39,6 +39,7 @@ class SocialProfileInline(TabularInline):
 	extra = 0
 	can_delete = False
 	tab = True
+	show_title = False  # sin la fila "SocialProfile object (n)"
 	verbose_name = 'inicio de sesión social'
 	verbose_name_plural = 'Redes con las que inicia sesión'
 

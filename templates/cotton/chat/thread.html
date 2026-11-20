@@ -10,7 +10,8 @@ Sin `history` busca el historial entre el usuario y `receiver`.
 <c-vars receiver="" history="" page="" actions="" />
 {% load messenger %}
 <header class="flex items-center gap-3 px-4 py-3 {% if page %}border-b border-base-300 bg-base-100{% else %}bg-primary text-primary-content{% endif %}">
-    <c-avatar :user="receiver" size="size-10" ring="1" />
+    {# En la cabecera de color, las iniciales (color primario) necesitan un fondo claro debajo #}
+    <span class="shrink-0 rounded-full {% if not page %}bg-base-100{% endif %}"><c-avatar :user="receiver" size="size-10" ring="1" /></span>
     <div class="min-w-0 flex-1">
         <p class="truncate font-bold">{{ receiver.get_full_name|default:receiver.username }}</p>
         <p class="flex items-center gap-1.5 text-xs {% if page %}text-base-content/60{% else %}text-primary-content/75{% endif %}">
