@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from .managers import ImageManager
 
@@ -12,6 +13,8 @@ class Image(models.Model):
 	is_cover = models.BooleanField(default=False, verbose_name='de portada?')
 	object_id = models.IntegerField()
 	content_type = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE)
+	# Sin columna propia: permite que los modelos dueños declaren GenericRelation (borrado en cascada)
+	content_object = GenericForeignKey('content_type', 'object_id')
 	objects = ImageManager()
 
 	def set_object(self, obj):

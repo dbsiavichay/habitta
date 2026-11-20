@@ -13,7 +13,7 @@
 <form method="post" novalidate>
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ next }}">
-    {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+    {% include 'hydra/form.html' %}
     <p class="mt-6 text-sm text-base-content/60">
         Al crear tu cuenta aceptas los <a href="{% url 'terms' %}" class="link font-semibold text-base-content/80 hover:text-primary">términos de uso</a> de {{ SITE_NAME }}.
     </p>

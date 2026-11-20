@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.forms import ( 
     ModelForm, Form, 
-    ModelChoiceField, ModelMultipleChoiceField, 
+    ModelChoiceField,
     CharField, IntegerField, DecimalField, FloatField, ChoiceField, BooleanField, FileField,
     ValidationError
 )
@@ -62,15 +62,6 @@ def parse_widget_attributes(attributes):
         except (ValueError, SyntaxError):
             attrs[name.strip()] = value
     return attrs
-
-class PurposeChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.for_user
-
-class SpecificationMultipleChoiceField(ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        return obj.internal_name
-#####
 
 class GroupForm(ModelForm):
     class Meta:
@@ -244,23 +235,3 @@ class GroupDetailsForm(Form):
                 not_empty_cleaned_data[key] = file_path
 
         return not_empty_cleaned_data
-
-class FinderForm(Form):
-    search_purpose = PurposeChoiceField(
-        queryset = Purpose.objects.all(),
-        empty_label = '¿Que deseas hacer?',
-        required = False
-    )
-    search_category = ModelChoiceField(
-        queryset = Category.objects.all(),
-        empty_label = '¿Que estás buscando?',       
-        required = False
-    )
-    search_address = CharField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if 'search_purpose' in self.initial:
-            queryset = self.fields['search_category'].queryset
-            self.fields['search_category'].queryset = queryset.filter(purposes=self.initial['search_purpose'])
-

@@ -23,7 +23,6 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('', include('apps.project.urls')),
     path('authentication/', include('apps.authentication.urls')),
-    path('comments/', include('apps.comments.urls')),
     path('messenger/', include('apps.messenger.urls')),
     path('realty/', include('apps.realty.urls')),
     path('auctions/', include('apps.auctions.urls')),

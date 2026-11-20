@@ -1,2 +1,0 @@
-{% extends './_field.html' %}{% load hydra %}
-{% block control %}{% if field.errors %}{{ field|add_class:"input input-error w-full rounded-field"|attr:"aria-invalid:true" }}{% else %}{{ field|add_class:"input w-full rounded-field focus:border-primary focus:outline-none" }}{% endif %}{% endblock %}

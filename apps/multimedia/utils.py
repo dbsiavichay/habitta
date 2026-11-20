@@ -72,3 +72,21 @@ def compress_image(path):
 			img.save(path, image_format, **options)
 	except (OSError, ValueError):
 		logger.warning('No se pudo comprimir %s', path, exc_info=True)
+
+
+def delete_image_file_on_commit(storage, name):
+	"""Borra el archivo de una imagen cuando la transacción se confirma.
+
+	Si la transacción se revierte el archivo sigue ahí (la fila también), y si otra fila de Image
+	todavía apunta al mismo archivo, no se borra.
+	"""
+	from django.db import transaction
+
+	from .models import Image
+
+	def delete():
+		if not Image.objects.filter(img=name).exists():
+			storage.delete(name)
+
+	if name:
+		transaction.on_commit(delete)

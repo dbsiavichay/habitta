@@ -1,22 +1,20 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, OuterRef, Q, Subquery
 from django.urls import reverse, reverse_lazy
+from django.utils.text import slugify
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
-
-from django.template.loader import render_to_string
 
 from apps.multimedia.forms import ImageForm
 
 
-from .models import Category, Property, Purpose
-from .forms import FinderForm
+from .models import Category, Property
 from .mixins import PropertyViewMixin
 from .search import search_data
-from .utils import property_photos
+from .utils import attachment_paths, delete_attachments_on_commit, property_photos
 from apps.authentication.mixins import OwnerQuerysetMixin
 from apps.project.templatetags.habitta import KIND_ICONS, KIND_LABELS
 
@@ -92,12 +90,21 @@ class PropertyUpdateView(OwnerQuerysetMixin, PropertyViewMixin, UpdateView):
         return forms
 
     def get_form_specifications(self, forms):
+        """Un adjunto ya subido se conserva si no se elige otro; si se reemplaza, el anterior se borra
+        del disco al guardar."""
         specifications = super().get_form_specifications(forms)
         previous = self.get_previous_specifications()
+        stored = set(attachment_paths({'specifications': previous}))
+        replaced = []
         for form in forms:
             for key, field in form.fields.items():
-                if field.__class__.__name__ == 'FileField' and key not in specifications and previous.get(key):
+                if field.__class__.__name__ != 'FileField' or not previous.get(key):
+                    continue
+                if key not in specifications:
                     specifications[key] = previous[key]
+                elif specifications[key] != previous[key] and previous[key] in stored:
+                    replaced.append(previous[key])
+        delete_attachments_on_commit(replaced)
         return specifications
 
     def get_cover_form(self):
@@ -187,14 +194,10 @@ class PropertyPrintView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        response = HttpResponse(content_type='application/pdf')
-        # Para visualizar en el navegador
-        #response['Content-Disposition'] = 'inline; filename=report.pdf'
-        # Para descargar
-        response['Content-Disposition'] = 'attachment; filename="property.pdf"' 
         pdf = get_pdf(self.object, base_url=settings.SITE_URL or request.build_absolute_uri('/').rstrip('/'))
-        # Get the value of the StringIO buffer and write it to the response.
-        response.write(pdf)
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = '%s-anuncio-%s.pdf' % (slugify(settings.SITE_NAME) or 'anuncio', self.object.pk)
+        response['Content-Disposition'] = 'attachment; filename="%s"' % filename
         return response
 
 class PropertyDeleteView(OwnerQuerysetMixin, DeleteView):
@@ -282,12 +285,4 @@ class FinderMapView(TemplateView):
 
 class FinderListView(FinderMapView):
     initial_view = 'list'
-
-
-def filter_category_by_purpose(request, pk, klass): 
-    purpose = get_object_or_404(Purpose, pk=pk)
-    form = FinderForm(initial={'search_purpose': purpose})
-    r = render_to_string('hydra/search_select.html', context={'form':form, 'klass':klass})
-    
-    return JsonResponse({'select': r}, status=200)
 

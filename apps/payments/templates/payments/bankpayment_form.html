@@ -15,7 +15,7 @@
 {% include 'payments/_pending_summary.html' %}
 <form method="post" enctype="multipart/form-data" class="mt-6 rounded-box bg-base-100 p-5 shadow-soft ring-1 ring-base-300/60 sm:p-7">
     {% csrf_token %}
-    {% with hydra_theme="v2" %}{% include 'hydra/v2/form.html' %}{% endwith %}
+    {% include 'hydra/form.html' %}
     <div class="mt-7 flex flex-wrap justify-end gap-2">
         <c-button variant="ghost" icon="arrow-left" href="{% url 'select_method_payment' %}">Ver las cuentas</c-button>
         <c-button type="submit" icon="send">Registrar pago</c-button>

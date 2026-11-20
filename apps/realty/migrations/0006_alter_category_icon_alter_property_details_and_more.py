@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='specification',
             name='icon',
-            field=models.CharField(blank=True, choices=apps.realty.utils.get_larbit_icons, max_length=32, null=True, verbose_name='ícono'),
+            field=models.CharField(blank=True, choices=apps.realty.utils.get_spec_icons, max_length=32, null=True, verbose_name='ícono'),
         ),
     ]

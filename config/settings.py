@@ -103,7 +103,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'apps.realty.context_processors.search_bar',
                 'apps.project.context_processors.integrations',
                 'apps.project.context_processors.brand',
                 'apps.messenger.context_processors.unread_messages',
@@ -179,6 +178,8 @@ FORMS_URLFIELD_ASSUME_HTTPS = True
 # Marca y datos de contacto que se muestran en el sitio (vacíos = no se muestran)
 SITE_NAME = env('SITE_NAME', default='Habitta')
 SITE_TAGLINE = env('SITE_TAGLINE', default='Inmuebles, servicios y empleos cerca de ti')
+# Razón social que aparece en los términos y condiciones (la aplica `manage.py rebrand_content`).
+LEGAL_NAME = env('LEGAL_NAME', default='') or SITE_NAME
 # URL pública sin barra final; se usa en enlaces absolutos (PDF, QR, OpenGraph).
 SITE_URL = env('SITE_URL', default='').rstrip('/')
 CONTACT_EMAIL = env('CONTACT_EMAIL', default='')
@@ -203,8 +204,6 @@ PAYPAL_CLIENT_SECRET = env('PAYPAL_CLIENT_SECRET', default='')
 TINIFY_API_KEY = env('TINIFY_API_KEY', default='')
 
 GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default='')
-# Key usada desde el navegador para la Geocoding API (si no se define, se usa la de Maps)
-GOOGLE_GEOCODING_API_KEY = env('GOOGLE_GEOCODING_API_KEY', default='') or GOOGLE_MAPS_API_KEY
 
 # Timeout (segundos) para llamadas HTTP a servicios externos
 EXTERNAL_HTTP_TIMEOUT = env.int('EXTERNAL_HTTP_TIMEOUT', default=10)
